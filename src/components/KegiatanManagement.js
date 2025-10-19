@@ -32,7 +32,7 @@ const KegiatanManagement = () => {
     hasPrevPage: false
   });
 
-  const fetchKegiatan = useCallback(async () => {
+  const fetchKegiatan = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:5000/api/kegiatan?page=${currentPage}&limit=20`);
@@ -69,6 +69,7 @@ const KegiatanManagement = () => {
         });
       }
     } catch (error) {
+      console.error('Error fetching kegiatan:', error);
       toast.error('Failed to fetch kegiatan data');
       setKegiatan([]);
       setPagination({
@@ -82,11 +83,11 @@ const KegiatanManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage]);
+  };
 
   useEffect(() => {
     fetchKegiatan();
-  }, [fetchKegiatan, refreshTrigger]);
+  }, [currentPage, refreshTrigger]);
 
   useEscapeKey(() => {
     if (showModal) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiCheckSquare } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiCheckSquare, FiDownload, FiBarChart } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -283,6 +283,64 @@ const AbsensiManagement = () => {
     return new Date(dateString).toLocaleDateString('id-ID');
   };
 
+  const exportToCSV = () => {
+    const csvHeader = 'Nama Lengkap,Kegiatan,Status,Tanggal Absensi,Tipe Person\n';
+    const csvData = absensi.map(item => {
+      const nama = item.pendaftaran?.namaLengkap || 'Unknown';
+      const kegiatan = item.kegiatan?.namaKegiatan || 'Unknown';
+      const status = item.status || 'Unknown';
+      const tanggal = item.tanggalAbsensi ? formatDate(item.tanggalAbsensi) : 'Unknown';
+      const tipePerson = item.tipePerson || 'external';
+      
+      return `"${nama}","${kegiatan}","${status}","${tanggal}","${tipePerson}"`;
+    }).join('\n');
+    
+    const csvContent = csvHeader + csvData;
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `attendance_report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    toast.success('Attendance report exported successfully!');
+  };
+
+  const generateSummaryReport = () => {
+    const summary = {
+      totalAttendance: absensi.length,
+      presentCount: absensi.filter(a => a.status === 'hadir').length,
+      absentCount: absensi.filter(a => a.status === 'tidak_hadir').length,
+      activitiesCount: [...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].length,
+      attendanceRate: absensi.length > 0 ? ((absensi.filter(a => a.status === 'hadir').length / absensi.length) * 100).toFixed(2) : 0
+    };
+
+    const reportText = `
+ATTENDANCE SUMMARY REPORT
+Generated: ${new Date().toLocaleDateString('id-ID')}
+
+Total Records: ${summary.totalAttendance}
+Present: ${summary.presentCount}
+Absent: ${summary.absentCount}
+Activities Covered: ${summary.activitiesCount}
+Attendance Rate: ${summary.attendanceRate}%
+
+DETAILED BREAKDOWN BY ACTIVITY:
+${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(activityName => {
+  const activityAbsensi = absensi.filter(a => a.kegiatan?.namaKegiatan === activityName);
+  const present = activityAbsensi.filter(a => a.status === 'hadir').length;
+  const total = activityAbsensi.length;
+  const rate = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+  return `${activityName}: ${present}/${total} (${rate}%)`;
+}).join('\n')}
+    `;
+
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `attendance_summary_${new Date().toISOString().split('T')[0]}.txt`;
+    link.click();
+    toast.success('Summary report generated successfully!');
+  };
+
   if (loading) {
     return <div className="loading">Loading absensi data...</div>;
   }
@@ -297,9 +355,17 @@ const AbsensiManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Absensi List</h3>
-          <button className="btn btn-primary" onClick={openModal}>
-            <FiPlus /> Add Absensi
-          </button>
+          <div className="d-flex gap-2">
+            <button className="btn btn-success" onClick={exportToCSV}>
+              <FiDownload /> Export CSV
+            </button>
+            <button className="btn btn-info" onClick={generateSummaryReport}>
+              <FiBarChart /> Summary Report
+            </button>
+            <button className="btn btn-primary" onClick={openModal}>
+              <FiPlus /> Add Absensi
+            </button>
+          </div>
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-3">

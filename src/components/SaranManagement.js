@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiMessageSquare } from 'react-icons/fi';
+import { FiTrash2, FiCheckSquare, FiSquare } from 'react-icons/fi';
 import { useRefresh } from '../contexts/RefreshContext';
 
 const SaranManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [saran, setSaran] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     fetchSaran();
@@ -24,16 +25,6 @@ const SaranManagement = () => {
     }
   };
 
-  const handleUpdateStatus = async (id, status) => {
-    try {
-      await axios.put(`http://localhost:5000/api/saran/${id}/status`, { status });
-      toast.success('Saran status updated successfully');
-      fetchSaran();
-    } catch (error) {
-      toast.error('Failed to update saran status');
-    }
-  };
-
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this saran?')) {
       try {
@@ -46,18 +37,46 @@ const SaranManagement = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('id-ID');
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
   };
 
-  const getStatusBadge = (status) => {
-    const statusMap = {
-      'pending': { text: 'Pending', class: 'btn-secondary' },
-      'read': { text: 'Read', class: 'btn-primary' },
-      'replied': { text: 'Replied', class: 'btn-success' }
-    };
-    const statusInfo = statusMap[status] || { text: status, class: 'btn-secondary' };
-    return <span className={`btn btn-sm ${statusInfo.class}`}>{statusInfo.text}</span>;
+  const handleSelectAll = () => {
+    if (selectedItems.length === saran.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(saran.map(item => item._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      toast.warning('Please select items to delete');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} selected saran?`)) {
+      try {
+        const deletePromises = selectedItems.map(id => 
+          axios.delete(`http://localhost:5000/api/saran/${id}`)
+        );
+        
+        await Promise.all(deletePromises);
+        toast.success(`${selectedItems.length} saran deleted successfully`);
+        setSelectedItems([]);
+        fetchSaran();
+      } catch (error) {
+        toast.error('Failed to delete selected saran');
+      }
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('id-ID');
   };
 
   if (loading) {
@@ -74,17 +93,42 @@ const SaranManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Saran List</h3>
+          {selectedItems.length > 0 && (
+            <div className="d-flex align-items-center gap-2">
+              <span className="text-muted">{selectedItems.length} selected</span>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={handleBulkDelete}
+              >
+                <FiTrash2 className="me-1" />
+                Delete Selected ({selectedItems.length})
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
-                <th>Nama</th>
+                <th>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={handleSelectAll}
+                    style={{ border: 'none', padding: 0 }}
+                  >
+                    {selectedItems.length === saran.length && saran.length > 0 ? (
+                      <FiCheckSquare size={18} />
+                    ) : (
+                      <FiSquare size={18} />
+                    )}
+                  </button>
+                </th>
+                <th>Nama Lengkap</th>
                 <th>Email</th>
-                <th>Subject</th>
-                <th>Pesan</th>
-                <th>Status</th>
+                <th>Telepon</th>
+                <th>Kategori</th>
+                <th>Kritik & Saran</th>
                 <th>Tanggal</th>
                 <th>Actions</th>
               </tr>
@@ -92,35 +136,31 @@ const SaranManagement = () => {
             <tbody>
               {saran.map((item) => (
                 <tr key={item._id}>
-                  <td style={{ fontWeight: '500' }}>{item.nama}</td>
-                  <td>{item.email || '-'}</td>
-                  <td>{item.subject || '-'}</td>
-                  <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.pesan}
+                  <td>
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => handleSelectItem(item._id)}
+                      style={{ border: 'none', padding: 0 }}
+                    >
+                      {selectedItems.includes(item._id) ? (
+                        <FiCheckSquare size={18} />
+                      ) : (
+                        <FiSquare size={18} />
+                      )}
+                    </button>
                   </td>
-                  <td>{getStatusBadge(item.status)}</td>
+                  <td style={{ fontWeight: '500' }}>{item.namaLengkap}</td>
+                  <td>{item.email || '-'}</td>
+                  <td>{item.nomorTelepon || '-'}</td>
+                  <td>{item.kategori || '-'}</td>
+                  <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item.kritikSaran}
+                  </td>
                   <td>{formatDate(item.tanggal)}</td>
                   <td>
-                    {item.status === 'pending' && (
-                      <button
-                        className="btn btn-sm btn-primary"
-                        onClick={() => handleUpdateStatus(item._id, 'read')}
-                      >
-                        Mark as Read
-                      </button>
-                    )}
-                    {item.status === 'read' && (
-                      <button
-                        className="btn btn-sm btn-success"
-                        onClick={() => handleUpdateStatus(item._id, 'replied')}
-                      >
-                        Mark as Replied
-                      </button>
-                    )}
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(item._id)}
-                      style={{ marginLeft: '8px' }}
                     >
                       <FiTrash2 />
                     </button>

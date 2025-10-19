@@ -202,7 +202,6 @@ const ActivityLog = () => {
 
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Recent Activities</h3>
           <div className="d-flex gap-2">
             <button
               className="btn btn-success btn-sm"
