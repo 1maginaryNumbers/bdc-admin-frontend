@@ -35,7 +35,7 @@ const KegiatanManagement = () => {
   const fetchKegiatan = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/kegiatan?page=${currentPage}&limit=20`);
+      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/kegiatan?page=${currentPage}&limit=20`);
       const data = response.data;
       if (Array.isArray(data)) {
         setKegiatan(data);
@@ -167,10 +167,10 @@ const KegiatanManagement = () => {
       };
 
       if (editingKegiatan) {
-        await axios.put(`http://localhost:5000/api/kegiatan/${editingKegiatan._id}`, dataToSend);
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/kegiatan/${editingKegiatan._id}`, dataToSend);
         toast.success('Kegiatan updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/kegiatan', dataToSend);
+        await axios.post('http://finalbackend-ochre.vercel.app/api/kegiatan', dataToSend);
         toast.success('Kegiatan created successfully');
       }
       setShowModal(false);
@@ -214,7 +214,7 @@ const KegiatanManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this kegiatan?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/kegiatan/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/kegiatan/${id}`);
         toast.success('Kegiatan deleted successfully');
         setCurrentPage(1);
         fetchKegiatan();

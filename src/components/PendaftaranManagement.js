@@ -60,8 +60,8 @@ const PendaftaranManagement = () => {
   const fetchData = async (kegiatanFilter = 'all', tanggalFilter = '', namaFilter = '') => {
     try {
       const [pendaftaranRes, kegiatanRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/pendaftaran/filter/${kegiatanFilter}`),
-        axios.get('http://localhost:5000/api/kegiatan')
+        axios.get(`http://finalbackend-ochre.vercel.app/api/pendaftaran/filter/${kegiatanFilter}`),
+        axios.get('http://finalbackend-ochre.vercel.app/api/kegiatan')
       ]);
       
       let filteredPendaftaran = pendaftaranRes.data.pendaftaran;
@@ -107,7 +107,7 @@ const PendaftaranManagement = () => {
     
     setCheckingUmat(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/umat/check/${encodeURIComponent(nama.trim())}`);
+      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/umat/check/${encodeURIComponent(nama.trim())}`);
       setIsUmatMember(response.data.exists);
       
       if (!response.data.exists && formData.tipePerson === 'internal') {
@@ -144,10 +144,10 @@ const PendaftaranManagement = () => {
     e.preventDefault();
     try {
       if (editingPendaftaran) {
-        await axios.put(`http://localhost:5000/api/pendaftaran/${editingPendaftaran._id}`, formData);
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/pendaftaran/${editingPendaftaran._id}`, formData);
         toast.success('Pendaftaran updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/pendaftaran', formData);
+        await axios.post('http://finalbackend-ochre.vercel.app/api/pendaftaran', formData);
         toast.success('Pendaftaran created successfully');
       }
       setShowModal(false);
@@ -175,7 +175,7 @@ const PendaftaranManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this pendaftaran?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/pendaftaran/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/pendaftaran/${id}`);
         toast.success('Pendaftaran deleted successfully');
         fetchData(selectedKegiatan, selectedTanggal, selectedNama);
       } catch (error) {
@@ -192,7 +192,7 @@ const PendaftaranManagement = () => {
 
     if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected items?`)) {
       try {
-        await axios.delete('http://localhost:5000/api/pendaftaran/bulk', {
+        await axios.delete('http://finalbackend-ochre.vercel.app/api/pendaftaran/bulk', {
           data: { ids: selectedIds }
         });
         toast.success('Selected pendaftaran deleted successfully');
@@ -295,7 +295,7 @@ const PendaftaranManagement = () => {
 
     try {
       const promises = selectedIds.map(id => 
-        axios.put(`http://localhost:5000/api/pendaftaran/${id}`, {
+        axios.put(`http://finalbackend-ochre.vercel.app/api/pendaftaran/${id}`, {
           status: 'approved'
         })
       );
@@ -321,7 +321,7 @@ const PendaftaranManagement = () => {
 
     try {
       const promises = selectedIds.map(id => 
-        axios.put(`http://localhost:5000/api/pendaftaran/${id}`, {
+        axios.put(`http://finalbackend-ochre.vercel.app/api/pendaftaran/${id}`, {
           status: 'rejected'
         })
       );

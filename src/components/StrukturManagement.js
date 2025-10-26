@@ -38,7 +38,7 @@ const StrukturManagement = () => {
 
   const fetchStruktur = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/struktur');
+      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/struktur');
       // Handle both old format (array) and new format (object with struktur property)
       const data = response.data;
       if (Array.isArray(data)) {
@@ -67,10 +67,10 @@ const StrukturManagement = () => {
     e.preventDefault();
     try {
       if (editingStruktur) {
-        await axios.put(`http://localhost:5000/api/struktur/${editingStruktur._id}`, formData);
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/struktur/${editingStruktur._id}`, formData);
         toast.success('Struktur updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/struktur', formData);
+        await axios.post('http://finalbackend-ochre.vercel.app/api/struktur', formData);
         toast.success('Struktur created successfully');
       }
       setShowModal(false);
@@ -97,7 +97,7 @@ const StrukturManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this struktur?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/struktur/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/struktur/${id}`);
         toast.success('Struktur deleted successfully');
         fetchStruktur();
       } catch (error) {

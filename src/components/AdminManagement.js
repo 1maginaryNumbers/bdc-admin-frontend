@@ -33,7 +33,7 @@ const AdminManagement = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/admin/create', {
+      await axios.post('http://finalbackend-ochre.vercel.app/api/admin/create', {
         username: formData.username,
         password: formData.password
       });
@@ -114,7 +114,7 @@ const AdminManagement = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
           <div>
             <h4 style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>Backend API</h4>
-            <p style={{ fontWeight: '500' }}>http://localhost:5000</p>
+            <p style={{ fontWeight: '500' }}>http://finalbackend-ochre.vercel.app</p>
           </div>
           <div>
             <h4 style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>Frontend</h4>

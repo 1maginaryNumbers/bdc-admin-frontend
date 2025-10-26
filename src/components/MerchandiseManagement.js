@@ -40,7 +40,7 @@ const MerchandiseManagement = () => {
 
   const fetchMerchandise = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/merchandise');
+      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/merchandise');
       // Handle both old format (array) and new format (object with merchandise property)
       const data = response.data;
       if (Array.isArray(data)) {
@@ -89,14 +89,14 @@ const MerchandiseManagement = () => {
       }
 
       if (editingMerchandise) {
-        await axios.put(`http://localhost:5000/api/merchandise/${editingMerchandise._id}`, formDataToSend, {
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/merchandise/${editingMerchandise._id}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
         toast.success('Merchandise updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/merchandise', formDataToSend, {
+        await axios.post('http://finalbackend-ochre.vercel.app/api/merchandise', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -124,14 +124,14 @@ const MerchandiseManagement = () => {
       status: merchandise.status
     });
     setSelectedFile(null);
-    setPreviewUrl(merchandise.gambar ? `http://localhost:5000${merchandise.gambar}` : '');
+    setPreviewUrl(merchandise.gambar ? `http://finalbackend-ochre.vercel.app${merchandise.gambar}` : '');
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this merchandise?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/merchandise/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/merchandise/${id}`);
         toast.success('Merchandise deleted successfully');
         fetchMerchandise();
       } catch (error) {
@@ -215,7 +215,7 @@ const MerchandiseManagement = () => {
                   <td>
                     {item.gambar ? (
                       <img 
-                        src={`http://localhost:5000${item.gambar}`} 
+                        src={`http://finalbackend-ochre.vercel.app${item.gambar}`} 
                         alt={item.nama}
                         style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
                         onError={(e) => {

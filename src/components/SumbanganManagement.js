@@ -55,8 +55,8 @@ const SumbanganManagement = () => {
   const fetchData = async () => {
     try {
       const [sumbanganRes, transaksiRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/sumbangan'),
-        axios.get('http://localhost:5000/api/sumbangan/transaksi')
+        axios.get('http://finalbackend-ochre.vercel.app/api/sumbangan'),
+        axios.get('http://finalbackend-ochre.vercel.app/api/sumbangan/transaksi')
       ]);
       
       // Handle both old format (array) and new format (object with sumbangan property)
@@ -102,10 +102,10 @@ const SumbanganManagement = () => {
       };
 
       if (editingSumbangan) {
-        await axios.put(`http://localhost:5000/api/sumbangan/${editingSumbangan._id}`, dataToSend);
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/sumbangan/${editingSumbangan._id}`, dataToSend);
         toast.success('Sumbangan updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/sumbangan', dataToSend);
+        await axios.post('http://finalbackend-ochre.vercel.app/api/sumbangan', dataToSend);
         toast.success('Sumbangan created successfully');
       }
       setShowModal(false);
@@ -125,7 +125,7 @@ const SumbanganManagement = () => {
         jumlah: parseFloat(transaksiFormData.jumlah)
       };
 
-      await axios.post('http://localhost:5000/api/sumbangan/transaksi', dataToSend);
+      await axios.post('http://finalbackend-ochre.vercel.app/api/sumbangan/transaksi', dataToSend);
       toast.success('Transaksi created successfully');
       setShowTransaksiModal(false);
       setTransaksiFormData({ nama: '', jumlah: '', metode: '', status: 'pending' });
@@ -149,7 +149,7 @@ const SumbanganManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this sumbangan?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/sumbangan/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/sumbangan/${id}`);
         toast.success('Sumbangan deleted successfully');
         fetchData();
       } catch (error) {
@@ -160,7 +160,7 @@ const SumbanganManagement = () => {
 
   const handleUpdateTransaksiStatus = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/sumbangan/transaksi/${id}/status`, { status });
+      await axios.put(`http://finalbackend-ochre.vercel.app/api/sumbangan/transaksi/${id}/status`, { status });
       toast.success('Transaksi status updated successfully');
       fetchData();
     } catch (error) {

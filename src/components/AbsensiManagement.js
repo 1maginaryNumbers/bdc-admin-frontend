@@ -47,9 +47,9 @@ const AbsensiManagement = () => {
   const fetchData = async (kegiatanFilter = 'all', tanggalFilter = '', namaFilter = '') => {
     try {
       const [absensiRes, kegiatanRes, pendaftaranRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/absensi'),
-        axios.get('http://localhost:5000/api/kegiatan'),
-        axios.get('http://localhost:5000/api/pendaftaran')
+        axios.get('http://finalbackend-ochre.vercel.app/api/absensi'),
+        axios.get('http://finalbackend-ochre.vercel.app/api/kegiatan'),
+        axios.get('http://finalbackend-ochre.vercel.app/api/pendaftaran')
       ]);
       
       let filteredAbsensi = absensiRes.data;
@@ -123,7 +123,7 @@ const AbsensiManagement = () => {
     
     setCheckingUmat(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/umat/check/${encodeURIComponent(nama.trim())}`);
+      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/umat/check/${encodeURIComponent(nama.trim())}`);
       setIsUmatMember(response.data.exists);
       
       if (!response.data.exists && formData.tipePerson === 'internal') {
@@ -197,7 +197,7 @@ const AbsensiManagement = () => {
   const handleStatusToggle = async (id, currentStatus) => {
     try {
       const newStatus = currentStatus === 'hadir' ? 'tidak_hadir' : 'hadir';
-      await axios.put(`http://localhost:5000/api/absensi/${id}`, { status: newStatus });
+      await axios.put(`http://finalbackend-ochre.vercel.app/api/absensi/${id}`, { status: newStatus });
       toast.success(`Status updated to ${newStatus}`);
       fetchData(selectedKegiatan, selectedTanggal, selectedNama);
     } catch (error) {
@@ -210,10 +210,10 @@ const AbsensiManagement = () => {
     e.preventDefault();
     try {
       if (editingAbsensi) {
-        await axios.put(`http://localhost:5000/api/absensi/${editingAbsensi._id}`, formData);
+        await axios.put(`http://finalbackend-ochre.vercel.app/api/absensi/${editingAbsensi._id}`, formData);
         toast.success('Absensi updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/absensi', formData);
+        await axios.post('http://finalbackend-ochre.vercel.app/api/absensi', formData);
         toast.success('Absensi created successfully');
       }
       setShowModal(false);
@@ -248,7 +248,7 @@ const AbsensiManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this absensi?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/absensi/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/absensi/${id}`);
         toast.success('Absensi deleted successfully');
         fetchData();
       } catch (error) {

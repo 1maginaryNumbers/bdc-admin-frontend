@@ -16,7 +16,7 @@ const SaranManagement = () => {
 
   const fetchSaran = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/saran');
+      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/saran');
       setSaran(response.data);
     } catch (error) {
       toast.error('Failed to fetch saran data');
@@ -28,7 +28,7 @@ const SaranManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this saran?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/saran/${id}`);
+        await axios.delete(`http://finalbackend-ochre.vercel.app/api/saran/${id}`);
         toast.success('Saran deleted successfully');
         fetchSaran();
       } catch (error) {
@@ -62,7 +62,7 @@ const SaranManagement = () => {
     if (window.confirm(`Are you sure you want to delete ${selectedItems.length} selected saran?`)) {
       try {
         const deletePromises = selectedItems.map(id => 
-          axios.delete(`http://localhost:5000/api/saran/${id}`)
+          axios.delete(`http://finalbackend-ochre.vercel.app/api/saran/${id}`)
         );
         
         await Promise.all(deletePromises);
