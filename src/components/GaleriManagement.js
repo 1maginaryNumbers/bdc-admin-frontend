@@ -299,7 +299,18 @@ const GaleriManagement = () => {
   const getImageUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('data:')) {
-      return url;
+      try {
+        const base64Data = url.split(',')[1];
+        if (base64Data && base64Data.length > 100) {
+          return url;
+        } else {
+          console.warn('Invalid or too short base64 data');
+          return '';
+        }
+      } catch (e) {
+        console.error('Error parsing data URI:', e);
+        return '';
+      }
     }
     if (url.startsWith('http')) {
       return url;
