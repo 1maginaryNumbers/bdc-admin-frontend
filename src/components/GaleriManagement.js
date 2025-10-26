@@ -121,6 +121,13 @@ const GaleriManagement = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    console.log('File selected:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified
+    });
+
     if (!file.type.startsWith('image/')) {
       toast.error('Please select a valid image file');
       return;
@@ -131,11 +138,18 @@ const GaleriManagement = () => {
     }
 
     try {
+      console.log('Starting compression...');
       const compressedFile = await compressImage(file, {
         maxWidth: 1280,
         maxHeight: 1280,
         quality: 0.7,
         maxSizeMB: 1
+      });
+
+      console.log('Compression complete:', {
+        originalSize: file.size,
+        compressedSize: compressedFile.size,
+        reduction: ((1 - compressedFile.size / file.size) * 100).toFixed(1) + '%'
       });
 
       if (compressedFile.size < file.size) {

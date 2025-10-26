@@ -23,7 +23,6 @@ export const compressImage = async (file, options = {}) => {
       const img = new Image();
       
       img.onload = () => {
-        // Calculate new dimensions
         let width = img.width;
         let height = img.height;
 
@@ -33,16 +32,16 @@ export const compressImage = async (file, options = {}) => {
           height = Math.round(height * ratio);
         }
 
-        // Create canvas
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
 
-        // Draw and compress image
         const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to blob
         canvas.toBlob(
           (blob) => {
             if (!blob) {
@@ -50,7 +49,6 @@ export const compressImage = async (file, options = {}) => {
               return;
             }
 
-            // Check file size
             const fileSizeMB = blob.size / (1024 * 1024);
             
             if (fileSizeMB > maxSizeMB) {
@@ -62,7 +60,7 @@ export const compressImage = async (file, options = {}) => {
                     return;
                   }
                   const compressedFile2 = new File([blob2], file.name, {
-                    type: file.type,
+                    type: file.type || 'image/jpeg',
                     lastModified: Date.now(),
                   });
                   resolve(compressedFile2);
@@ -71,9 +69,8 @@ export const compressImage = async (file, options = {}) => {
                 quality * 0.5
               );
             } else {
-              // Create new file from blob
               const compressedFile = new File([blob], file.name, {
-                type: file.type,
+                type: file.type || 'image/jpeg',
                 lastModified: Date.now(),
               });
               resolve(compressedFile);
