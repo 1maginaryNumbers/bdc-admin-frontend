@@ -476,4 +476,15 @@ body {
     grid-template-columns: 1fr;
     gap: 10px;
   }
+
+  /* QR Scanner mobile optimizations */
+  video {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .btn-lg {
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+  }
 }

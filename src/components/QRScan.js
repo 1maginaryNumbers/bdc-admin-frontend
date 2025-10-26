@@ -50,8 +50,13 @@ const QRScan = () => {
     }
 
     try {
+      // Request camera access with preferred settings
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+        video: { 
+          facingMode: 'environment', // Use back camera on mobile
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
       
       if (videoRef.current) {
@@ -64,6 +69,8 @@ const QRScan = () => {
           {
             highlightScanRegion: true,
             highlightCodeOutline: true,
+            maxScansPerSecond: 5,
+            returnDetailedScanResult: false
           }
         );
         
@@ -73,7 +80,13 @@ const QRScan = () => {
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      toast.error('Failed to access camera. Please check permissions.');
+      if (error.name === 'NotAllowedError') {
+        toast.error('Camera access denied. Please enable camera permissions in your browser settings.');
+      } else if (error.name === 'NotFoundError') {
+        toast.error('No camera found. Please connect a camera device.');
+      } else {
+        toast.error('Failed to access camera. Please check permissions and try again.');
+      }
     }
   };
 
@@ -252,12 +265,17 @@ const QRScan = () => {
                 <FiCamera style={{ marginRight: '8px' }} />
                 Start Scanning
               </button>
+              <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
+                Make sure to allow camera access when prompted
+              </p>
             </div>
           ) : (
           <div className="text-center">
             <div style={{ 
               position: 'relative', 
-              maxWidth: '400px', 
+              maxWidth: '100%',
+              width: '100%',
+              maxWidth: '400px',
               margin: '0 auto',
               border: '2px solid #007bff',
               borderRadius: '8px',
@@ -267,9 +285,12 @@ const QRScan = () => {
                 ref={videoRef}
                 style={{
                   width: '100%',
-                  height: '300px',
+                  height: 'auto',
+                  minHeight: '300px',
+                  maxHeight: '600px',
                   objectFit: 'cover'
                 }}
+                playsInline
               />
               <div style={{
                 position: 'absolute',
@@ -277,7 +298,7 @@ const QRScan = () => {
                 right: '10px',
                 background: 'rgba(0,0,0,0.7)',
                 color: 'white',
-                padding: '8px',
+                padding: '8px 12px',
                 borderRadius: '4px',
                 fontSize: '12px'
               }}>
@@ -288,6 +309,7 @@ const QRScan = () => {
             <button
               className="btn btn-danger mt-3"
               onClick={stopScanning}
+              style={{ padding: '12px 24px', fontSize: '16px' }}
             >
               <FiX style={{ marginRight: '8px' }} />
               Stop Scanning

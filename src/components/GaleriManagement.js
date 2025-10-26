@@ -5,6 +5,7 @@ import { FiEdit, FiTrash2, FiPlus, FiImage, FiUpload } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
+import { compressImage, isFileSizeAcceptable, formatFileSize } from '../utils/imageCompression';
 
 const GaleriManagement = () => {
   const { refreshTrigger } = useRefresh();
@@ -116,8 +117,31 @@ const GaleriManagement = () => {
     });
   };
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size first
+    if (!isFileSizeAcceptable(file, 4)) {
+      toast.warning(`File size is ${formatFileSize(file.size)}. Compressing...`);
+    }
+
+    try {
+      // Compress the image
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.8,
+        maxSizeMB: 2
+      });
+
+      toast.success(`Image compressed: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      setSelectedFile(compressedFile);
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      toast.error('Failed to compress image. Using original file.');
+      setSelectedFile(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -125,6 +149,12 @@ const GaleriManagement = () => {
     
     if (!selectedFile && !editingGaleri) {
       toast.error('Please select an image file');
+      return;
+    }
+
+    // Final check for file size
+    if (selectedFile && !isFileSizeAcceptable(selectedFile, 4)) {
+      toast.error(`File size is too large (${formatFileSize(selectedFile.size)}). Maximum allowed is 4MB.`);
       return;
     }
 
@@ -457,6 +487,9 @@ const GaleriManagement = () => {
                         borderRadius: '4px'
                       }}
                     />
+                    <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                      File size: {formatFileSize(selectedFile.size)}
+                    </p>
                   </div>
                 )}
                 {editingGaleri && !selectedFile && (
