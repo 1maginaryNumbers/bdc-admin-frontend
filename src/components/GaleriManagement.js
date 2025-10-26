@@ -175,18 +175,10 @@ const GaleriManagement = () => {
       }
 
       if (editingGaleri) {
-        await axios.put(`https://finalbackend-ochre.vercel.app/api/galeri/${editingGaleri._id}`, formDataToSend, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/galeri/${editingGaleri._id}`, formDataToSend);
         toast.success('Galeri updated successfully');
       } else {
-        await axios.post('https://finalbackend-ochre.vercel.app/api/galeri', formDataToSend, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        await axios.post('https://finalbackend-ochre.vercel.app/api/galeri', formDataToSend);
         toast.success('Galeri created successfully');
       }
       
