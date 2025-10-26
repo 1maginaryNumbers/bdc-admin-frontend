@@ -41,6 +41,10 @@ const Sidebar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
