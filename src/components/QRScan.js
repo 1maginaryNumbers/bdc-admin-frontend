@@ -307,140 +307,139 @@ const QRScan = () => {
           </div>
         </div>
 
-        {scanMode === 'camera' ? (
-          !isScanning ? (
-            <div className="text-center">
-            <button
-              className="btn btn-primary btn-lg"
-              onClick={startScanning}
-              disabled={!selectedKegiatan || loading}
-            >
-              <FiCamera style={{ marginRight: '8px' }} />
-              Start Scanning
-            </button>
-            <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
-              Make sure to allow camera access when prompted
-            </p>
-            <p className="text-muted mt-2" style={{ fontSize: '12px', color: '#999' }}>
-              You'll see the camera preview with a scanning frame
-            </p>
-          </div>
-          ) : (
+        {scanMode === 'camera' && (
           <div className="text-center">
-            <div style={{ 
-              position: 'relative', 
-              width: '100%',
-              maxWidth: '500px',
-              margin: '0 auto',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              backgroundColor: '#000',
-              minHeight: '400px'
-            }}>
-              <video
-                ref={videoRef}
-                style={{
+            {!isScanning ? (
+              <>
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={startScanning}
+                  disabled={!selectedKegiatan || loading}
+                >
+                  <FiCamera style={{ marginRight: '8px' }} />
+                  Start Scanning
+                </button>
+                <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
+                  Make sure to allow camera access when prompted
+                </p>
+              </>
+            ) : (
+              <>
+                <div style={{
+                  position: 'relative',
                   width: '100%',
-                  height: '100%',
-                  minHeight: '400px',
-                  objectFit: 'cover',
-                  display: 'block',
-                  backgroundColor: '#000'
-                }}
-                playsInline
-                muted
-                autoPlay
-                webkit-playsinline
-                x5-playsinline
-              />
-              
-              {/* QR Code scanning box with corner markers */}
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '250px',
-                height: '250px',
-                border: '2px solid rgba(255, 255, 255, 0.5)',
-                backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                borderRadius: '12px'
-              }}>
-                {/* Top-left corner */}
-                <div style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  left: '-2px',
-                  width: '40px',
-                  height: '40px',
-                  borderTop: '4px solid #fff',
-                  borderLeft: '4px solid #fff',
-                  borderRadius: '8px 0 0 0'
-                }} />
+                  maxWidth: '500px',
+                  margin: '0 auto',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  backgroundColor: '#000',
+                  minHeight: '400px'
+                }}>
+                  <video
+                    ref={videoRef}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      minHeight: '400px',
+                      objectFit: 'cover',
+                      display: 'block',
+                      backgroundColor: '#000'
+                    }}
+                    playsInline
+                    muted
+                    autoPlay
+                    webkit-playsinline
+                    x5-playsinline
+                  />
                 
-                {/* Top-right corner */}
-                <div style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  width: '40px',
-                  height: '40px',
-                  borderTop: '4px solid #fff',
-                  borderRight: '4px solid #fff',
-                  borderRadius: '0 8px 0 0'
-                }} />
-                
-                {/* Bottom-left corner */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '-2px',
-                  left: '-2px',
-                  width: '40px',
-                  height: '40px',
-                  borderBottom: '4px solid #fff',
-                  borderLeft: '4px solid #fff',
-                  borderRadius: '0 0 0 8px'
-                }} />
-                
-                {/* Bottom-right corner */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '-2px',
-                  right: '-2px',
-                  width: '40px',
-                  height: '40px',
-                  borderBottom: '4px solid #fff',
-                  borderRight: '4px solid #fff',
-                  borderRadius: '0 0 8px 0'
-                }} />
-              </div>
+                  {/* QR Code scanning box with corner markers */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '250px',
+                    height: '250px',
+                    border: '2px solid rgba(255, 255, 255, 0.5)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    borderRadius: '12px'
+                  }}>
+                    {/* Top-left corner */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-2px',
+                      left: '-2px',
+                      width: '40px',
+                      height: '40px',
+                      borderTop: '4px solid #fff',
+                      borderLeft: '4px solid #fff',
+                      borderRadius: '8px 0 0 0'
+                    }} />
+                    
+                    {/* Top-right corner */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '-2px',
+                      width: '40px',
+                      height: '40px',
+                      borderTop: '4px solid #fff',
+                      borderRight: '4px solid #fff',
+                      borderRadius: '0 8px 0 0'
+                    }} />
+                    
+                    {/* Bottom-left corner */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '-2px',
+                      left: '-2px',
+                      width: '40px',
+                      height: '40px',
+                      borderBottom: '4px solid #fff',
+                      borderLeft: '4px solid #fff',
+                      borderRadius: '0 0 0 8px'
+                    }} />
+                    
+                    {/* Bottom-right corner */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '-2px',
+                      right: '-2px',
+                      width: '40px',
+                      height: '40px',
+                      borderBottom: '4px solid #fff',
+                      borderRight: '4px solid #fff',
+                      borderRadius: '0 0 8px 0'
+                    }} />
+                  </div>
 
-              {/* Instruction text at the bottom */}
-              <div style={{
-                position: 'absolute',
-                bottom: '20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: '#fff',
-                fontSize: '16px',
-                fontWeight: '500',
-                textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                pointerEvents: 'none'
-              }}>
-                Scan QR code
-              </div>
-            </div>
-            
-            <button
-              className="btn btn-danger mt-3"
-              onClick={stopScanning}
-              style={{ padding: '12px 24px', fontSize: '16px' }}
-            >
-              <FiX style={{ marginRight: '8px' }} />
-              Stop Scanning
-            </button>
+                  {/* Instruction text at the bottom */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    color: '#fff',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                    pointerEvents: 'none'
+                  }}>
+                    Scan QR code
+                  </div>
+                </div>
+                
+                <button
+                  className="btn btn-danger mt-3"
+                  onClick={stopScanning}
+                  style={{ padding: '12px 24px', fontSize: '16px' }}
+                >
+                  <FiX style={{ marginRight: '8px' }} />
+                  Stop Scanning
+                </button>
+              </>
+            )}
           </div>
-          )
         ) : (
           <div className="text-center">
             <div className="form-group">
