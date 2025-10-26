@@ -74,7 +74,7 @@ const QRScan = () => {
         videoRef.current.srcObject = stream;
         console.log('Stream assigned to video element');
         
-        // Play the video
+        // Force video to play
         const playPromise = videoRef.current.play();
         
         if (playPromise !== undefined) {
@@ -83,17 +83,40 @@ const QRScan = () => {
               console.log('Video started playing successfully!');
               console.log('Video element:', videoRef.current);
               console.log('Video srcObject:', videoRef.current.srcObject);
-              toast.success('Camera started successfully!');
+              
+              // Force a re-render to ensure the video element is visible
+              setTimeout(() => {
+                toast.success('Camera started successfully!');
+              }, 100);
             })
             .catch((error) => {
               console.error('Video play error:', error);
               console.error('Error details:', error.name, error.message);
-              toast.error('Failed to start video playback: ' + error.message);
-              setIsScanning(false);
+              
+              // Try to play again after a short delay
+              setTimeout(() => {
+                videoRef.current?.play().catch(() => {
+                  toast.error('Failed to start video playback: ' + error.message);
+                  setIsScanning(false);
+                });
+              }, 200);
             });
         } else {
           console.log('play() returned undefined, video might already be playing');
         }
+        
+        // Also listen for video events
+        videoRef.current.onloadedmetadata = () => {
+          console.log('Video metadata loaded');
+        };
+        
+        videoRef.current.onplay = () => {
+          console.log('Video is playing');
+        };
+        
+        videoRef.current.oncanplay = () => {
+          console.log('Video can start playing');
+        };
         
         qrScannerRef.current = new QrScanner(
           videoRef.current,
@@ -332,7 +355,10 @@ const QRScan = () => {
                     borderRadius: '12px',
                     overflow: 'hidden',
                     backgroundColor: '#000',
-                    minHeight: '400px'
+                    minHeight: '400px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}>
                     <video
                       ref={videoRef}
@@ -340,15 +366,21 @@ const QRScan = () => {
                         width: '100%',
                         height: '100%',
                         minHeight: '400px',
+                        maxHeight: '600px',
                         objectFit: 'cover',
                         display: 'block',
-                        backgroundColor: '#000'
+                        backgroundColor: '#000',
+                        zIndex: 1
                       }}
-                      playsInline
-                      muted
-                      autoPlay
-                      webkit-playsinline
-                      x5-playsinline
+                      playsInline={true}
+                      muted={true}
+                      autoPlay={true}
+                      onLoadedMetadata={(e) => {
+                        console.log('Video metadata loaded in JSX');
+                        console.log('Video dimensions:', e.target.videoWidth, 'x', e.target.videoHeight);
+                      }}
+                      onPlay={() => console.log('Video playing in JSX')}
+                      onError={(e) => console.error('Video error:', e)}
                     />
                   
                     {/* QR Code scanning box with corner markers */}
