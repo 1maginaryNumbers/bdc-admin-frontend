@@ -307,7 +307,7 @@ const QRScan = () => {
           </div>
         </div>
 
-        {scanMode === 'camera' && (
+        {scanMode === 'camera' ? (
           <div className="text-center">
             {!isScanning ? (
               <>
@@ -485,7 +485,7 @@ const QRScan = () => {
             )}
           </div>
         )}
-
+        
         {lastScanResult && (
           <div className="mt-4">
             <div className={`alert ${lastScanResult.success ? 'alert-success' : 'alert-danger'}`}>
