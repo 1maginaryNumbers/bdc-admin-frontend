@@ -16,6 +16,7 @@ const QRScan = () => {
   const videoRef = useRef(null);
   const qrScannerRef = useRef(null);
   const fileInputRef = useRef(null);
+  const handleScanResultRef = useRef(null);
 
   useEffect(() => {
     fetchKegiatan();
@@ -25,6 +26,10 @@ const QRScan = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    handleScanResultRef.current = handleScanResult;
+  }, [handleScanResult]);
 
   // Set up video element when camera stream is available
   useEffect(() => {
@@ -40,26 +45,31 @@ const QRScan = () => {
           .then(() => {
             console.log('Video playing!');
             
-            // Set up QR scanner only if not already set up
-            if (!qrScannerRef.current) {
-              console.log('Creating QR scanner...');
-              qrScannerRef.current = new QrScanner(
-                videoRef.current,
-                (result) => {
-                  console.log('QR detected:', result.data);
-                  handleScanResult(result.data);
-                },
-                {
-                  highlightScanRegion: true,
-                  highlightCodeOutline: true,
-                  maxScansPerSecond: 5
-                }
-              );
-              
-              qrScannerRef.current.start()
-                .then(() => console.log('QR scanner started'))
-                .catch((err) => console.error('QR scanner error:', err));
+            if (qrScannerRef.current) {
+              console.log('Destroying old QR scanner...');
+              qrScannerRef.current.destroy();
+              qrScannerRef.current = null;
             }
+            
+            console.log('Creating QR scanner...');
+            qrScannerRef.current = new QrScanner(
+              videoRef.current,
+              (result) => {
+                console.log('QR detected:', result.data);
+                if (handleScanResultRef.current) {
+                  handleScanResultRef.current(result.data);
+                }
+              },
+              {
+                highlightScanRegion: true,
+                highlightCodeOutline: true,
+                maxScansPerSecond: 10
+              }
+            );
+            
+            qrScannerRef.current.start()
+              .then(() => console.log('QR scanner started'))
+              .catch((err) => console.error('QR scanner error:', err));
           })
           .catch((error) => {
             console.error('Play error:', error);
