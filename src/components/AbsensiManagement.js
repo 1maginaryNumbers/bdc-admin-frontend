@@ -487,19 +487,22 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
                     </div>
                   </td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-secondary"
-                      onClick={() => handleEdit(item)}
-                    >
-                      <FiEdit />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(item._id)}
-                      style={{ marginLeft: '8px' }}
-                    >
-                      <FiTrash2 />
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                      <button
+                        className="btn btn-sm btn-secondary"
+                        onClick={() => handleEdit(item)}
+                        style={{ flexShrink: 0 }}
+                      >
+                        <FiEdit />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(item._id)}
+                        style={{ flexShrink: 0 }}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
