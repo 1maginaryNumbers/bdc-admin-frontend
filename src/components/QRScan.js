@@ -378,8 +378,9 @@ const QRScan = () => {
                       width: '250px',
                       height: '250px',
                       border: '2px solid rgba(255, 255, 255, 0.5)',
-                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                      borderRadius: '12px'
+                      backgroundColor: 'transparent',
+                      borderRadius: '12px',
+                      pointerEvents: 'none'
                     }}>
                       {/* Top-left corner */}
                       <div style={{
