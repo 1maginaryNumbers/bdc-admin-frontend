@@ -50,6 +50,8 @@ const QRScan = () => {
     }
 
     try {
+      console.log('Requesting camera access...');
+      
       // Request camera access with preferred settings
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
@@ -59,13 +61,33 @@ const QRScan = () => {
         } 
       });
       
+      console.log('Camera access granted');
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        
+        // Wait for video to load
+        videoRef.current.onloadedmetadata = () => {
+          console.log('Video metadata loaded');
+          videoRef.current.play();
+        };
+        
+        videoRef.current.onplay = () => {
+          console.log('Video started playing');
+          setIsScanning(true);
+        };
+        
+        videoRef.current.onerror = (error) => {
+          console.error('Video playback error:', error);
+          toast.error('Failed to start video playback');
+        };
         
         qrScannerRef.current = new QrScanner(
           videoRef.current,
-          (result) => handleScanResult(result.data),
+          (result) => {
+            console.log('QR code detected:', result.data);
+            handleScanResult(result.data);
+          },
           {
             highlightScanRegion: true,
             highlightCodeOutline: true,
@@ -75,8 +97,8 @@ const QRScan = () => {
         );
         
         await qrScannerRef.current.start();
-        setIsScanning(true);
         setLastScanResult(null);
+        toast.success('Camera started successfully!');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -84,13 +106,18 @@ const QRScan = () => {
         toast.error('Camera access denied. Please enable camera permissions in your browser settings.');
       } else if (error.name === 'NotFoundError') {
         toast.error('No camera found. Please connect a camera device.');
+      } else if (error.name === 'NotReadableError') {
+        toast.error('Camera is already in use by another application.');
       } else {
-        toast.error('Failed to access camera. Please check permissions and try again.');
+        toast.error(`Failed to access camera: ${error.message}. Please check permissions and try again.`);
       }
+      setIsScanning(false);
     }
   };
 
   const stopScanning = () => {
+    console.log('Stopping camera...');
+    
     if (qrScannerRef.current) {
       qrScannerRef.current.destroy();
       qrScannerRef.current = null;
@@ -98,11 +125,15 @@ const QRScan = () => {
     
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach(track => {
+        console.log('Stopping track:', track.kind);
+        track.stop();
+      });
       videoRef.current.srcObject = null;
     }
     
     setIsScanning(false);
+    toast.info('Camera stopped');
   };
 
   const handleScanResult = async (qrData) => {
@@ -273,13 +304,13 @@ const QRScan = () => {
           <div className="text-center">
             <div style={{ 
               position: 'relative', 
-              maxWidth: '100%',
               width: '100%',
-              maxWidth: '400px',
+              maxWidth: '500px',
               margin: '0 auto',
-              border: '2px solid #007bff',
-              borderRadius: '8px',
-              overflow: 'hidden'
+              border: '3px solid #007bff',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              backgroundColor: '#000'
             }}>
               <video
                 ref={videoRef}
@@ -288,21 +319,87 @@ const QRScan = () => {
                   height: 'auto',
                   minHeight: '300px',
                   maxHeight: '600px',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
+                  display: 'block'
                 }}
                 playsInline
+                autoPlay
+                muted
               />
+              
+              {/* Scanning overlay */}
               <div style={{
                 position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: 'rgba(0,0,0,0.7)',
-                color: 'white',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                fontSize: '12px'
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '250px',
+                height: '250px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '12px'
               }}>
-                Scanning...
+                {/* Corner markers */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  left: '-2px',
+                  width: '40px',
+                  height: '40px',
+                  borderTop: '4px solid #fff',
+                  borderLeft: '4px solid #fff',
+                  borderTopLeftRadius: '8px'
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  right: '-2px',
+                  width: '40px',
+                  height: '40px',
+                  borderTop: '4px solid #fff',
+                  borderRight: '4px solid #fff',
+                  borderTopRightRadius: '8px'
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-2px',
+                  left: '-2px',
+                  width: '40px',
+                  height: '40px',
+                  borderBottom: '4px solid #fff',
+                  borderLeft: '4px solid #fff',
+                  borderBottomLeftRadius: '8px'
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-2px',
+                  right: '-2px',
+                  width: '40px',
+                  height: '40px',
+                  borderBottom: '4px solid #fff',
+                  borderRight: '4px solid #fff',
+                  borderBottomRightRadius: '8px'
+                }} />
+              </div>
+
+              {/* Status indicator */}
+              <div style={{
+                position: 'absolute',
+                top: '15px',
+                left: '15px',
+                right: '15px',
+                background: 'rgba(0, 123, 255, 0.9)',
+                color: 'white',
+                padding: '10px 15px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <FiCamera size={18} />
+                Scanning... Point camera at QR code
               </div>
             </div>
             
