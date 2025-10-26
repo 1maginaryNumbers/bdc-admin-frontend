@@ -12,7 +12,6 @@ const QRScan = () => {
   const [loading, setLoading] = useState(false);
   const [scanMode, setScanMode] = useState('camera');
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [cameraStream, setCameraStream] = useState(null);
   const videoRef = useRef(null);
   const qrScannerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -33,57 +32,51 @@ const QRScan = () => {
     }
   });
 
-  // Set up video element when camera stream is available
   useEffect(() => {
-    if (isScanning && cameraStream && videoRef.current) {
-      console.log('Setting up video with stream...');
-      
-      videoRef.current.srcObject = cameraStream;
-      
-      const playPromise = videoRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Video playing!');
-            
-            if (qrScannerRef.current) {
-              console.log('Destroying old QR scanner...');
-              qrScannerRef.current.destroy();
-              qrScannerRef.current = null;
-            }
-            
-            console.log('Creating QR scanner...');
-            qrScannerRef.current = new QrScanner(
-              videoRef.current,
-              (result) => {
-                console.log('QR detected:', result.data);
-                if (handleScanResultRef.current) {
-                  handleScanResultRef.current(result.data);
-                }
-              },
-              {
-                highlightScanRegion: true,
-                highlightCodeOutline: true,
-                maxScansPerSecond: 10
-              }
-            );
-            
-            qrScannerRef.current.start()
-              .then(() => console.log('QR scanner started'))
-              .catch((err) => console.error('QR scanner error:', err));
-          })
-          .catch((error) => {
-            console.error('Play error:', error);
-          });
+    if (isScanning && videoRef.current && scanMode === 'camera') {
+      if (qrScannerRef.current) {
+        qrScannerRef.current.destroy();
+        qrScannerRef.current = null;
       }
+      
+      console.log('Creating QR scanner...');
+      const qrScanner = new QrScanner(
+        videoRef.current,
+        (result) => {
+          console.log('QR detected:', result.data);
+          if (handleScanResultRef.current) {
+            handleScanResultRef.current(result.data);
+          }
+        },
+        {
+          onDecodeError: (error) => {
+            console.log('QR decode error:', error);
+          },
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          preferredFacingMode: 'environment'
+        }
+      );
+      
+      qrScannerRef.current = qrScanner;
+      
+      console.log('Starting QR scanner...');
+      qrScanner.start()
+        .then(() => {
+          console.log('QR scanner started successfully');
+        })
+        .catch((err) => {
+          console.error('QR scanner start error:', err);
+          toast.error('Failed to start QR scanner. Please check camera permissions.');
+        });
+      
+      return () => {
+        if (qrScannerRef.current) {
+          qrScannerRef.current.stop();
+        }
+      };
     }
-
-    // Only cleanup on unmount
-    return () => {
-      // Don't destroy here, let stopScanning handle it
-    };
-  }, [isScanning, cameraStream]);
+  }, [isScanning, scanMode]);
 
   const fetchKegiatan = async () => {
     try {
@@ -110,73 +103,26 @@ const QRScan = () => {
     }
 
     try {
-      console.log('Requesting camera access...');
-      
-      // Request camera access with preferred settings
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment', // Use back camera on mobile
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
-      
-      console.log('Camera access granted');
-      
-      // Store the stream in state
-      setCameraStream(stream);
       setIsScanning(true);
       setLastScanResult(null);
-      
-      console.log('Camera stream set in state');
-      toast.success('Camera started successfully!');
+      console.log('Scanning started...');
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      
-      // Stop any tracks that might have started
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-      
+      console.error('Error starting scanning:', error);
       setIsScanning(false);
-      
-      if (error.name === 'NotAllowedError') {
-        toast.error('Camera access denied. Please enable camera permissions in your browser settings.');
-      } else if (error.name === 'NotFoundError') {
-        toast.error('No camera found. Please connect a camera device.');
-      } else if (error.name === 'NotReadableError') {
-        toast.error('Camera is already in use by another application.');
-      } else {
-        toast.error(`Failed to access camera: ${error.message}. Please check permissions and try again.`);
-      }
+      toast.error('Failed to start scanning');
     }
   };
 
   const stopScanning = () => {
-    console.log('Stopping camera...');
+    console.log('Stopping scanning...');
     
     if (qrScannerRef.current) {
       qrScannerRef.current.destroy();
       qrScannerRef.current = null;
     }
     
-    if (cameraStream) {
-      const tracks = cameraStream.getTracks();
-      tracks.forEach(track => {
-        console.log('Stopping track:', track.kind);
-        track.stop();
-      });
-      setCameraStream(null);
-    }
-    
-    if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject = null;
-    }
-    
     setIsScanning(false);
-    toast.info('Camera stopped');
+    toast.info('Scanning stopped');
   };
 
   const handleScanResult = async (qrData) => {
