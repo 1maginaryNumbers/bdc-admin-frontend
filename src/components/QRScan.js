@@ -64,32 +64,36 @@ const QRScan = () => {
       console.log('Camera access granted');
       
       if (videoRef.current) {
+        console.log('Setting up video element...');
+        
         // Set scanning state immediately to show camera preview
         setIsScanning(true);
+        setLastScanResult(null);
         
+        // Set the stream to the video element
         videoRef.current.srcObject = stream;
+        console.log('Stream assigned to video element');
         
-        // Start playing the video
-        try {
-          await videoRef.current.play();
-          console.log('Video started playing');
-        } catch (playError) {
-          console.error('Video play error:', playError);
-          toast.error('Failed to start video playback');
-          setIsScanning(false);
-          return;
+        // Play the video
+        const playPromise = videoRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Video started playing successfully!');
+              console.log('Video element:', videoRef.current);
+              console.log('Video srcObject:', videoRef.current.srcObject);
+              toast.success('Camera started successfully!');
+            })
+            .catch((error) => {
+              console.error('Video play error:', error);
+              console.error('Error details:', error.name, error.message);
+              toast.error('Failed to start video playback: ' + error.message);
+              setIsScanning(false);
+            });
+        } else {
+          console.log('play() returned undefined, video might already be playing');
         }
-        
-        // Wait for video to load metadata
-        videoRef.current.onloadedmetadata = () => {
-          console.log('Video metadata loaded');
-        };
-        
-        videoRef.current.onerror = (error) => {
-          console.error('Video playback error:', error);
-          toast.error('Failed to start video playback');
-          setIsScanning(false);
-        };
         
         qrScannerRef.current = new QrScanner(
           videoRef.current,
@@ -105,9 +109,9 @@ const QRScan = () => {
           }
         );
         
+        console.log('Starting QR scanner...');
         await qrScannerRef.current.start();
-        setLastScanResult(null);
-        toast.success('Camera started successfully!');
+        console.log('QR scanner started');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -306,18 +310,21 @@ const QRScan = () => {
         {scanMode === 'camera' ? (
           !isScanning ? (
             <div className="text-center">
-              <button
-                className="btn btn-primary btn-lg"
-                onClick={startScanning}
-                disabled={!selectedKegiatan || loading}
-              >
-                <FiCamera style={{ marginRight: '8px' }} />
-                Start Scanning
-              </button>
-              <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
-                Make sure to allow camera access when prompted
-              </p>
-            </div>
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={startScanning}
+              disabled={!selectedKegiatan || loading}
+            >
+              <FiCamera style={{ marginRight: '8px' }} />
+              Start Scanning
+            </button>
+            <p className="text-muted mt-3" style={{ fontSize: '14px' }}>
+              Make sure to allow camera access when prompted
+            </p>
+            <p className="text-muted mt-2" style={{ fontSize: '12px', color: '#999' }}>
+              You'll see the camera preview with a scanning frame
+            </p>
+          </div>
           ) : (
           <div className="text-center">
             <div style={{ 
@@ -325,27 +332,29 @@ const QRScan = () => {
               width: '100%',
               maxWidth: '500px',
               margin: '0 auto',
-              border: '3px solid #007bff',
               borderRadius: '12px',
               overflow: 'hidden',
-              backgroundColor: '#000'
+              backgroundColor: '#000',
+              minHeight: '400px'
             }}>
               <video
                 ref={videoRef}
                 style={{
                   width: '100%',
-                  height: 'auto',
-                  minHeight: '300px',
-                  maxHeight: '600px',
+                  height: '100%',
+                  minHeight: '400px',
                   objectFit: 'cover',
-                  display: 'block'
+                  display: 'block',
+                  backgroundColor: '#000'
                 }}
                 playsInline
-                autoPlay
                 muted
+                autoPlay
+                webkit-playsinline
+                x5-playsinline
               />
               
-              {/* Scanning overlay */}
+              {/* QR Code scanning box with corner markers */}
               <div style={{
                 position: 'absolute',
                 top: '50%',
@@ -353,10 +362,11 @@ const QRScan = () => {
                 transform: 'translate(-50%, -50%)',
                 width: '250px',
                 height: '250px',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
+                border: '2px solid rgba(255, 255, 255, 0.5)',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 borderRadius: '12px'
               }}>
-                {/* Corner markers */}
+                {/* Top-left corner */}
                 <div style={{
                   position: 'absolute',
                   top: '-2px',
@@ -365,8 +375,10 @@ const QRScan = () => {
                   height: '40px',
                   borderTop: '4px solid #fff',
                   borderLeft: '4px solid #fff',
-                  borderTopLeftRadius: '8px'
+                  borderRadius: '8px 0 0 0'
                 }} />
+                
+                {/* Top-right corner */}
                 <div style={{
                   position: 'absolute',
                   top: '-2px',
@@ -375,8 +387,10 @@ const QRScan = () => {
                   height: '40px',
                   borderTop: '4px solid #fff',
                   borderRight: '4px solid #fff',
-                  borderTopRightRadius: '8px'
+                  borderRadius: '0 8px 0 0'
                 }} />
+                
+                {/* Bottom-left corner */}
                 <div style={{
                   position: 'absolute',
                   bottom: '-2px',
@@ -385,8 +399,10 @@ const QRScan = () => {
                   height: '40px',
                   borderBottom: '4px solid #fff',
                   borderLeft: '4px solid #fff',
-                  borderBottomLeftRadius: '8px'
+                  borderRadius: '0 0 0 8px'
                 }} />
+                
+                {/* Bottom-right corner */}
                 <div style={{
                   position: 'absolute',
                   bottom: '-2px',
@@ -395,29 +411,23 @@ const QRScan = () => {
                   height: '40px',
                   borderBottom: '4px solid #fff',
                   borderRight: '4px solid #fff',
-                  borderBottomRightRadius: '8px'
+                  borderRadius: '0 0 8px 0'
                 }} />
               </div>
 
-              {/* Status indicator */}
+              {/* Instruction text at the bottom */}
               <div style={{
                 position: 'absolute',
-                top: '15px',
-                left: '15px',
-                right: '15px',
-                background: 'rgba(0, 123, 255, 0.9)',
-                color: 'white',
-                padding: '10px 15px',
-                borderRadius: '8px',
-                fontSize: '14px',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#fff',
+                fontSize: '16px',
                 fontWeight: '500',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
+                textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                pointerEvents: 'none'
               }}>
-                <FiCamera size={18} />
-                Scanning... Point camera at QR code
+                Scan QR code
               </div>
             </div>
             
