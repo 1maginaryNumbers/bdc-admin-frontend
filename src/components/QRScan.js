@@ -33,38 +33,43 @@ const QRScan = () => {
       
       videoRef.current.srcObject = cameraStream;
       
-      videoRef.current.play()
-        .then(() => {
-          console.log('Video playing!');
-          
-          // Set up QR scanner
-          if (!qrScannerRef.current) {
-            qrScannerRef.current = new QrScanner(
-              videoRef.current,
-              (result) => {
-                console.log('QR detected:', result.data);
-                handleScanResult(result.data);
-              },
-              {
-                highlightScanRegion: true,
-                highlightCodeOutline: true,
-                maxScansPerSecond: 5
-              }
-            );
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Video playing!');
             
-            qrScannerRef.current.start();
-          }
-        })
-        .catch((error) => {
-          console.error('Play error:', error);
-        });
+            // Set up QR scanner only if not already set up
+            if (!qrScannerRef.current) {
+              console.log('Creating QR scanner...');
+              qrScannerRef.current = new QrScanner(
+                videoRef.current,
+                (result) => {
+                  console.log('QR detected:', result.data);
+                  handleScanResult(result.data);
+                },
+                {
+                  highlightScanRegion: true,
+                  highlightCodeOutline: true,
+                  maxScansPerSecond: 5
+                }
+              );
+              
+              qrScannerRef.current.start()
+                .then(() => console.log('QR scanner started'))
+                .catch((err) => console.error('QR scanner error:', err));
+            }
+          })
+          .catch((error) => {
+            console.error('Play error:', error);
+          });
+      }
     }
 
+    // Only cleanup on unmount
     return () => {
-      if (qrScannerRef.current) {
-        qrScannerRef.current.destroy();
-        qrScannerRef.current = null;
-      }
+      // Don't destroy here, let stopScanning handle it
     };
   }, [isScanning, cameraStream]);
 
