@@ -121,13 +121,16 @@ const GaleriManagement = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file size first
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
     if (!isFileSizeAcceptable(file, 4)) {
-      toast.warning(`File size is ${formatFileSize(file.size)}. Compressing...`);
+      toast.info(`Image size is ${formatFileSize(file.size)}. Compressing...`);
     }
 
     try {
-      // Compress the image
       const compressedFile = await compressImage(file, {
         maxWidth: 1920,
         maxHeight: 1920,
@@ -135,11 +138,13 @@ const GaleriManagement = () => {
         maxSizeMB: 2
       });
 
-      toast.success(`Image compressed: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      if (compressedFile.size < file.size) {
+        toast.success(`Image compressed: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      }
       setSelectedFile(compressedFile);
     } catch (error) {
       console.error('Error compressing image:', error);
-      toast.error('Failed to compress image. Using original file.');
+      toast.warning('Using original image file');
       setSelectedFile(file);
     }
   };
