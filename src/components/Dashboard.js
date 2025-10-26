@@ -58,15 +58,15 @@ const Dashboard = () => {
         merchandiseRes,
         absensiRes
       ] = await Promise.all([
-        axios.get('http://finalbackend-ochre.vercel.app/api/umat'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/kegiatan'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/pengumuman'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/galeri'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/pendaftaran'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/sumbangan'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/saran'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/merchandise'),
-        axios.get('http://finalbackend-ochre.vercel.app/api/absensi')
+        axios.get('https://finalbackend-ochre.vercel.app/api/umat'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/kegiatan'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/pengumuman'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/galeri'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/pendaftaran'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/sumbangan'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/saran'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/merchandise'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/absensi')
       ]);
 
       const umatData = Array.isArray(umatRes.data) ? umatRes.data : umatRes.data.umat || [];

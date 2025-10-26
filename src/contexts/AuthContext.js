@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('http://finalbackend-ochre.vercel.app/api/admin/login', {
+      const response = await axios.post('https://finalbackend-ochre.vercel.app/api/admin/login', {
         username,
         password
       });

@@ -27,7 +27,7 @@ const QRScan = () => {
 
   const fetchKegiatan = async () => {
     try {
-      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/kegiatan');
+      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/kegiatan');
       // Handle both old format (array) and new format (object with kegiatan property)
       const data = response.data;
       if (Array.isArray(data)) {
@@ -97,7 +97,7 @@ const QRScan = () => {
     
     setLoading(true);
     try {
-      const response = await axios.post('http://finalbackend-ochre.vercel.app/api/absensi/scan', {
+      const response = await axios.post('https://finalbackend-ochre.vercel.app/api/absensi/scan', {
         qrCodeData: qrData,
         kegiatanId: selectedKegiatan
       });

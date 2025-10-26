@@ -41,7 +41,7 @@ const PengumumanManagement = () => {
 
   const fetchPengumuman = async () => {
     try {
-      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/pengumuman');
+      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/pengumuman');
       // Handle both old format (array) and new format (object with pengumuman property)
       const data = response.data;
       if (Array.isArray(data)) {
@@ -70,10 +70,10 @@ const PengumumanManagement = () => {
     e.preventDefault();
     try {
       if (editingPengumuman) {
-        await axios.put(`http://finalbackend-ochre.vercel.app/api/pengumuman/${editingPengumuman._id}`, formData);
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/pengumuman/${editingPengumuman._id}`, formData);
         toast.success('Pengumuman updated successfully');
       } else {
-        await axios.post('http://finalbackend-ochre.vercel.app/api/pengumuman', formData);
+        await axios.post('https://finalbackend-ochre.vercel.app/api/pengumuman', formData);
         toast.success('Pengumuman created successfully');
       }
       setShowModal(false);
@@ -97,7 +97,7 @@ const PengumumanManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this pengumuman?')) {
       try {
-        await axios.delete(`http://finalbackend-ochre.vercel.app/api/pengumuman/${id}`);
+        await axios.delete(`https://finalbackend-ochre.vercel.app/api/pengumuman/${id}`);
         toast.success('Pengumuman deleted successfully');
         fetchPengumuman();
       } catch (error) {
@@ -131,7 +131,7 @@ const PengumumanManagement = () => {
   const handleBroadcastSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://finalbackend-ochre.vercel.app/api/pengumuman', {
+      await axios.post('https://finalbackend-ochre.vercel.app/api/pengumuman', {
         judul: broadcastData.judul,
         isi: broadcastData.isi
       });

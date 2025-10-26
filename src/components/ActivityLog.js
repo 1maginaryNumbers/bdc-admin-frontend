@@ -26,7 +26,7 @@ const ActivityLog = () => {
         limit: 40
       });
 
-      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/activitylog?${params}`);
+      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/activitylog?${params}`);
       const data = response.data;
       
       if (data.logs && Array.isArray(data.logs)) {
@@ -81,7 +81,7 @@ const ActivityLog = () => {
         format: format
       });
 
-      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/activitylog/export?${params}`, {
+      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/activitylog/export?${params}`, {
         responseType: 'blob'
       });
 

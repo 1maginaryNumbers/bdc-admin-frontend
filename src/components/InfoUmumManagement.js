@@ -23,7 +23,7 @@ const InfoUmumManagement = () => {
 
   const fetchInfoUmum = async () => {
     try {
-      const response = await axios.get('http://finalbackend-ochre.vercel.app/api/info-umum');
+      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/info-umum');
       if (response.data) {
         setInfoUmum(response.data);
       }
@@ -45,7 +45,7 @@ const InfoUmumManagement = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.put('http://finalbackend-ochre.vercel.app/api/info-umum', infoUmum);
+      await axios.put('https://finalbackend-ochre.vercel.app/api/info-umum', infoUmum);
       toast.success('Info umum updated successfully');
     } catch (error) {
       toast.error('Failed to update info umum');

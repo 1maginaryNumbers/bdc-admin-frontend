@@ -31,7 +31,7 @@ const UmatManagement = () => {
   const fetchUmat = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/umat?page=${currentPage}&limit=20`);
+      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/umat?page=${currentPage}&limit=20`);
       const data = response.data;
       if (Array.isArray(data)) {
         setUmat(data);
@@ -154,10 +154,10 @@ const UmatManagement = () => {
     e.preventDefault();
     try {
       if (editingUmat) {
-        await axios.put(`http://finalbackend-ochre.vercel.app/api/umat/${editingUmat._id}`, formData);
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/umat/${editingUmat._id}`, formData);
         toast.success('Umat updated successfully');
       } else {
-        await axios.post('http://finalbackend-ochre.vercel.app/api/umat', formData);
+        await axios.post('https://finalbackend-ochre.vercel.app/api/umat', formData);
         toast.success('Umat created successfully');
       }
       setShowModal(false);
@@ -184,7 +184,7 @@ const UmatManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this umat?')) {
       try {
-        await axios.delete(`http://finalbackend-ochre.vercel.app/api/umat/${id}`);
+        await axios.delete(`https://finalbackend-ochre.vercel.app/api/umat/${id}`);
         toast.success('Umat deleted successfully');
         setCurrentPage(1);
         fetchUmat();

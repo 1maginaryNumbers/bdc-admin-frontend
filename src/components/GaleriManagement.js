@@ -55,7 +55,7 @@ const GaleriManagement = () => {
   const fetchGaleri = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://finalbackend-ochre.vercel.app/api/galeri?page=${currentPage}&limit=20`);
+      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/galeri?page=${currentPage}&limit=20`);
       // Handle both old format (array) and new format (object with images property)
       const data = response.data;
       if (Array.isArray(data)) {
@@ -140,14 +140,14 @@ const GaleriManagement = () => {
       }
 
       if (editingGaleri) {
-        await axios.put(`http://finalbackend-ochre.vercel.app/api/galeri/${editingGaleri._id}`, formDataToSend, {
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/galeri/${editingGaleri._id}`, formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
         toast.success('Galeri updated successfully');
       } else {
-        await axios.post('http://finalbackend-ochre.vercel.app/api/galeri', formDataToSend, {
+        await axios.post('https://finalbackend-ochre.vercel.app/api/galeri', formDataToSend, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -184,7 +184,7 @@ const GaleriManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this galeri item?')) {
       try {
-        await axios.delete(`http://finalbackend-ochre.vercel.app/api/galeri/${id}`);
+        await axios.delete(`https://finalbackend-ochre.vercel.app/api/galeri/${id}`);
         toast.success('Galeri deleted successfully');
         setCurrentPage(1);
         fetchGaleri();
@@ -275,9 +275,9 @@ const GaleriManagement = () => {
       return url;
     }
     if (url.startsWith('/')) {
-      return `http://finalbackend-ochre.vercel.app${url}`;
+      return `https://finalbackend-ochre.vercel.app${url}`;
     }
-    return `http://finalbackend-ochre.vercel.app/${url}`;
+    return `https://finalbackend-ochre.vercel.app/${url}`;
   };
 
   if (loading) {
