@@ -28,8 +28,10 @@ const QRScan = () => {
   }, []);
 
   useEffect(() => {
-    handleScanResultRef.current = handleScanResult;
-  }, [handleScanResult]);
+    if (handleScanResult) {
+      handleScanResultRef.current = handleScanResult;
+    }
+  });
 
   // Set up video element when camera stream is available
   useEffect(() => {
