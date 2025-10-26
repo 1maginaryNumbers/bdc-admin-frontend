@@ -374,58 +374,91 @@ const PendaftaranManagement = () => {
           </div>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="d-flex align-items-center gap-3">
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0">Kegiatan:</label>
-              <select
-                value={selectedKegiatan}
-                onChange={handleKegiatanFilter}
-                className="form-control"
-                style={{ width: 'auto', minWidth: '180px' }}
-              >
-                <option value="all">All Kegiatan</option>
-                {uniqueKegiatan.map((kegiatanName, index) => (
-                  <option key={index} value={kegiatanName}>
-                    {kegiatanName}
-                  </option>
-                ))}
-              </select>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: '10px', 
+            alignItems: 'center',
+            justifyContent: 'space-between' 
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '10px', 
+              alignItems: 'center',
+              flex: '1',
+              minWidth: '280px'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                flex: '1',
+                minWidth: '200px'
+              }}>
+                <label style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>Kegiatan:</label>
+                <select
+                  value={selectedKegiatan}
+                  onChange={handleKegiatanFilter}
+                  className="form-control"
+                  style={{ width: '100%', maxWidth: '250px' }}
+                >
+                  <option value="all">All Kegiatan</option>
+                  {uniqueKegiatan.map((kegiatanName, index) => (
+                    <option key={index} value={kegiatanName}>
+                      {kegiatanName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                flex: '1',
+                minWidth: '200px'
+              }}>
+                <label style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>Tanggal:</label>
+                <input
+                  type="date"
+                  value={selectedTanggal}
+                  onChange={handleTanggalFilter}
+                  className="form-control"
+                  style={{ width: '100%', maxWidth: '250px' }}
+                />
+              </div>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                flex: '1',
+                minWidth: '250px'
+              }}>
+                <label style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>Nama:</label>
+                <input
+                  type="text"
+                  value={namaSearchInput}
+                  onChange={handleNamaInputChange}
+                  placeholder="Search by name..."
+                  className="form-control"
+                  style={{ flex: '1' }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={handleNamaSearch}
+                  style={{ padding: '6px 12px' }}
+                >
+                  Search
+                </button>
+              </div>
             </div>
-            
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0">Tanggal:</label>
-              <input
-                type="date"
-                value={selectedTanggal}
-                onChange={handleTanggalFilter}
-                className="form-control"
-                style={{ width: 'auto', minWidth: '150px' }}
-              />
+            <div className="text-muted" style={{ whiteSpace: 'nowrap' }}>
+              Total: {pendaftaran.length} registrations
             </div>
-            
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0">Nama:</label>
-              <input
-                type="text"
-                value={namaSearchInput}
-                onChange={handleNamaInputChange}
-                placeholder="Search by name..."
-                className="form-control"
-                style={{ width: 'auto', minWidth: '150px' }}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-primary btn-sm"
-                onClick={handleNamaSearch}
-                style={{ padding: '6px 12px' }}
-              >
-                Search
-              </button>
-            </div>
-          </div>
-          <div className="text-muted">
-            Total: {pendaftaran.length} registrations
           </div>
         </div>
 
