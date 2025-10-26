@@ -32,6 +32,8 @@ const GaleriManagement = () => {
     hasPrevPage: false
   });
 
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
   useEscapeKey(() => {
     if (showModal) {
       closeModal();
@@ -166,12 +168,16 @@ const GaleriManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (isMobile && !editingGaleri) {
+      toast.error('Image upload is not available on mobile devices. Please use a desktop browser.');
+      return;
+    }
+    
     if (!selectedFile && !editingGaleri) {
       toast.error('Please select an image file');
       return;
     }
 
-    // Final check for file size
     if (selectedFile && !isFileSizeAcceptable(selectedFile, 4)) {
       toast.error(`File size is too large (${formatFileSize(selectedFile.size)}). Maximum allowed is 4MB.`);
       return;
@@ -349,10 +355,28 @@ const GaleriManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Galeri List</h3>
-          <button className="btn btn-primary" onClick={openModal}>
+          <button 
+            className="btn btn-primary" 
+            onClick={openModal}
+            disabled={isMobile}
+            style={isMobile ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+          >
             <FiPlus /> Add Image
           </button>
         </div>
+        {isMobile && (
+          <div style={{ 
+            marginBottom: '20px', 
+            padding: '15px', 
+            backgroundColor: '#fff3cd', 
+            border: '1px solid #ffc107',
+            borderRadius: '8px',
+            fontSize: '14px',
+            color: '#856404'
+          }}>
+            Image upload is only available on desktop browsers. Please use a PC to upload images to the gallery.
+          </div>
+        )}
 
         {/* Top Pagination Controls */}
         {renderPagination()}
@@ -503,7 +527,21 @@ const GaleriManagement = () => {
                   onChange={handleFileChange}
                   className="form-control"
                   required={!editingGaleri}
+                  disabled={isMobile}
                 />
+                {isMobile && (
+                  <div style={{ 
+                    marginTop: '10px', 
+                    padding: '10px', 
+                    backgroundColor: '#fff3cd', 
+                    border: '1px solid #ffc107',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    color: '#856404'
+                  }}>
+                    Image upload is not available on mobile devices. Please use a desktop browser to upload images.
+                  </div>
+                )}
                 {selectedFile && (
                   <div style={{ marginTop: '10px' }}>
                     <img
