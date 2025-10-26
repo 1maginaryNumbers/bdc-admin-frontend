@@ -26,46 +26,38 @@ const QRScan = () => {
     };
   }, []);
 
-  // Set up camera stream when isScanning changes and video element is available
+  // Set up video element when camera stream is available
   useEffect(() => {
     if (isScanning && cameraStream && videoRef.current) {
-      console.log('Setting up video element with stream...');
+      console.log('Setting up video with stream...');
+      
       videoRef.current.srcObject = cameraStream;
       
-      const playPromise = videoRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('Video started playing successfully!');
-            console.log('Video element:', videoRef.current);
-            console.log('Video srcObject:', videoRef.current.srcObject);
-          })
-          .catch((error) => {
-            console.error('Video play error:', error);
-          });
-      }
-
-      // Set up QR scanner
-      qrScannerRef.current = new QrScanner(
-        videoRef.current,
-        (result) => {
-          console.log('QR code detected:', result.data);
-          handleScanResult(result.data);
-        },
-        {
-          highlightScanRegion: true,
-          highlightCodeOutline: true,
-          maxScansPerSecond: 5,
-          returnDetailedScanResult: false
-        }
-      );
-
-      qrScannerRef.current.start().then(() => {
-        console.log('QR scanner started');
-      }).catch((error) => {
-        console.error('QR scanner error:', error);
-      });
+      videoRef.current.play()
+        .then(() => {
+          console.log('Video playing!');
+          
+          // Set up QR scanner
+          if (!qrScannerRef.current) {
+            qrScannerRef.current = new QrScanner(
+              videoRef.current,
+              (result) => {
+                console.log('QR detected:', result.data);
+                handleScanResult(result.data);
+              },
+              {
+                highlightScanRegion: true,
+                highlightCodeOutline: true,
+                maxScansPerSecond: 5
+              }
+            );
+            
+            qrScannerRef.current.start();
+          }
+        })
+        .catch((error) => {
+          console.error('Play error:', error);
+        });
     }
 
     return () => {
@@ -74,8 +66,7 @@ const QRScan = () => {
         qrScannerRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isScanning, cameraStream, handleScanResult]);
+  }, [isScanning, cameraStream]);
 
   const fetchKegiatan = async () => {
     try {
