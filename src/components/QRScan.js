@@ -64,22 +64,31 @@ const QRScan = () => {
       console.log('Camera access granted');
       
       if (videoRef.current) {
+        // Set scanning state immediately to show camera preview
+        setIsScanning(true);
+        
         videoRef.current.srcObject = stream;
         
-        // Wait for video to load
+        // Start playing the video
+        try {
+          await videoRef.current.play();
+          console.log('Video started playing');
+        } catch (playError) {
+          console.error('Video play error:', playError);
+          toast.error('Failed to start video playback');
+          setIsScanning(false);
+          return;
+        }
+        
+        // Wait for video to load metadata
         videoRef.current.onloadedmetadata = () => {
           console.log('Video metadata loaded');
-          videoRef.current.play();
-        };
-        
-        videoRef.current.onplay = () => {
-          console.log('Video started playing');
-          setIsScanning(true);
         };
         
         videoRef.current.onerror = (error) => {
           console.error('Video playback error:', error);
           toast.error('Failed to start video playback');
+          setIsScanning(false);
         };
         
         qrScannerRef.current = new QrScanner(
@@ -102,6 +111,16 @@ const QRScan = () => {
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
+      
+      // Stop any tracks that might have started
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+      
+      setIsScanning(false);
+      
       if (error.name === 'NotAllowedError') {
         toast.error('Camera access denied. Please enable camera permissions in your browser settings.');
       } else if (error.name === 'NotFoundError') {
@@ -111,7 +130,6 @@ const QRScan = () => {
       } else {
         toast.error(`Failed to access camera: ${error.message}. Please check permissions and try again.`);
       }
-      setIsScanning(false);
     }
   };
 
