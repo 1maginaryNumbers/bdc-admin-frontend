@@ -338,29 +338,21 @@ const QRScan = () => {
                     width: '100%',
                     maxWidth: '500px',
                     margin: '0 auto',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
                     backgroundColor: '#000',
-                    minHeight: '400px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    minHeight: '400px'
                   }}>
                     <video
                       ref={videoRef}
                       style={{
                         width: '100%',
-                        height: '100%',
+                        maxWidth: '500px',
+                        height: 'auto',
                         minHeight: '400px',
-                        maxHeight: '600px',
-                        objectFit: 'cover',
-                        display: 'block',
-                        backgroundColor: '#000',
-                        zIndex: 1
+                        backgroundColor: '#000'
                       }}
-                      playsInline={true}
-                      muted={true}
-                      autoPlay={true}
+                      playsInline
+                      muted
+                      autoPlay
                       onLoadedMetadata={(e) => {
                         console.log('Video metadata loaded in JSX');
                         console.log('Video dimensions:', e.target.videoWidth, 'x', e.target.videoHeight);
