@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -19,13 +19,31 @@ import {
   FiSettings,
   FiLogOut,
   FiRefreshCw,
-  FiActivity
+  FiActivity,
+  FiMenu,
+  FiX
 } from 'react-icons/fi';
 
 const Sidebar = () => {
   const location = useLocation();
   const { logout } = useAuth();
   const { triggerRefresh } = useRefresh();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
   const handleRefresh = () => {
     triggerRefresh();
@@ -49,18 +67,63 @@ const Sidebar = () => {
     { path: '/admin', label: 'Admin', icon: FiSettings }
   ];
 
+  const isMobile = window.innerWidth <= 768;
+
   return (
-    <div style={{
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      width: '250px',
-      height: '100vh',
-      background: '#2c3e50',
-      color: 'white',
-      zIndex: 1000,
-      overflowY: 'auto'
-    }}>
+    <>
+      {/* Mobile menu toggle button */}
+      {isMobile && (
+        <button
+          onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            top: '10px',
+            left: '10px',
+            zIndex: 1001,
+            background: '#2c3e50',
+            color: 'white',
+            border: 'none',
+            padding: '10px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '18px'
+          }}
+          className="mobile-menu-toggle"
+        >
+          {isOpen ? <FiX /> : <FiMenu />}
+        </button>
+      )}
+
+      {/* Overlay for mobile */}
+      {isOpen && isMobile && (
+        <div
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 999
+          }}
+        />
+      )}
+
+      <div
+        style={{
+          position: 'fixed',
+          left: isMobile ? (isOpen ? 0 : '-250px') : 0,
+          top: 0,
+          width: '250px',
+          height: '100vh',
+          background: '#2c3e50',
+          color: 'white',
+          zIndex: 1000,
+          overflowY: 'auto',
+          transition: 'left 0.3s ease'
+        }}
+      >
       <div style={{
         padding: '20px',
         borderBottom: '1px solid #34495e'
@@ -148,7 +211,8 @@ const Sidebar = () => {
           Logout
         </button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

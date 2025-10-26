@@ -272,6 +272,20 @@ body {
   width: 100%;
 }
 
+/* Utility classes for mobile responsiveness */
+.overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hide-on-mobile {
+  display: block;
+}
+
+.show-on-mobile {
+  display: none;
+}
+
 .tipe-person-toggle {
   display: flex;
   gap: 8px;
@@ -337,12 +351,129 @@ body {
 }
 
 @media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
   .main-content {
     margin-left: 0;
     padding: 10px;
   }
+
+  .page-header {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .content-card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .btn-sm {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+    max-height: 95vh;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 8px;
+  }
+
+  .page-header {
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  .page-subtitle {
+    font-size: 12px;
+  }
+
+  .content-card {
+    padding: 10px;
+  }
+
+  .table {
+    font-size: 11px;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px 4px;
+  }
+
+  .btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .form-control {
+    font-size: 14px;
+  }
+
+  .modal-content {
+    padding: 12px;
+  }
+}
+
+/* Sidebar mobile styles */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block !important;
+  }
   
-  .admin-layout {
-    flex-direction: column;
+  .main-content {
+    margin-left: 0 !important;
+    padding-top: 50px;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+
+  .stat-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
