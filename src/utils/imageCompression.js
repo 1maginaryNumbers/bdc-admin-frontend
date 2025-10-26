@@ -54,14 +54,22 @@ export const compressImage = async (file, options = {}) => {
             const fileSizeMB = blob.size / (1024 * 1024);
             
             if (fileSizeMB > maxSizeMB) {
-              // If still too large, compress more aggressively
-              compressImageRecursive(file, {
-                maxWidth,
-                maxHeight,
-                quality: quality * 0.8,
-                maxSizeMB,
-                currentQuality: quality * 0.8
-              }).then(resolve).catch(reject);
+              console.log('Image still too large, compressing with lower quality...');
+              canvas.toBlob(
+                (blob2) => {
+                  if (!blob2) {
+                    reject(new Error('Failed to compress image further'));
+                    return;
+                  }
+                  const compressedFile2 = new File([blob2], file.name, {
+                    type: file.type,
+                    lastModified: Date.now(),
+                  });
+                  resolve(compressedFile2);
+                },
+                file.type || 'image/jpeg',
+                quality * 0.5
+              );
             } else {
               // Create new file from blob
               const compressedFile = new File([blob], file.name, {

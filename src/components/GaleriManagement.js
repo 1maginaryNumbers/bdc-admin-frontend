@@ -132,10 +132,10 @@ const GaleriManagement = () => {
 
     try {
       const compressedFile = await compressImage(file, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.8,
-        maxSizeMB: 2
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.7,
+        maxSizeMB: 1
       });
 
       if (compressedFile.size < file.size) {
