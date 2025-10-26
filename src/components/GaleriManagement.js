@@ -360,6 +360,7 @@ const GaleriManagement = () => {
                       }}
                       onClick={() => openImageModal(item)}
                       onError={(e) => {
+                        console.error('Image failed to load for:', item.judul, 'URL:', item.url?.substring(0, 100));
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';
                       }}
