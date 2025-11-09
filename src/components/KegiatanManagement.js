@@ -298,6 +298,27 @@ const KegiatanManagement = () => {
     }
   };
 
+  const handleForceComplete = async (kegiatan) => {
+    if (window.confirm(`Are you sure you want to mark "${kegiatan.namaKegiatan}" as completed?`)) {
+      try {
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/kegiatan/${kegiatan._id}`, {
+          namaKegiatan: kegiatan.namaKegiatan,
+          deskripsi: kegiatan.deskripsi,
+          tanggalMulai: kegiatan.tanggalMulai,
+          tanggalSelesai: kegiatan.tanggalSelesai,
+          waktu: kegiatan.waktu,
+          tempat: kegiatan.tempat,
+          kapasitas: kegiatan.kapasitas,
+          status: 'selesai'
+        });
+        toast.success('Kegiatan marked as completed');
+        fetchKegiatan();
+      } catch (error) {
+        toast.error('Failed to update kegiatan status');
+      }
+    }
+  };
+
   const openModal = () => {
     setEditingKegiatan(null);
     resetForm();
@@ -432,6 +453,16 @@ const KegiatanManagement = () => {
                   <td>{getStatusBadge(item.status)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                      {item.status !== 'selesai' && (
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleForceComplete(item)}
+                          style={{ flexShrink: 0 }}
+                          title="Mark as Completed"
+                        >
+                          Complete
+                        </button>
+                      )}
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => handleEdit(item)}
