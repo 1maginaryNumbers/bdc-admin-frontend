@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiCalendar, FiTag } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiTag } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -12,7 +12,6 @@ const JadwalManagement = () => {
   const [kategori, setKategori] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showKategoriModal, setShowKategoriModal] = useState(false);
   const [editingJadwal, setEditingJadwal] = useState(null);
@@ -31,10 +30,6 @@ const JadwalManagement = () => {
     warna: '#3b82f6'
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [refreshTrigger, currentDate]);
-
   useEscapeKey(() => {
     if (showModal) closeModal();
     if (showKategoriModal) closeKategoriModal();
@@ -48,7 +43,7 @@ const JadwalManagement = () => {
     if (showKategoriModal) closeKategoriModal();
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
@@ -65,7 +60,11 @@ const JadwalManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentDate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, refreshTrigger]);
 
   const handleChange = (e) => {
     setFormData({
@@ -156,7 +155,6 @@ const JadwalManagement = () => {
       kategori: '',
       tempat: ''
     });
-    setSelectedDate(date);
     setShowModal(true);
   };
 
@@ -186,7 +184,6 @@ const JadwalManagement = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingJadwal(null);
-    setSelectedDate(null);
     setFormData({
       judul: '',
       deskripsi: '',
