@@ -20,6 +20,7 @@ import AbsensiManagement from './components/AbsensiManagement';
 import AdminManagement from './components/AdminManagement';
 import QRScan from './components/QRScan';
 import ActivityLog from './components/ActivityLog';
+import JadwalManagement from './components/JadwalManagement';
 import Sidebar from './components/Sidebar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { RefreshProvider } from './contexts/RefreshContext';
@@ -150,6 +151,13 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <ActivityLog />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/jadwal" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <JadwalManagement />
                 </AdminLayout>
               </ProtectedRoute>
             } />
