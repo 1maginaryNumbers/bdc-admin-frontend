@@ -24,7 +24,8 @@ const KegiatanManagement = () => {
     deskripsi: '',
     tanggalMulai: new Date().toISOString().split('T')[0],
     tanggalSelesai: new Date().toISOString().split('T')[0],
-    waktu: '',
+    waktuMulai: '',
+    waktuSelesai: '',
     tempat: '',
     kapasitas: '',
     status: 'akan_datang'
@@ -263,7 +264,8 @@ const KegiatanManagement = () => {
       deskripsi: '',
       tanggalMulai: new Date().toISOString().split('T')[0],
       tanggalSelesai: new Date().toISOString().split('T')[0],
-      waktu: '',
+      waktuMulai: '',
+      waktuSelesai: '',
       tempat: '',
       kapasitas: '',
       status: 'akan_datang'
@@ -277,7 +279,8 @@ const KegiatanManagement = () => {
       deskripsi: kegiatan.deskripsi,
       tanggalMulai: kegiatan.tanggalMulai ? kegiatan.tanggalMulai.split('T')[0] : new Date().toISOString().split('T')[0],
       tanggalSelesai: kegiatan.tanggalSelesai ? kegiatan.tanggalSelesai.split('T')[0] : new Date().toISOString().split('T')[0],
-      waktu: kegiatan.waktu || '',
+      waktuMulai: kegiatan.waktuMulai || kegiatan.waktu || '',
+      waktuSelesai: kegiatan.waktuSelesai || '',
       tempat: kegiatan.tempat || '',
       kapasitas: kegiatan.kapasitas || '',
       status: kegiatan.status
@@ -447,7 +450,11 @@ const KegiatanManagement = () => {
                   </td>
                   <td>{formatDate(item.tanggalMulai)}</td>
                   <td>{formatDate(item.tanggalSelesai)}</td>
-                  <td>{item.waktu || '-'}</td>
+                  <td>
+                    {item.waktuMulai && item.waktuSelesai
+                      ? `${item.waktuMulai} - ${item.waktuSelesai}`
+                      : item.waktuMulai || item.waktu || '-'}
+                  </td>
                   <td>{item.tempat || '-'}</td>
                   <td>{item.kapasitas || '-'}</td>
                   <td>{getStatusBadge(item.status)}</td>
@@ -552,17 +559,29 @@ const KegiatanManagement = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
-                  <label className="form-label">Waktu</label>
+                  <label className="form-label">Start Time</label>
                   <input
-                    type="text"
-                    name="waktu"
-                    value={formData.waktu}
+                    type="time"
+                    name="waktuMulai"
+                    value={formData.waktuMulai}
                     onChange={handleChange}
                     className="form-control"
-                    placeholder="e.g., 09:00 - 12:00"
                   />
                 </div>
 
+                <div className="form-group">
+                  <label className="form-label">End Time</label>
+                  <input
+                    type="time"
+                    name="waktuSelesai"
+                    value={formData.waktuSelesai}
+                    onChange={handleChange}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
                   <label className="form-label">Tempat</label>
                   <input
@@ -573,9 +592,7 @@ const KegiatanManagement = () => {
                     className="form-control"
                   />
                 </div>
-              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
                   <label className="form-label">Kapasitas</label>
                   <input
@@ -587,20 +604,20 @@ const KegiatanManagement = () => {
                     min="1"
                   />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="form-control"
-                  >
-                    <option value="akan_datang">Akan Datang</option>
-                    <option value="aktif">Aktif</option>
-                    <option value="selesai">Selesai</option>
-                  </select>
-                </div>
+              <div className="form-group">
+                <label className="form-label">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  <option value="akan_datang">Akan Datang</option>
+                  <option value="aktif">Aktif</option>
+                  <option value="selesai">Selesai</option>
+                </select>
               </div>
 
               <div className="modal-footer">
