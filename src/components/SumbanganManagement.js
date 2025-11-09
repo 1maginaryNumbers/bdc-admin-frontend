@@ -10,12 +10,19 @@ import { compressImage, isFileSizeAcceptable, formatFileSize } from '../utils/im
 const SumbanganManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [sumbangan, setSumbangan] = useState([]);
+  const [filteredSumbangan, setFilteredSumbangan] = useState([]);
   const [transaksi, setTransaksi] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showTransaksiModal, setShowTransaksiModal] = useState(false);
+  const [showQrisModal, setShowQrisModal] = useState(false);
+  const [selectedQrisImage, setSelectedQrisImage] = useState(null);
   const [editingSumbangan, setEditingSumbangan] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [filters, setFilters] = useState({
+    name: '',
+    date: ''
+  });
   const [formData, setFormData] = useState({
     namaEvent: '',
     deskripsi: '',
@@ -43,6 +50,9 @@ const SumbanganManagement = () => {
     if (showTransaksiModal) {
       closeTransaksiModal();
     }
+    if (showQrisModal) {
+      closeQrisModal();
+    }
   });
 
   const modalRef = useOutsideClick(() => {
@@ -57,6 +67,12 @@ const SumbanganManagement = () => {
     }
   });
 
+  const qrisModalRef = useOutsideClick(() => {
+    if (showQrisModal) {
+      closeQrisModal();
+    }
+  });
+
   const fetchData = async () => {
     try {
       const [sumbanganRes, transaksiRes] = await Promise.all([
@@ -65,18 +81,36 @@ const SumbanganManagement = () => {
       ]);
       
       const sumbanganData = sumbanganRes.data;
+      let sumbanganList = [];
       if (Array.isArray(sumbanganData)) {
-        setSumbangan(sumbanganData);
+        sumbanganList = sumbanganData;
       } else if (sumbanganData.sumbangan && Array.isArray(sumbanganData.sumbangan)) {
-        setSumbangan(sumbanganData.sumbangan);
-      } else {
-        setSumbangan([]);
+        sumbanganList = sumbanganData.sumbangan;
       }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const updatedSumbangan = sumbanganList.map((item) => {
+        if (item.tanggalSelesai && item.status === 'aktif') {
+          const endDate = new Date(item.tanggalSelesai);
+          endDate.setHours(0, 0, 0, 0);
+          
+          if (endDate < today) {
+            return { ...item, status: 'selesai' };
+          }
+        }
+        return item;
+      });
+      
+      setSumbangan(updatedSumbangan);
+      setFilteredSumbangan(updatedSumbangan);
       
       setTransaksi(transaksiRes.data);
     } catch (error) {
       toast.error('Failed to fetch data');
       setSumbangan([]);
+      setFilteredSumbangan([]);
       setTransaksi([]);
     } finally {
       setLoading(false);
@@ -243,6 +277,44 @@ const SumbanganManagement = () => {
     setTransaksiFormData({ nama: '', jumlah: '', metode: '', status: 'pending' });
   };
 
+  const openQrisModal = (qrisImage) => {
+    setSelectedQrisImage(qrisImage);
+    setShowQrisModal(true);
+  };
+
+  const closeQrisModal = () => {
+    setShowQrisModal(false);
+    setSelectedQrisImage(null);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value
+    });
+  };
+
+  useEffect(() => {
+    let filtered = [...sumbangan];
+    
+    if (filters.name) {
+      filtered = filtered.filter(item => 
+        (item.namaEvent || item.namaPaket || '').toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+    
+    if (filters.date) {
+      filtered = filtered.filter(item => {
+        if (!item.tanggalSelesai) return false;
+        const itemDate = new Date(item.tanggalSelesai).toISOString().split('T')[0];
+        return itemDate === filters.date;
+      });
+    }
+    
+    setFilteredSumbangan(filtered);
+  }, [filters, sumbangan]);
+
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('id-ID');
@@ -300,6 +372,38 @@ const SumbanganManagement = () => {
           </div>
         </div>
 
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by Name</label>
+            <input
+              type="text"
+              name="name"
+              value={filters.name}
+              onChange={handleFilterChange}
+              className="form-control"
+              placeholder="Search event name..."
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by End Date</label>
+            <input
+              type="date"
+              name="date"
+              value={filters.date}
+              onChange={handleFilterChange}
+              className="form-control"
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setFilters({ name: '', date: '' })}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
@@ -315,7 +419,7 @@ const SumbanganManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {sumbangan.map((item) => (
+              {filteredSumbangan.map((item) => (
                 <tr key={item._id}>
                   <td style={{ fontWeight: '500' }}>{item.namaEvent || item.namaPaket || '-'}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -336,7 +440,17 @@ const SumbanganManagement = () => {
                       <img 
                         src={getImageUrl(item.qrisImage)} 
                         alt="QRIS" 
-                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
+                        onClick={() => openQrisModal(item.qrisImage)}
+                        style={{ 
+                          width: '50px', 
+                          height: '50px', 
+                          objectFit: 'cover', 
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                       />
                     ) : (
                       <span style={{ color: '#999' }}>No QRIS</span>
@@ -637,6 +751,34 @@ const SumbanganManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showQrisModal && selectedQrisImage && (
+        <div className="modal">
+          <div className="modal-content" ref={qrisModalRef} style={{ maxWidth: '500px', textAlign: 'center' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">QRIS Preview</h3>
+              <button className="close-btn" onClick={closeQrisModal}>×</button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <img 
+                src={getImageUrl(selectedQrisImage)} 
+                alt="QRIS Full Preview" 
+                style={{ 
+                  maxWidth: '100%', 
+                  maxHeight: '500px', 
+                  borderRadius: '8px',
+                  border: '1px solid #ddd'
+                }}
+              />
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={closeQrisModal}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
