@@ -23,7 +23,8 @@ const JadwalManagement = () => {
     waktuMulai: '',
     waktuSelesai: '',
     kategori: '',
-    tempat: ''
+    tempat: '',
+    kapasitas: ''
   });
   const [kategoriFormData, setKategoriFormData] = useState({
     nama: '',
@@ -85,7 +86,8 @@ const JadwalManagement = () => {
     try {
       const dataToSend = {
         ...formData,
-        tanggal: new Date(formData.tanggal).toISOString()
+        tanggal: new Date(formData.tanggal).toISOString(),
+        kapasitas: formData.kapasitas ? parseInt(formData.kapasitas) : null
       };
 
       if (editingJadwal) {
@@ -153,7 +155,8 @@ const JadwalManagement = () => {
       waktuMulai: '',
       waktuSelesai: '',
       kategori: '',
-      tempat: ''
+      tempat: '',
+      kapasitas: ''
     });
     setShowModal(true);
   };
@@ -167,7 +170,8 @@ const JadwalManagement = () => {
       waktuMulai: jadwal.waktuMulai || '',
       waktuSelesai: jadwal.waktuSelesai || '',
       kategori: jadwal.kategori?._id || jadwal.kategori || '',
-      tempat: jadwal.tempat || ''
+      tempat: jadwal.tempat || '',
+      kapasitas: jadwal.kapasitas || ''
     });
     setShowModal(true);
   };
@@ -191,7 +195,8 @@ const JadwalManagement = () => {
       waktuMulai: '',
       waktuSelesai: '',
       kategori: '',
-      tempat: ''
+      tempat: '',
+      kapasitas: ''
     });
   };
 
@@ -522,15 +527,29 @@ const JadwalManagement = () => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Location</label>
-                <input
-                  type="text"
-                  name="tempat"
-                  value={formData.tempat}
-                  onChange={handleChange}
-                  className="form-control"
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div className="form-group">
+                  <label className="form-label">Location</label>
+                  <input
+                    type="text"
+                    name="tempat"
+                    value={formData.tempat}
+                    onChange={handleChange}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Capacity</label>
+                  <input
+                    type="number"
+                    name="kapasitas"
+                    value={formData.kapasitas}
+                    onChange={handleChange}
+                    className="form-control"
+                    min="1"
+                  />
+                </div>
               </div>
 
               <div className="modal-footer">
