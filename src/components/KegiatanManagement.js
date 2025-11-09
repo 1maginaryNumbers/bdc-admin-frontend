@@ -15,7 +15,8 @@ const KegiatanManagement = () => {
   const [editingKegiatan, setEditingKegiatan] = useState(null);
   const [filters, setFilters] = useState({
     name: '',
-    date: '',
+    startDate: '',
+    endDate: '',
     status: ''
   });
   const [formData, setFormData] = useState({
@@ -139,11 +140,19 @@ const KegiatanManagement = () => {
       );
     }
     
-    if (filters.date) {
+    if (filters.startDate) {
+      filtered = filtered.filter(item => {
+        if (!item.tanggalMulai) return false;
+        const itemDate = new Date(item.tanggalMulai).toISOString().split('T')[0];
+        return itemDate === filters.startDate;
+      });
+    }
+    
+    if (filters.endDate) {
       filtered = filtered.filter(item => {
         if (!item.tanggalSelesai) return false;
         const itemDate = new Date(item.tanggalSelesai).toISOString().split('T')[0];
-        return itemDate === filters.date;
+        return itemDate === filters.endDate;
       });
     }
     
@@ -347,11 +356,21 @@ const KegiatanManagement = () => {
             />
           </div>
           <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+              className="form-control"
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '200px' }}>
             <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by End Date</label>
             <input
               type="date"
-              name="date"
-              value={filters.date}
+              name="endDate"
+              value={filters.endDate}
               onChange={handleFilterChange}
               className="form-control"
             />
@@ -373,7 +392,7 @@ const KegiatanManagement = () => {
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button
               className="btn btn-secondary"
-              onClick={() => setFilters({ name: '', date: '', status: '' })}
+              onClick={() => setFilters({ name: '', startDate: '', endDate: '', status: '' })}
             >
               Clear Filters
             </button>
