@@ -10,6 +10,7 @@ const KegiatanManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [kegiatan, setKegiatan] = useState([]);
   const [filteredKegiatan, setFilteredKegiatan] = useState([]);
+  const [kategori, setKategori] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingKegiatan, setEditingKegiatan] = useState(null);
@@ -28,6 +29,7 @@ const KegiatanManagement = () => {
     waktuSelesai: '',
     tempat: '',
     kapasitas: '',
+    kategori: '',
     status: 'akan_datang'
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,8 +45,12 @@ const KegiatanManagement = () => {
   const fetchKegiatan = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/kegiatan?page=${currentPage}&limit=20`);
-      const data = response.data;
+      const [kegiatanRes, kategoriRes] = await Promise.all([
+        axios.get(`https://finalbackend-ochre.vercel.app/api/kegiatan?page=${currentPage}&limit=20`),
+        axios.get('https://finalbackend-ochre.vercel.app/api/kategori-jadwal')
+      ]);
+      setKategori(kategoriRes.data);
+      const data = kegiatanRes.data;
       
       let kegiatanList = [];
       if (Array.isArray(data)) {
@@ -268,6 +274,7 @@ const KegiatanManagement = () => {
       waktuSelesai: '',
       tempat: '',
       kapasitas: '',
+      kategori: '',
       status: 'akan_datang'
     });
   };
@@ -283,6 +290,7 @@ const KegiatanManagement = () => {
       waktuSelesai: kegiatan.waktuSelesai || '',
       tempat: kegiatan.tempat || '',
       kapasitas: kegiatan.kapasitas || '',
+      kategori: kegiatan.kategori?._id || kegiatan.kategori || '',
       status: kegiatan.status
     });
     setShowModal(true);
@@ -309,15 +317,29 @@ const KegiatanManagement = () => {
           deskripsi: kegiatan.deskripsi,
           tanggalMulai: kegiatan.tanggalMulai,
           tanggalSelesai: kegiatan.tanggalSelesai,
-          waktu: kegiatan.waktu,
+          waktuMulai: kegiatan.waktuMulai,
+          waktuSelesai: kegiatan.waktuSelesai,
           tempat: kegiatan.tempat,
           kapasitas: kegiatan.kapasitas,
+          kategori: kegiatan.kategori?._id || kegiatan.kategori,
           status: 'selesai'
         });
         toast.success('Kegiatan marked as completed');
         fetchKegiatan();
       } catch (error) {
         toast.error('Failed to update kegiatan status');
+      }
+    }
+  };
+
+  const handleActivate = async (kegiatan) => {
+    if (window.confirm(`Are you sure you want to activate "${kegiatan.namaKegiatan}"?`)) {
+      try {
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/kegiatan/${kegiatan._id}/activate`);
+        toast.success('Kegiatan activated successfully');
+        fetchKegiatan();
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Failed to activate kegiatan');
       }
     }
   };
@@ -341,7 +363,7 @@ const KegiatanManagement = () => {
   const getStatusBadge = (status) => {
     const statusMap = {
       'akan_datang': { text: 'Akan Datang', class: 'btn-secondary' },
-      'aktif': { text: 'Aktif', class: 'btn-success' },
+      'sedang_berlangsung': { text: 'Sedang Berlangsung', class: 'btn-success' },
       'selesai': { text: 'Selesai', class: 'btn-primary' }
     };
     const statusInfo = statusMap[status] || { text: status, class: 'btn-secondary' };
@@ -409,7 +431,7 @@ const KegiatanManagement = () => {
             >
               <option value="">All Status</option>
               <option value="akan_datang">Akan Datang</option>
-              <option value="aktif">Aktif</option>
+              <option value="sedang_berlangsung">Sedang Berlangsung</option>
               <option value="selesai">Selesai</option>
             </select>
           </div>
@@ -460,6 +482,16 @@ const KegiatanManagement = () => {
                   <td>{getStatusBadge(item.status)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                      {item.status === 'akan_datang' && (
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => handleActivate(item)}
+                          style={{ flexShrink: 0 }}
+                          title="Activate Kegiatan"
+                        >
+                          Activate
+                        </button>
+                      )}
                       {item.status !== 'selesai' && (
                         <button
                           className="btn btn-sm btn-primary"
@@ -607,6 +639,23 @@ const KegiatanManagement = () => {
               </div>
 
               <div className="form-group">
+                <label className="form-label">Kategori</label>
+                <select
+                  name="kategori"
+                  value={formData.kategori}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  <option value="">No Category</option>
+                  {kategori.map((kat) => (
+                    <option key={kat._id} value={kat._id}>
+                      {kat.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Status</label>
                 <select
                   name="status"
@@ -615,7 +664,7 @@ const KegiatanManagement = () => {
                   className="form-control"
                 >
                   <option value="akan_datang">Akan Datang</option>
-                  <option value="aktif">Aktif</option>
+                  <option value="sedang_berlangsung">Sedang Berlangsung</option>
                   <option value="selesai">Selesai</option>
                 </select>
               </div>

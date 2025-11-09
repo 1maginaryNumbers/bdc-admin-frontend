@@ -299,9 +299,6 @@ const JadwalManagement = () => {
               <h2 style={{ margin: 0 }}>
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h2>
-              <button className="btn btn-sm btn-outline-secondary" onClick={goToToday}>
-                Today
-              </button>
             </div>
             <button className="btn btn-secondary" onClick={() => navigateMonth(1)}>
               Next →
