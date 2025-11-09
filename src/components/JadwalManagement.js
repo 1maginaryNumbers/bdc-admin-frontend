@@ -210,10 +210,6 @@ const JadwalManagement = () => {
     setCurrentDate(newDate);
   };
 
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
-
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
