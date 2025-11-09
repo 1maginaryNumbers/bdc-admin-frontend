@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiClipboard, FiCheck, FiQrCode, FiDownload } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiCheck, FiDownload } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
-import QRCode from 'qrcode';
 import { useRefresh } from '../contexts/RefreshContext';
 
 const PendaftaranManagement = () => {

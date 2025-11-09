@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiPlus, FiSettings } from 'react-icons/fi';
 
 const AdminManagement = () => {
   const [formData, setFormData] = useState({

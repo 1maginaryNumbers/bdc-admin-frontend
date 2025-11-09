@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiInfo } from 'react-icons/fi';
 
 const InfoUmumManagement = () => {
   const [infoUmum, setInfoUmum] = useState({

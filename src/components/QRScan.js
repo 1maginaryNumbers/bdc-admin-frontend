@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiCamera, FiCheck, FiX, FiUpload, FiImage } from 'react-icons/fi';
+import { FiCamera, FiCheck, FiX, FiImage } from 'react-icons/fi';
 import QrScanner from 'qr-scanner';
 
 const QRScan = () => {

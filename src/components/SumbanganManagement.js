@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiDollarSign, FiImage } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';

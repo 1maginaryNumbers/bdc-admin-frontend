@@ -6,13 +6,6 @@ import { useRefresh } from '../contexts/RefreshContext';
 import ActivityLog from './ActivityLog';
 import {
   FiUsers,
-  FiCalendar,
-  FiBell,
-  FiImage,
-  FiClipboard,
-  FiDollarSign,
-  FiMessageSquare,
-  FiShoppingBag,
   FiPlus,
   FiCheckCircle,
   FiSend,

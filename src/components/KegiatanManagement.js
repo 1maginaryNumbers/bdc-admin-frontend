@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiCalendar } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -32,7 +32,7 @@ const KegiatanManagement = () => {
     hasPrevPage: false
   });
 
-  const fetchKegiatan = async () => {
+  const fetchKegiatan = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/kegiatan?page=${currentPage}&limit=20`);
@@ -83,11 +83,11 @@ const KegiatanManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
 
   useEffect(() => {
     fetchKegiatan();
-  }, [currentPage, refreshTrigger]);
+  }, [fetchKegiatan, refreshTrigger]);
 
   useEscapeKey(() => {
     if (showModal) {
