@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiDollarSign } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiDollarSign, FiImage } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
+import { compressImage, isFileSizeAcceptable, formatFileSize } from '../utils/imageCompression';
 
 const SumbanganManagement = () => {
   const { refreshTrigger } = useRefresh();
@@ -14,11 +15,15 @@ const SumbanganManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [showTransaksiModal, setShowTransaksiModal] = useState(false);
   const [editingSumbangan, setEditingSumbangan] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
-    nama: '',
-    jumlah: '',
-    metode: '',
-    keterangan: ''
+    namaEvent: '',
+    deskripsi: '',
+    bankName: '',
+    bankNumber: '',
+    targetDana: '',
+    tanggalSelesai: '',
+    status: 'aktif'
   });
   const [transaksiFormData, setTransaksiFormData] = useState({
     nama: '',
@@ -59,7 +64,6 @@ const SumbanganManagement = () => {
         axios.get('https://finalbackend-ochre.vercel.app/api/sumbangan/transaksi')
       ]);
       
-      // Handle both old format (array) and new format (object with sumbangan property)
       const sumbanganData = sumbanganRes.data;
       if (Array.isArray(sumbanganData)) {
         setSumbangan(sumbanganData);
@@ -86,35 +90,78 @@ const SumbanganManagement = () => {
     });
   };
 
-  const handleTransaksiChange = (e) => {
-    setTransaksiFormData({
-      ...transaksiFormData,
-      [e.target.name]: e.target.value
-    });
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    if (!isFileSizeAcceptable(file, 4)) {
+      toast.info(`Image size is ${formatFileSize(file.size)}. Compressing...`);
+    }
+
+    try {
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.7,
+        maxSizeMB: 1
+      });
+
+      if (compressedFile.size < file.size) {
+        toast.success(`Image compressed: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+      }
+      setSelectedFile(compressedFile);
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      toast.warning('Using original image file');
+      setSelectedFile(file);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSend = {
-        ...formData,
-        jumlah: parseFloat(formData.jumlah)
-      };
+      const formDataToSend = new FormData();
+      formDataToSend.append('namaEvent', formData.namaEvent);
+      formDataToSend.append('deskripsi', formData.deskripsi);
+      formDataToSend.append('bankName', formData.bankName);
+      formDataToSend.append('bankNumber', formData.bankNumber);
+      formDataToSend.append('targetDana', parseFloat(formData.targetDana));
+      if (formData.tanggalSelesai) {
+        formDataToSend.append('tanggalSelesai', formData.tanggalSelesai);
+      }
+      formDataToSend.append('status', formData.status);
+
+      if (selectedFile) {
+        formDataToSend.append('qrisImage', selectedFile);
+      }
 
       if (editingSumbangan) {
-        await axios.put(`https://finalbackend-ochre.vercel.app/api/sumbangan/${editingSumbangan._id}`, dataToSend);
-        toast.success('Sumbangan updated successfully');
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/sumbangan/${editingSumbangan._id}`, formDataToSend);
+        toast.success('Donation event updated successfully');
       } else {
-        await axios.post('https://finalbackend-ochre.vercel.app/api/sumbangan', dataToSend);
-        toast.success('Sumbangan created successfully');
+        await axios.post('https://finalbackend-ochre.vercel.app/api/sumbangan', formDataToSend);
+        toast.success('Donation event created successfully');
       }
       setShowModal(false);
       setEditingSumbangan(null);
-      setFormData({ nama: '', jumlah: '', metode: '', keterangan: '' });
+      setSelectedFile(null);
+      setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
       fetchData();
     } catch (error) {
-      toast.error('Failed to save sumbangan');
+      toast.error('Failed to save donation event');
     }
+  };
+
+  const handleTransaksiChange = (e) => {
+    setTransaksiFormData({
+      ...transaksiFormData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleTransaksiSubmit = async (e) => {
@@ -138,22 +185,26 @@ const SumbanganManagement = () => {
   const handleEdit = (sumbangan) => {
     setEditingSumbangan(sumbangan);
     setFormData({
-      nama: sumbangan.nama,
-      jumlah: sumbangan.jumlah.toString(),
-      metode: sumbangan.metode || '',
-      keterangan: sumbangan.keterangan || ''
+      namaEvent: sumbangan.namaEvent || '',
+      deskripsi: sumbangan.deskripsi || '',
+      bankName: sumbangan.bankName || '',
+      bankNumber: sumbangan.bankNumber || '',
+      targetDana: sumbangan.targetDana ? sumbangan.targetDana.toString() : '',
+      tanggalSelesai: sumbangan.tanggalSelesai ? new Date(sumbangan.tanggalSelesai).toISOString().split('T')[0] : '',
+      status: sumbangan.status || 'aktif'
     });
+    setSelectedFile(null);
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this sumbangan?')) {
+    if (window.confirm('Are you sure you want to delete this donation event?')) {
       try {
         await axios.delete(`https://finalbackend-ochre.vercel.app/api/sumbangan/${id}`);
-        toast.success('Sumbangan deleted successfully');
+        toast.success('Donation event deleted successfully');
         fetchData();
       } catch (error) {
-        toast.error('Failed to delete sumbangan');
+        toast.error('Failed to delete donation event');
       }
     }
   };
@@ -170,7 +221,8 @@ const SumbanganManagement = () => {
 
   const openModal = () => {
     setEditingSumbangan(null);
-    setFormData({ nama: '', jumlah: '', metode: '', keterangan: '' });
+    setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+    setSelectedFile(null);
     setShowModal(true);
   };
 
@@ -182,7 +234,8 @@ const SumbanganManagement = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingSumbangan(null);
-    setFormData({ nama: '', jumlah: '', metode: '', keterangan: '' });
+    setSelectedFile(null);
+    setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
   };
 
   const closeTransaksiModal = () => {
@@ -191,6 +244,7 @@ const SumbanganManagement = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('id-ID');
   };
 
@@ -203,6 +257,9 @@ const SumbanganManagement = () => {
 
   const getStatusBadge = (status) => {
     const statusMap = {
+      'aktif': { text: 'Aktif', class: 'btn-success' },
+      'selesai': { text: 'Selesai', class: 'btn-secondary' },
+      'ditutup': { text: 'Ditutup', class: 'btn-danger' },
       'pending': { text: 'Pending', class: 'btn-secondary' },
       'completed': { text: 'Completed', class: 'btn-success' },
       'failed': { text: 'Failed', class: 'btn-danger' }
@@ -211,26 +268,34 @@ const SumbanganManagement = () => {
     return <span className={`btn btn-sm ${statusInfo.class}`}>{statusInfo.text}</span>;
   };
 
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) {
+      return url;
+    }
+    return url;
+  };
+
   if (loading) {
-    return <div className="loading">Loading sumbangan data...</div>;
+    return <div className="loading">Loading donation events...</div>;
   }
 
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">Sumbangan Management</h1>
-        <p className="page-subtitle">Manage donations and transactions</p>
+        <p className="page-subtitle">Manage donation events and transactions</p>
       </div>
 
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Sumbangan List</h3>
+          <h3>Donation Events</h3>
           <div className="d-flex gap-2">
             <button className="btn btn-success" onClick={openTransaksiModal}>
               <FiPlus /> Add Transaksi
             </button>
             <button className="btn btn-primary" onClick={openModal}>
-              <FiPlus /> Add Sumbangan
+              <FiPlus /> Add Event
             </button>
           </div>
         </div>
@@ -239,24 +304,45 @@ const SumbanganManagement = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Nama</th>
-                <th>Jumlah</th>
-                <th>Metode</th>
-                <th>Keterangan</th>
-                <th>Tanggal</th>
+                <th>Event Name</th>
+                <th>Description</th>
+                <th>Bank Info</th>
+                <th>Target</th>
+                <th>Collected</th>
+                <th>QRIS</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {sumbangan.map((item) => (
                 <tr key={item._id}>
-                  <td style={{ fontWeight: '500' }}>{item.nama}</td>
-                  <td>{formatCurrency(item.jumlah)}</td>
-                  <td>{item.metode || '-'}</td>
+                  <td style={{ fontWeight: '500' }}>{item.namaEvent || item.namaPaket || '-'}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.keterangan || '-'}
+                    {item.deskripsi || '-'}
                   </td>
-                  <td>{formatDate(item.tanggal)}</td>
+                  <td>
+                    {item.bankName ? (
+                      <div>
+                        <div style={{ fontWeight: '500' }}>{item.bankName}</div>
+                        <div style={{ fontSize: '0.9em', color: '#666' }}>{item.bankNumber || '-'}</div>
+                      </div>
+                    ) : '-'}
+                  </td>
+                  <td>{formatCurrency(item.targetDana || 0)}</td>
+                  <td>{formatCurrency(item.danaTerkumpul || 0)}</td>
+                  <td>
+                    {item.qrisImage ? (
+                      <img 
+                        src={getImageUrl(item.qrisImage)} 
+                        alt="QRIS" 
+                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                    ) : (
+                      <span style={{ color: '#999' }}>No QRIS</span>
+                    )}
+                  </td>
+                  <td>{getStatusBadge(item.status)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
                       <button
@@ -302,11 +388,11 @@ const SumbanganManagement = () => {
             <tbody>
               {transaksi.map((item) => (
                 <tr key={item._id}>
-                  <td style={{ fontWeight: '500' }}>{item.nama}</td>
-                  <td>{formatCurrency(item.jumlah)}</td>
-                  <td>{item.metode || '-'}</td>
+                  <td style={{ fontWeight: '500' }}>{item.nama || item.namaDonatur || '-'}</td>
+                  <td>{formatCurrency(item.jumlah || item.nominal || 0)}</td>
+                  <td>{item.metode || item.metodePembayaran || '-'}</td>
                   <td>{getStatusBadge(item.status)}</td>
-                  <td>{formatDate(item.tanggal)}</td>
+                  <td>{formatDate(item.tanggal || item.tanggalTransaksi)}</td>
                   <td>
                     {item.status === 'pending' && (
                       <>
@@ -338,31 +424,68 @@ const SumbanganManagement = () => {
           <div className="modal-content" ref={modalRef}>
             <div className="modal-header">
               <h3 className="modal-title">
-                {editingSumbangan ? 'Edit Sumbangan' : 'Add New Sumbangan'}
+                {editingSumbangan ? 'Edit Donation Event' : 'Add New Donation Event'}
               </h3>
               <button className="close-btn" onClick={closeModal}>×</button>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">Nama *</label>
+                <label className="form-label">Event Name *</label>
                 <input
                   type="text"
-                  name="nama"
-                  value={formData.nama}
+                  name="namaEvent"
+                  value={formData.namaEvent}
                   onChange={handleChange}
                   className="form-control"
                   required
                 />
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea
+                  name="deskripsi"
+                  value={formData.deskripsi}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows="3"
+                />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
-                  <label className="form-label">Jumlah *</label>
+                  <label className="form-label">Bank Name *</label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    value={formData.bankName}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Bank Number *</label>
+                  <input
+                    type="text"
+                    name="bankNumber"
+                    value={formData.bankNumber}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div className="form-group">
+                  <label className="form-label">Target Amount *</label>
                   <input
                     type="number"
-                    name="jumlah"
-                    value={formData.jumlah}
+                    name="targetDana"
+                    value={formData.targetDana}
                     onChange={handleChange}
                     className="form-control"
                     min="0"
@@ -372,30 +495,58 @@ const SumbanganManagement = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Metode</label>
-                  <select
-                    name="metode"
-                    value={formData.metode}
+                  <label className="form-label">End Date</label>
+                  <input
+                    type="date"
+                    name="tanggalSelesai"
+                    value={formData.tanggalSelesai}
                     onChange={handleChange}
                     className="form-control"
-                  >
-                    <option value="">Select Metode</option>
-                    <option value="cash">Cash</option>
-                    <option value="transfer">Transfer</option>
-                    <option value="check">Check</option>
-                  </select>
+                  />
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Keterangan</label>
-                <textarea
-                  name="keterangan"
-                  value={formData.keterangan}
+                <label className="form-label">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
                   onChange={handleChange}
                   className="form-control"
-                  rows="3"
+                >
+                  <option value="aktif">Aktif</option>
+                  <option value="selesai">Selesai</option>
+                  <option value="ditutup">Ditutup</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">QRIS Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="form-control"
                 />
+                {selectedFile && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img 
+                      src={URL.createObjectURL(selectedFile)} 
+                      alt="Preview" 
+                      style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
+                    />
+                  </div>
+                )}
+                {editingSumbangan && editingSumbangan.qrisImage && !selectedFile && (
+                  <div style={{ marginTop: '10px' }}>
+                    <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '5px' }}>Current QRIS:</p>
+                    <img 
+                      src={getImageUrl(editingSumbangan.qrisImage)} 
+                      alt="Current QRIS" 
+                      style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="modal-footer">
