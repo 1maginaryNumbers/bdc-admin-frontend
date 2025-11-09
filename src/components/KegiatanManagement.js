@@ -9,9 +9,15 @@ import { useRefresh } from '../contexts/RefreshContext';
 const KegiatanManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [kegiatan, setKegiatan] = useState([]);
+  const [filteredKegiatan, setFilteredKegiatan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingKegiatan, setEditingKegiatan] = useState(null);
+  const [filters, setFilters] = useState({
+    name: '',
+    date: '',
+    status: ''
+  });
   const [formData, setFormData] = useState({
     namaKegiatan: '',
     deskripsi: '',
@@ -37,28 +43,54 @@ const KegiatanManagement = () => {
       setLoading(true);
       const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/kegiatan?page=${currentPage}&limit=20`);
       const data = response.data;
+      
+      let kegiatanList = [];
       if (Array.isArray(data)) {
-        setKegiatan(data);
+        kegiatanList = data;
+      } else if (data.kegiatan && Array.isArray(data.kegiatan)) {
+        kegiatanList = data.kegiatan;
+      }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const updatedKegiatan = kegiatanList.map((item) => {
+        if (item.tanggalSelesai && item.status !== 'selesai') {
+          const endDate = new Date(item.tanggalSelesai);
+          endDate.setHours(0, 0, 0, 0);
+          
+          if (endDate < today) {
+            return { ...item, status: 'selesai' };
+          }
+        }
+        return item;
+      });
+      
+      if (Array.isArray(data)) {
+        setKegiatan(updatedKegiatan);
+        setFilteredKegiatan(updatedKegiatan);
         setPagination({
           currentPage: 1,
           totalPages: 1,
-          totalKegiatan: data.length,
+          totalKegiatan: updatedKegiatan.length,
           kegiatanPerPage: 20,
           hasNextPage: false,
           hasPrevPage: false
         });
       } else if (data.kegiatan && Array.isArray(data.kegiatan)) {
-        setKegiatan(data.kegiatan);
+        setKegiatan(updatedKegiatan);
+        setFilteredKegiatan(updatedKegiatan);
         setPagination(data.pagination || {
           currentPage: 1,
           totalPages: 1,
-          totalKegiatan: data.kegiatan.length,
+          totalKegiatan: updatedKegiatan.length,
           kegiatanPerPage: 20,
           hasNextPage: false,
           hasPrevPage: false
         });
       } else {
         setKegiatan([]);
+        setFilteredKegiatan([]);
         setPagination({
           currentPage: 1,
           totalPages: 1,
@@ -72,6 +104,7 @@ const KegiatanManagement = () => {
       console.error('Error fetching kegiatan:', error);
       toast.error('Failed to fetch kegiatan data');
       setKegiatan([]);
+      setFilteredKegiatan([]);
       setPagination({
         currentPage: 1,
         totalPages: 1,
@@ -88,6 +121,38 @@ const KegiatanManagement = () => {
   useEffect(() => {
     fetchKegiatan();
   }, [fetchKegiatan, refreshTrigger]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value
+    });
+  };
+
+  useEffect(() => {
+    let filtered = [...kegiatan];
+    
+    if (filters.name) {
+      filtered = filtered.filter(item => 
+        (item.namaKegiatan || '').toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+    
+    if (filters.date) {
+      filtered = filtered.filter(item => {
+        if (!item.tanggalSelesai) return false;
+        const itemDate = new Date(item.tanggalSelesai).toISOString().split('T')[0];
+        return itemDate === filters.date;
+      });
+    }
+    
+    if (filters.status) {
+      filtered = filtered.filter(item => item.status === filters.status);
+    }
+    
+    setFilteredKegiatan(filtered);
+  }, [filters, kegiatan]);
 
   useEscapeKey(() => {
     if (showModal) {
@@ -269,6 +334,52 @@ const KegiatanManagement = () => {
           </button>
         </div>
 
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by Name</label>
+            <input
+              type="text"
+              name="name"
+              value={filters.name}
+              onChange={handleFilterChange}
+              className="form-control"
+              placeholder="Search activity name..."
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by End Date</label>
+            <input
+              type="date"
+              name="date"
+              value={filters.date}
+              onChange={handleFilterChange}
+              className="form-control"
+            />
+          </div>
+          <div style={{ flex: '1', minWidth: '200px' }}>
+            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by Status</label>
+            <select
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              className="form-control"
+            >
+              <option value="">All Status</option>
+              <option value="akan_datang">Akan Datang</option>
+              <option value="aktif">Aktif</option>
+              <option value="selesai">Selesai</option>
+            </select>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setFilters({ name: '', date: '', status: '' })}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
         {/* Top Pagination Controls */}
         {renderPagination()}
 
@@ -288,7 +399,7 @@ const KegiatanManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {kegiatan.map((item) => (
+              {filteredKegiatan.map((item) => (
                 <tr key={item._id}>
                   <td>{item.namaKegiatan}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
