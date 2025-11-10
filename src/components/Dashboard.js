@@ -13,6 +13,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [jadwal, setJadwal] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     fetchJadwal();
@@ -115,11 +116,9 @@ const Dashboard = () => {
           style={{
             borderLeft: '4px solid #e74c3c',
             transition: 'all 0.3s ease',
-            cursor: 'pointer',
             gridColumn: 'span 1',
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
           }}
-          onClick={() => navigate('/jadwal')}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-4px)';
             e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)';
@@ -156,16 +155,20 @@ const Dashboard = () => {
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </p>
             </div>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(231, 76, 60, 0.25)'
-            }}>
+            <div 
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(231, 76, 60, 0.25)',
+                cursor: 'pointer'
+              }}
+              onClick={() => navigate('/jadwal')}
+            >
               <FiCalendar style={{
                 fontSize: '26px',
                 color: '#fff'
@@ -203,16 +206,24 @@ const Dashboard = () => {
               }
               const events = getEventsForDate(date);
               const today = isToday(date);
+              const isSelected = selectedDate && date && 
+                selectedDate.getFullYear() === date.getFullYear() &&
+                selectedDate.getMonth() === date.getMonth() &&
+                selectedDate.getDate() === date.getDate();
               return (
                 <div
                   key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedDate(date);
+                  }}
                   style={{
                     textAlign: 'center',
                     padding: '8px 4px',
                     borderRadius: '6px',
-                    backgroundColor: today ? '#fff' : 'transparent',
-                    border: today ? '2px solid #e74c3c' : '1px solid transparent',
-                    boxShadow: today ? '0 2px 8px rgba(231, 76, 60, 0.15)' : 'none',
+                    backgroundColor: isSelected ? '#e3f2fd' : (today ? '#fff' : 'transparent'),
+                    border: isSelected ? '2px solid #2196f3' : (today ? '2px solid #e74c3c' : '1px solid transparent'),
+                    boxShadow: isSelected ? '0 2px 8px rgba(33, 150, 243, 0.2)' : (today ? '0 2px 8px rgba(231, 76, 60, 0.15)' : 'none'),
                     position: 'relative',
                     minHeight: '40px',
                     display: 'flex',
@@ -221,18 +232,20 @@ const Dashboard = () => {
                     justifyContent: 'flex-start',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    background: today 
-                      ? 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)' 
-                      : 'transparent'
+                    background: isSelected
+                      ? 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)'
+                      : (today 
+                        ? 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)' 
+                        : 'transparent')
                   }}
                   onMouseEnter={(e) => {
-                    if (!today) {
+                    if (!isSelected && !today) {
                       e.currentTarget.style.backgroundColor = '#f8f9fa';
                       e.currentTarget.style.transform = 'scale(1.05)';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!today) {
+                    if (!isSelected && !today) {
                       e.currentTarget.style.backgroundColor = 'transparent';
                       e.currentTarget.style.transform = 'scale(1)';
                     }
@@ -240,8 +253,8 @@ const Dashboard = () => {
                 >
                   <span style={{
                     fontSize: '13px',
-                    fontWeight: today ? '700' : '500',
-                    color: today ? '#e74c3c' : '#495057',
+                    fontWeight: isSelected ? '700' : (today ? '700' : '500'),
+                    color: isSelected ? '#2196f3' : (today ? '#e74c3c' : '#495057'),
                     marginBottom: events.length > 0 ? '4px' : '0',
                     lineHeight: '1.2'
                   }}>
@@ -282,6 +295,121 @@ const Dashboard = () => {
               );
             })}
           </div>
+          
+          {selectedDate && getEventsForDate(selectedDate).length > 0 && (
+            <div style={{
+              marginTop: '20px',
+              paddingTop: '20px',
+              borderTop: '1px solid #e9ecef'
+            }}>
+              <h4 style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#212529',
+                marginBottom: '12px'
+              }}>
+                {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </h4>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                {getEventsForDate(selectedDate).map((event) => (
+                  <div
+                    key={event._id}
+                    style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      backgroundColor: '#f8f9fa',
+                      borderLeft: `4px solid ${event.kategori?.warna || '#e74c3c'}`,
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e9ecef';
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                    onClick={() => navigate('/jadwal')}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '4px'
+                    }}>
+                      <h5 style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#212529',
+                        margin: 0
+                      }}>
+                        {event.judul}
+                      </h5>
+                      {event.kategori && (
+                        <span style={{
+                          fontSize: '10px',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          backgroundColor: `${event.kategori.warna}20`,
+                          color: event.kategori.warna,
+                          fontWeight: '600'
+                        }}>
+                          {event.kategori.nama}
+                        </span>
+                      )}
+                    </div>
+                    {(event.waktuMulai || event.waktuSelesai || event.tempat) && (
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '12px',
+                        fontSize: '12px',
+                        color: '#6c757d'
+                      }}>
+                        {event.waktuMulai && event.waktuSelesai && (
+                          <span>🕐 {event.waktuMulai} - {event.waktuSelesai}</span>
+                        )}
+                        {event.tempat && (
+                          <span>📍 {event.tempat}</span>
+                        )}
+                        {event.kapasitas && (
+                          <span>👥 Capacity: {event.kapasitas}</span>
+                        )}
+                      </div>
+                    )}
+                    {event.deskripsi && (
+                      <p style={{
+                        fontSize: '12px',
+                        color: '#6c757d',
+                        margin: '8px 0 0 0',
+                        lineHeight: '1.4'
+                      }}>
+                        {event.deskripsi}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {selectedDate && getEventsForDate(selectedDate).length === 0 && (
+            <div style={{
+              marginTop: '20px',
+              paddingTop: '20px',
+              borderTop: '1px solid #e9ecef',
+              textAlign: 'center',
+              color: '#6c757d',
+              fontSize: '14px'
+            }}>
+              No events scheduled for {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+          )}
         </div>
       </div>
 
