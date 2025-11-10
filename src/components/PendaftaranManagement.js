@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiCheck, FiDownload } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiDownload } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -286,59 +286,6 @@ const PendaftaranManagement = () => {
     return new Date(dateString).toLocaleDateString('id-ID');
   };
 
-  const handleBulkApprove = async () => {
-    if (selectedIds.length === 0) {
-      toast.warning('Please select registrations to approve');
-      return;
-    }
-
-    try {
-      const promises = selectedIds.map(id => 
-        axios.put(`https://finalbackend-ochre.vercel.app/api/pendaftaran/${id}`, {
-          status: 'approved'
-        })
-      );
-      
-      await Promise.all(promises);
-      
-      setPendaftaran(prev => prev.map(p => 
-        selectedIds.includes(p._id) ? { ...p, status: 'approved' } : p
-      ));
-      
-      setSelectedIds([]);
-      toast.success(`${selectedIds.length} registrations approved successfully`);
-    } catch (error) {
-      toast.error('Failed to approve registrations');
-    }
-  };
-
-  const handleBulkReject = async () => {
-    if (selectedIds.length === 0) {
-      toast.warning('Please select registrations to reject');
-      return;
-    }
-
-    try {
-      const promises = selectedIds.map(id => 
-        axios.put(`https://finalbackend-ochre.vercel.app/api/pendaftaran/${id}`, {
-          status: 'rejected'
-        })
-      );
-      
-      await Promise.all(promises);
-      
-      setPendaftaran(prev => prev.map(p => 
-        selectedIds.includes(p._id) ? { ...p, status: 'rejected' } : p
-      ));
-      
-      setSelectedIds([]);
-      toast.success(`${selectedIds.length} registrations rejected`);
-    } catch (error) {
-      toast.error('Failed to reject registrations');
-    }
-  };
-
-
   if (loading) {
     return <div className="loading">Loading pendaftaran data...</div>;
   }
@@ -355,17 +302,9 @@ const PendaftaranManagement = () => {
           <h3>Pendaftaran List</h3>
           <div className="d-flex gap-2">
             {selectedIds.length > 0 && (
-              <>
-                <button className="btn btn-success" onClick={handleBulkApprove}>
-                  <FiCheck /> Approve Selected ({selectedIds.length})
-                </button>
-                <button className="btn btn-warning" onClick={handleBulkReject}>
-                  <FiTrash2 /> Reject Selected ({selectedIds.length})
-                </button>
-                <button className="btn btn-danger" onClick={handleBulkDelete}>
-                  <FiTrash2 /> Delete Selected ({selectedIds.length})
-                </button>
-              </>
+              <button className="btn btn-danger" onClick={handleBulkDelete}>
+                <FiTrash2 /> Delete Selected ({selectedIds.length})
+              </button>
             )}
             <button className="btn btn-primary" onClick={openModal}>
               <FiPlus /> Add Pendaftaran

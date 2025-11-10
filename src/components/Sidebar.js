@@ -57,7 +57,7 @@ const Sidebar = () => {
     { path: '/', label: 'Dashboard', icon: FiHome },
     { path: '/umat', label: 'Umat', icon: FiUsers },
     { path: '/kegiatan', label: 'Kegiatan', icon: FiCalendar },
-    { path: '/jadwal', label: 'Jadwal', icon: FiCalendar },
+    { path: '/jadwal', label: 'Calendar', icon: FiCalendar },
     { path: '/pengumuman', label: 'Pengumuman', icon: FiBell },
     { path: '/galeri', label: 'Galeri', icon: FiImage },
     { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard },
