@@ -235,10 +235,18 @@ const JadwalManagement = () => {
 
   const getEventsForDate = (date) => {
     if (!date) return [];
-    const dateStr = date.toISOString().split('T')[0];
+    // Compare dates using local date components to avoid timezone issues
+    const dateYear = date.getFullYear();
+    const dateMonth = date.getMonth();
+    const dateDay = date.getDate();
+    
     return jadwal.filter(event => {
-      const eventDate = new Date(event.tanggal).toISOString().split('T')[0];
-      return eventDate === dateStr;
+      const eventDate = new Date(event.tanggal);
+      const eventYear = eventDate.getFullYear();
+      const eventMonth = eventDate.getMonth();
+      const eventDay = eventDate.getDate();
+      
+      return eventYear === dateYear && eventMonth === dateMonth && eventDay === dateDay;
     });
   };
 
