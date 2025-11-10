@@ -182,7 +182,15 @@ const JadwalManagement = () => {
 
   const openModal = (date = null) => {
     setEditingJadwal(null);
-    const dateStr = date ? new Date(date).toISOString().split('T')[0] : '';
+    let dateStr = '';
+    if (date) {
+      // Use local date components to avoid timezone issues
+      const localDate = new Date(date);
+      const year = localDate.getFullYear();
+      const month = String(localDate.getMonth() + 1).padStart(2, '0');
+      const day = String(localDate.getDate()).padStart(2, '0');
+      dateStr = `${year}-${month}-${day}`;
+    }
     setFormData({
       judul: '',
       deskripsi: '',
