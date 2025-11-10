@@ -30,6 +30,7 @@ const JadwalManagement = () => {
     nama: '',
     warna: '#3b82f6'
   });
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEscapeKey(() => {
     if (showModal) closeModal();
@@ -145,6 +146,40 @@ const JadwalManagement = () => {
     }
   };
 
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === jadwal.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(jadwal.map(item => item._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      toast.warning('Please select items to delete');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`)) {
+      try {
+        await axios.post('https://finalbackend-ochre.vercel.app/api/jadwal/bulk-delete', { ids: selectedItems });
+        toast.success(`Successfully deleted ${selectedItems.length} item(s)`);
+        setSelectedItems([]);
+        fetchData();
+      } catch (error) {
+        toast.error('Failed to delete items');
+      }
+    }
+  };
+
   const openModal = (date = null) => {
     setEditingJadwal(null);
     const dateStr = date ? new Date(date).toISOString().split('T')[0] : '';
@@ -213,6 +248,7 @@ const JadwalManagement = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(currentDate.getMonth() + direction);
     setCurrentDate(newDate);
+    setSelectedItems([]); // Clear selections when month changes
   };
 
   const getDaysInMonth = (date) => {
@@ -380,11 +416,25 @@ const JadwalManagement = () => {
       </div>
 
       <div className="content-card">
-        <h3>Events for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h3>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h3>Events for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h3>
+          {selectedItems.length > 0 && (
+            <button className="btn btn-danger" onClick={handleBulkDelete}>
+              <FiTrash2 /> Delete Selected ({selectedItems.length})
+            </button>
+          )}
+        </div>
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === jadwal.length && jadwal.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th>Date</th>
                 <th>Title</th>
                 <th>Time</th>
@@ -396,6 +446,13 @@ const JadwalManagement = () => {
             <tbody>
               {jadwal.map((item) => (
                 <tr key={item._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => handleSelectItem(item._id)}
+                    />
+                  </td>
                   <td>{formatDate(item.tanggal)}</td>
                   <td style={{ fontWeight: '500' }}>{item.judul}</td>
                   <td>

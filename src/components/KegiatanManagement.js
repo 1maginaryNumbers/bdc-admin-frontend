@@ -33,6 +33,7 @@ const KegiatanManagement = () => {
     status: 'akan_datang'
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -136,6 +137,7 @@ const KegiatanManagement = () => {
       ...filters,
       [name]: value
     });
+    setSelectedItems([]); // Clear selections when filters change
   };
 
   useEffect(() => {
@@ -344,6 +346,40 @@ const KegiatanManagement = () => {
     }
   };
 
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === filteredKegiatan.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(filteredKegiatan.map(item => item._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      toast.warning('Please select items to delete');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`)) {
+      try {
+        await axios.post('https://finalbackend-ochre.vercel.app/api/kegiatan/bulk-delete', { ids: selectedItems });
+        toast.success(`Successfully deleted ${selectedItems.length} item(s)`);
+        setSelectedItems([]);
+        fetchKegiatan();
+      } catch (error) {
+        toast.error('Failed to delete items');
+      }
+    }
+  };
+
   const openModal = () => {
     setEditingKegiatan(null);
     resetForm();
@@ -384,9 +420,16 @@ const KegiatanManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Kegiatan List</h3>
-          <button className="btn btn-primary" onClick={openModal}>
-            <FiPlus /> Add Kegiatan
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {selectedItems.length > 0 && (
+              <button className="btn btn-danger" onClick={handleBulkDelete}>
+                <FiTrash2 /> Delete Selected ({selectedItems.length})
+              </button>
+            )}
+            <button className="btn btn-primary" onClick={openModal}>
+              <FiPlus /> Add Kegiatan
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -452,6 +495,13 @@ const KegiatanManagement = () => {
           <table className="table">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === filteredKegiatan.length && filteredKegiatan.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th>Nama Kegiatan</th>
                 <th>Deskripsi</th>
                 <th>Tanggal Mulai</th>
@@ -466,6 +516,13 @@ const KegiatanManagement = () => {
             <tbody>
               {filteredKegiatan.map((item) => (
                 <tr key={item._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => handleSelectItem(item._id)}
+                    />
+                  </td>
                   <td>{item.namaKegiatan}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.deskripsi}

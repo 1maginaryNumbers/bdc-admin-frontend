@@ -27,6 +27,7 @@ const AbsensiManagement = () => {
   const [namaSearchInput, setNamaSearchInput] = useState('');
   const [isUmatMember, setIsUmatMember] = useState(false);
   const [checkingUmat, setCheckingUmat] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -173,6 +174,7 @@ const AbsensiManagement = () => {
   const handleKegiatanFilter = (e) => {
     const filterValue = e.target.value;
     setSelectedKegiatan(filterValue);
+    setSelectedItems([]); // Clear selections when filters change
     setLoading(true);
     fetchData(filterValue, selectedTanggal, selectedNama);
   };
@@ -180,6 +182,7 @@ const AbsensiManagement = () => {
   const handleTanggalFilter = (e) => {
     const filterValue = e.target.value;
     setSelectedTanggal(filterValue);
+    setSelectedItems([]); // Clear selections when filters change
     setLoading(true);
     fetchData(selectedKegiatan, filterValue, selectedNama);
   };
@@ -190,6 +193,7 @@ const AbsensiManagement = () => {
 
   const handleNamaSearch = () => {
     setSelectedNama(namaSearchInput);
+    setSelectedItems([]); // Clear selections when filters change
     setLoading(true);
     fetchData(selectedKegiatan, selectedTanggal, namaSearchInput);
   };
@@ -253,6 +257,40 @@ const AbsensiManagement = () => {
         fetchData();
       } catch (error) {
         toast.error('Failed to delete absensi');
+      }
+    }
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === absensi.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(absensi.map(item => item._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      toast.warning('Please select items to delete');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`)) {
+      try {
+        await axios.post('https://finalbackend-ochre.vercel.app/api/absensi/bulk-delete', { ids: selectedItems });
+        toast.success(`Successfully deleted ${selectedItems.length} item(s)`);
+        setSelectedItems([]);
+        fetchData();
+      } catch (error) {
+        toast.error('Failed to delete items');
       }
     }
   };
@@ -356,6 +394,11 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Absensi List</h3>
           <div className="d-flex gap-2">
+            {selectedItems.length > 0 && (
+              <button className="btn btn-danger" onClick={handleBulkDelete}>
+                <FiTrash2 /> Delete Selected ({selectedItems.length})
+              </button>
+            )}
             <button className="btn btn-success" onClick={exportToCSV}>
               <FiDownload /> Export CSV
             </button>
@@ -460,6 +503,13 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
           <table className="table">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === absensi.length && absensi.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th>Nama</th>
                 <th>Kegiatan</th>
                 <th>Tipe Person</th>
@@ -471,6 +521,13 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
             <tbody>
               {absensi.map((item) => (
                 <tr key={item._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => handleSelectItem(item._id)}
+                    />
+                  </td>
                   <td style={{ fontWeight: '500' }}>{item.pendaftaran?.namaLengkap || '-'}</td>
                   <td>{item.kegiatan?.namaKegiatan || '-'}</td>
                   <td>
