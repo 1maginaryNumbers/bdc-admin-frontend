@@ -30,6 +30,7 @@ const PendaftaranManagement = () => {
   const [checkingUmat, setCheckingUmat] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedQRCode, setSelectedQRCode] = useState(null);
+  const [selectedKegiatanStatus, setSelectedKegiatanStatus] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -133,6 +134,15 @@ const PendaftaranManagement = () => {
       checkUmatMember(e.target.value);
     }
     
+    if (e.target.name === 'kegiatan') {
+      const selectedKegiatan = kegiatan.find(k => k._id === e.target.value);
+      if (selectedKegiatan) {
+        setSelectedKegiatanStatus(selectedKegiatan.status);
+      } else {
+        setSelectedKegiatanStatus(null);
+      }
+    }
+    
     if (e.target.name === 'tipePerson' && e.target.value === 'internal' && !isUmatMember) {
       toast.error('Person must be a member of umat to select Internal');
       setFormData(prev => ({ ...prev, tipePerson: 'external' }));
@@ -141,6 +151,15 @@ const PendaftaranManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!editingPendaftaran && formData.kegiatan) {
+      const selectedKegiatan = kegiatan.find(k => k._id === formData.kegiatan);
+      if (selectedKegiatan && selectedKegiatan.status !== 'sedang_berlangsung') {
+        toast.error('Pendaftaran hanya dapat dilakukan untuk kegiatan dengan status Aktif');
+        return;
+      }
+    }
+    
     try {
       if (editingPendaftaran) {
         await axios.put(`https://finalbackend-ochre.vercel.app/api/pendaftaran/${editingPendaftaran._id}`, formData);
@@ -151,22 +170,35 @@ const PendaftaranManagement = () => {
       }
       setShowModal(false);
       setEditingPendaftaran(null);
-      setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '' });
+      setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '', tipePerson: 'external' });
+      setSelectedKegiatanStatus(null);
       fetchData(selectedKegiatan, selectedTanggal, selectedNama);
     } catch (error) {
-      toast.error('Failed to save pendaftaran');
+      const errorMessage = error.response?.data?.message || 'Failed to save pendaftaran';
+      toast.error(errorMessage);
     }
   };
 
   const handleEdit = (pendaftaran) => {
     setEditingPendaftaran(pendaftaran);
+    const kegiatanId = pendaftaran.kegiatan?._id || '';
     setFormData({
       namaLengkap: pendaftaran.namaLengkap || '',
       nomorTelepon: pendaftaran.nomorTelepon || '',
       email: pendaftaran.email || '',
-      kegiatan: pendaftaran.kegiatan?._id || '',
+      kegiatan: kegiatanId,
       tipePerson: pendaftaran.tipePerson || 'external'
     });
+    if (kegiatanId) {
+      const selectedKegiatan = kegiatan.find(k => k._id === kegiatanId);
+      if (selectedKegiatan) {
+        setSelectedKegiatanStatus(selectedKegiatan.status);
+      } else {
+        setSelectedKegiatanStatus(null);
+      }
+    } else {
+      setSelectedKegiatanStatus(null);
+    }
     checkUmatMember(pendaftaran.namaLengkap);
     setShowModal(true);
   };
@@ -246,7 +278,8 @@ const PendaftaranManagement = () => {
 
   const openModal = () => {
     setEditingPendaftaran(null);
-    setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '' });
+    setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '', tipePerson: 'external' });
+    setSelectedKegiatanStatus(null);
     setShowModal(true);
   };
 
@@ -255,6 +288,7 @@ const PendaftaranManagement = () => {
     setEditingPendaftaran(null);
     setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '', tipePerson: 'external' });
     setIsUmatMember(false);
+    setSelectedKegiatanStatus(null);
   };
 
   const openQRModal = (pendaftaran) => {
@@ -559,6 +593,37 @@ const PendaftaranManagement = () => {
                     </option>
                   ))}
                 </select>
+                {selectedKegiatanStatus && (
+                  <div style={{ marginTop: '8px' }}>
+                    <small style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      display: 'inline-block',
+                      fontWeight: '500',
+                      backgroundColor: selectedKegiatanStatus === 'sedang_berlangsung' 
+                        ? '#d4edda' 
+                        : selectedKegiatanStatus === 'akan_datang'
+                        ? '#fff3cd'
+                        : '#f8d7da',
+                      color: selectedKegiatanStatus === 'sedang_berlangsung'
+                        ? '#155724'
+                        : selectedKegiatanStatus === 'akan_datang'
+                        ? '#856404'
+                        : '#721c24'
+                    }}>
+                      Status: {selectedKegiatanStatus === 'sedang_berlangsung' 
+                        ? 'Aktif' 
+                        : selectedKegiatanStatus === 'akan_datang'
+                        ? 'Akan Datang'
+                        : 'Selesai'}
+                      {selectedKegiatanStatus !== 'sedang_berlangsung' && !editingPendaftaran && (
+                        <span style={{ marginLeft: '8px', color: '#dc3545' }}>
+                          ⚠ Pendaftaran hanya dapat dilakukan untuk kegiatan dengan status Aktif
+                        </span>
+                      )}
+                    </small>
+                  </div>
+                )}
               </div>
 
               <div className="form-group">

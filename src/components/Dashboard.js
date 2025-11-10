@@ -5,9 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useRefresh } from '../contexts/RefreshContext';
 import ActivityLog from './ActivityLog';
 import {
-  FiUsers,
-  FiAlertCircle,
-  FiTrendingUp,
   FiCalendar
 } from 'react-icons/fi';
 
@@ -168,32 +165,6 @@ const Dashboard = () => {
   const currentDate = new Date();
   const calendarDays = getDaysInMonth(currentDate);
 
-  const statCards = [
-    { 
-      key: 'umat', 
-      label: 'Total Members', 
-      icon: FiUsers, 
-      color: '#3498db',
-      value: stats.umat,
-      subtitle: 'Registered umat'
-    },
-    { 
-      key: 'monthlySumbangan', 
-      label: 'Monthly Donations', 
-      icon: FiTrendingUp, 
-      color: '#27ae60',
-      value: `Rp ${stats.monthlySumbangan.toLocaleString('id-ID')}`,
-      subtitle: 'This month'
-    },
-    { 
-      key: 'pendingPendaftaran', 
-      label: 'Pending Approvals', 
-      icon: FiAlertCircle, 
-      color: '#f39c12',
-      value: stats.pendingPendaftaran,
-      subtitle: 'Need review'
-    }
-  ];
 
   if (loading) {
     return (
@@ -216,69 +187,6 @@ const Dashboard = () => {
         gap: '20px',
         marginBottom: '30px'
       }}>
-        {statCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.key}
-              className="content-card"
-              style={{
-                borderLeft: `4px solid ${card.color}`,
-                transition: 'transform 0.2s',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div>
-                  <h3 style={{
-                    fontSize: '28px',
-                    fontWeight: '700',
-                    color: '#333',
-                    marginBottom: '4px'
-                  }}>
-                    {card.value}
-                  </h3>
-                  <p style={{
-                    color: '#666',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    margin: '0 0 4px 0'
-                  }}>
-                    {card.label}
-                  </p>
-                  <p style={{
-                    color: '#999',
-                    fontSize: '12px',
-                    margin: 0
-                  }}>
-                    {card.subtitle}
-                  </p>
-                </div>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  backgroundColor: `${card.color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Icon style={{
-                    fontSize: '28px',
-                    color: card.color
-                  }} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        
         {/* Calendar Preview Card */}
         <div
           className="content-card"
