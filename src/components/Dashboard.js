@@ -114,49 +114,61 @@ const Dashboard = () => {
           className="content-card"
           style={{
             borderLeft: '4px solid #e74c3c',
-            transition: 'transform 0.2s',
+            transition: 'all 0.3s ease',
             cursor: 'pointer',
-            gridColumn: 'span 1'
+            gridColumn: 'span 1',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
           }}
           onClick={() => navigate('/jadwal')}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+          }}
         >
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '12px'
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid #e9ecef'
           }}>
             <div>
               <h3 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '4px'
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#212529',
+                marginBottom: '6px',
+                letterSpacing: '-0.3px'
               }}>
                 Calendar Preview
               </h3>
               <p style={{
-                color: '#999',
-                fontSize: '12px',
-                margin: 0
+                color: '#6c757d',
+                fontSize: '13px',
+                margin: 0,
+                fontWeight: '500'
               }}>
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </p>
             </div>
             <div style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              backgroundColor: '#e74c3c15',
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(231, 76, 60, 0.25)'
             }}>
               <FiCalendar style={{
-                fontSize: '24px',
-                color: '#e74c3c'
+                fontSize: '26px',
+                color: '#fff'
               }} />
             </div>
           </div>
@@ -164,23 +176,30 @@ const Dashboard = () => {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '2px',
-            fontSize: '11px'
+            gap: '4px',
+            padding: '8px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px'
           }}>
             {dayNames.map(day => (
               <div key={day} style={{
                 textAlign: 'center',
                 fontWeight: '600',
-                color: '#666',
-                padding: '4px 0',
-                fontSize: '10px'
+                color: '#6c757d',
+                padding: '8px 4px',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                {day.substring(0, 1)}
+                {day}
               </div>
             ))}
             {calendarDays.map((date, index) => {
               if (!date) {
-                return <div key={`empty-${index}`} style={{ padding: '8px' }} />;
+                return <div key={`empty-${index}`} style={{ 
+                  padding: '8px',
+                  minHeight: '40px'
+                }} />;
               }
               const events = getEventsForDate(date);
               const today = isToday(date);
@@ -189,34 +208,75 @@ const Dashboard = () => {
                   key={index}
                   style={{
                     textAlign: 'center',
-                    padding: '6px 2px',
-                    borderRadius: '4px',
-                    backgroundColor: today ? '#e74c3c15' : 'transparent',
-                    border: today ? '1px solid #e74c3c' : '1px solid transparent',
+                    padding: '8px 4px',
+                    borderRadius: '6px',
+                    backgroundColor: today ? '#fff' : 'transparent',
+                    border: today ? '2px solid #e74c3c' : '1px solid transparent',
+                    boxShadow: today ? '0 2px 8px rgba(231, 76, 60, 0.15)' : 'none',
                     position: 'relative',
-                    minHeight: '32px',
+                    minHeight: '40px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'flex-start',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: today 
+                      ? 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)' 
+                      : 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!today) {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!today) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }
                   }}
                 >
                   <span style={{
-                    fontSize: '12px',
-                    fontWeight: today ? '700' : '400',
-                    color: today ? '#e74c3c' : '#333',
-                    marginBottom: events.length > 0 ? '2px' : '0'
+                    fontSize: '13px',
+                    fontWeight: today ? '700' : '500',
+                    color: today ? '#e74c3c' : '#495057',
+                    marginBottom: events.length > 0 ? '4px' : '0',
+                    lineHeight: '1.2'
                   }}>
                     {date.getDate()}
                   </span>
                   {events.length > 0 && (
                     <div style={{
-                      width: '4px',
-                      height: '4px',
-                      borderRadius: '50%',
-                      backgroundColor: events[0]?.kategori?.warna || '#e74c3c',
-                      marginTop: '2px'
-                    }} />
+                      display: 'flex',
+                      gap: '3px',
+                      justifyContent: 'center',
+                      flexWrap: 'wrap',
+                      maxWidth: '100%'
+                    }}>
+                      {events.slice(0, 3).map((event, eventIndex) => (
+                        <div
+                          key={eventIndex}
+                          style={{
+                            width: '6px',
+                            height: '6px',
+                            borderRadius: '50%',
+                            backgroundColor: event?.kategori?.warna || '#e74c3c',
+                            boxShadow: `0 1px 3px ${event?.kategori?.warna || '#e74c3c'}40`
+                          }}
+                        />
+                      ))}
+                      {events.length > 3 && (
+                        <span style={{
+                          fontSize: '9px',
+                          color: '#6c757d',
+                          fontWeight: '600'
+                        }}>
+                          +{events.length - 3}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               );
