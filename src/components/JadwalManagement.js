@@ -331,38 +331,108 @@ const JadwalManagement = () => {
       </div>
 
       <div className="content-card">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Calendar</h3>
-          <div className="d-flex gap-2">
-            <button className="btn btn-success" onClick={() => openKategoriModal()}>
+        <div style={{
+          display: 'flex',
+          flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+          justifyContent: 'space-between',
+          alignItems: window.innerWidth <= 768 ? 'stretch' : 'center',
+          gap: '10px',
+          marginBottom: '20px'
+        }}>
+          <h3 style={{ margin: 0 }}>Calendar</h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+            gap: '10px',
+            width: window.innerWidth <= 768 ? '100%' : 'auto'
+          }}>
+            <button 
+              className="btn btn-success" 
+              onClick={() => openKategoriModal()}
+              style={{
+                width: window.innerWidth <= 768 ? '100%' : 'auto',
+                padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+              }}
+            >
               <FiTag /> Manage Categories
             </button>
-            <button className="btn btn-primary" onClick={() => openModal()}>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => openModal()}
+              style={{
+                width: window.innerWidth <= 768 ? '100%' : 'auto',
+                padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+              }}
+            >
               <FiPlus /> Add Event
             </button>
           </div>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <div className="d-flex justify-content-between align-items-center">
-            <button className="btn btn-secondary" onClick={() => navigateMonth(-1)}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap'
+          }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => navigateMonth(-1)}
+              style={{
+                padding: window.innerWidth <= 768 ? '10px 12px' : '8px 16px',
+                fontSize: window.innerWidth <= 768 ? '14px' : '14px'
+              }}
+            >
               ← Previous
             </button>
-            <div style={{ textAlign: 'center', flex: 1 }}>
-              <h2 style={{ margin: 0 }}>
+            <div style={{ 
+              textAlign: 'center', 
+              flex: 1,
+              minWidth: window.innerWidth <= 768 ? '100%' : 'auto',
+              order: window.innerWidth <= 768 ? -1 : 0
+            }}>
+              <h2 style={{ 
+                margin: 0,
+                fontSize: window.innerWidth <= 768 ? '18px' : '24px'
+              }}>
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h2>
             </div>
-            <button className="btn btn-secondary" onClick={() => navigateMonth(1)}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => navigateMonth(1)}
+              style={{
+                padding: window.innerWidth <= 768 ? '10px 12px' : '8px 16px',
+                fontSize: window.innerWidth <= 768 ? '14px' : '14px'
+              }}
+            >
               Next →
             </button>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: '#ddd', border: '1px solid #ddd' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(7, 1fr)', 
+          gap: '1px', 
+          backgroundColor: '#ddd', 
+          border: '1px solid #ddd',
+          overflowX: window.innerWidth <= 768 ? 'auto' : 'visible'
+        }}>
           {dayNames.map(day => (
-            <div key={day} style={{ backgroundColor: '#f8f9fa', padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>
-              {day}
+            <div 
+              key={day} 
+              style={{ 
+                backgroundColor: '#f8f9fa', 
+                padding: window.innerWidth <= 768 ? '6px 4px' : '10px', 
+                textAlign: 'center', 
+                fontWeight: 'bold',
+                fontSize: window.innerWidth <= 768 ? '11px' : '14px'
+              }}
+            >
+              {window.innerWidth <= 768 ? day.substring(0, 1) : day}
             </div>
           ))}
           {days.map((date, index) => {
@@ -373,20 +443,29 @@ const JadwalManagement = () => {
                 onClick={() => date && openModal(date)}
                 style={{
                   backgroundColor: 'white',
-                  minHeight: '100px',
-                  padding: '8px',
+                  minHeight: window.innerWidth <= 768 ? '60px' : '100px',
+                  padding: window.innerWidth <= 768 ? '4px 2px' : '8px',
                   cursor: date ? 'pointer' : 'default',
                   border: isToday(date) ? '2px solid #007bff' : '1px solid #eee',
-                  position: 'relative'
+                  position: 'relative',
+                  fontSize: window.innerWidth <= 768 ? '11px' : '14px'
                 }}
               >
                 {date && (
                   <>
-                    <div style={{ fontWeight: isToday(date) ? 'bold' : 'normal', marginBottom: '4px' }}>
+                    <div style={{ 
+                      fontWeight: isToday(date) ? 'bold' : 'normal', 
+                      marginBottom: window.innerWidth <= 768 ? '2px' : '4px',
+                      fontSize: window.innerWidth <= 768 ? '12px' : '14px'
+                    }}>
                       {date.getDate()}
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      {events.slice(0, 3).map((event, idx) => (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: window.innerWidth <= 768 ? '1px' : '2px'
+                    }}>
+                      {events.slice(0, window.innerWidth <= 768 ? 2 : 3).map((event, idx) => (
                         <div
                           key={event._id}
                           onClick={(e) => {
@@ -396,9 +475,9 @@ const JadwalManagement = () => {
                           style={{
                             backgroundColor: event.kategori?.warna || '#3b82f6',
                             color: 'white',
-                            padding: '2px 4px',
+                            padding: window.innerWidth <= 768 ? '1px 2px' : '2px 4px',
                             borderRadius: '3px',
-                            fontSize: '11px',
+                            fontSize: window.innerWidth <= 768 ? '9px' : '11px',
                             cursor: 'pointer',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -406,12 +485,19 @@ const JadwalManagement = () => {
                           }}
                           title={event.judul}
                         >
-                          {event.waktuMulai ? `${event.waktuMulai} - ` : ''}{event.judul}
+                          {window.innerWidth <= 768 
+                            ? (event.waktuMulai ? `${event.waktuMulai.substring(0, 5)} ` : '') + event.judul.substring(0, 8) + (event.judul.length > 8 ? '...' : '')
+                            : (event.waktuMulai ? `${event.waktuMulai} - ` : '') + event.judul
+                          }
                         </div>
                       ))}
-                      {events.length > 3 && (
-                        <div style={{ fontSize: '10px', color: '#666', padding: '2px' }}>
-                          +{events.length - 3} more
+                      {events.length > (window.innerWidth <= 768 ? 2 : 3) && (
+                        <div style={{ 
+                          fontSize: window.innerWidth <= 768 ? '8px' : '10px', 
+                          color: '#666', 
+                          padding: '2px' 
+                        }}>
+                          +{events.length - (window.innerWidth <= 768 ? 2 : 3)} more
                         </div>
                       )}
                     </div>
@@ -512,8 +598,19 @@ const JadwalManagement = () => {
       </div>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content" ref={modalRef}>
+        <div className="modal" style={{
+          padding: window.innerWidth <= 768 ? '10px' : '20px'
+        }}>
+          <div 
+            className="modal-content" 
+            ref={modalRef}
+            style={{
+              maxWidth: window.innerWidth <= 768 ? '95%' : '600px',
+              maxHeight: window.innerWidth <= 768 ? '90vh' : '90vh',
+              overflowY: 'auto',
+              margin: window.innerWidth <= 768 ? 'auto' : '0'
+            }}
+          >
             <div className="modal-header">
               <h3 className="modal-title">
                 {editingJadwal ? 'Edit Event' : 'Add New Event'}
@@ -545,7 +642,11 @@ const JadwalManagement = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px' 
+              }}>
                 <div className="form-group">
                   <label className="form-label">Date *</label>
                   <input
@@ -576,7 +677,11 @@ const JadwalManagement = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px' 
+              }}>
                 <div className="form-group">
                   <label className="form-label">Start Time</label>
                   <input
@@ -600,7 +705,11 @@ const JadwalManagement = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px' 
+              }}>
                 <div className="form-group">
                   <label className="form-label">Location</label>
                   <input
@@ -625,11 +734,30 @@ const JadwalManagement = () => {
                 </div>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>
+              <div className="modal-footer" style={{
+                display: 'flex',
+                flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                gap: '10px'
+              }}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={closeModal}
+                  style={{
+                    width: window.innerWidth <= 768 ? '100%' : 'auto',
+                    padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+                  }}
+                >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  style={{
+                    width: window.innerWidth <= 768 ? '100%' : 'auto',
+                    padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+                  }}
+                >
                   {editingJadwal ? 'Update' : 'Create'}
                 </button>
               </div>
