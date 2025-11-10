@@ -6,10 +6,6 @@ import { useRefresh } from '../contexts/RefreshContext';
 import ActivityLog from './ActivityLog';
 import {
   FiUsers,
-  FiPlus,
-  FiCheckCircle,
-  FiSend,
-  FiBarChart,
   FiAlertCircle,
   FiTrendingUp,
   FiCalendar
@@ -119,37 +115,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
-  const quickActions = [
-    {
-      title: 'Add New Activity',
-      description: 'Create a new kegiatan',
-      icon: FiPlus,
-      color: '#e74c3c',
-      action: () => navigate('/kegiatan')
-    },
-    {
-      title: 'Process Registrations',
-      description: `${stats.pendingPendaftaran} pending`,
-      icon: FiCheckCircle,
-      color: '#1abc9c',
-      action: () => navigate('/pendaftaran')
-    },
-    {
-      title: 'Send Announcement',
-      description: 'Broadcast to all members',
-      icon: FiSend,
-      color: '#f39c12',
-      action: () => navigate('/pengumuman')
-    },
-    {
-      title: 'Generate Report',
-      description: 'Export attendance data',
-      icon: FiBarChart,
-      color: '#9b59b6',
-      action: () => navigate('/absensi')
-    }
-  ];
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -428,75 +393,6 @@ const Dashboard = () => {
             })}
           </div>
         </div>
-      </div>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '20px',
-        marginBottom: '30px'
-      }}>
-        {quickActions.map((action, index) => {
-          const Icon = action.icon;
-          return (
-            <div
-              key={index}
-              className="content-card"
-              style={{
-                borderLeft: `4px solid ${action.color}`,
-                transition: 'all 0.2s',
-                cursor: 'pointer',
-                padding: '20px'
-              }}
-              onClick={action.action}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '12px'
-              }}>
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  backgroundColor: `${action.color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Icon style={{
-                    fontSize: '24px',
-                    color: action.color
-                  }} />
-                </div>
-              </div>
-              <h4 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '8px'
-              }}>
-                {action.title}
-              </h4>
-              <p style={{
-                color: '#666',
-                fontSize: '14px',
-                margin: 0
-              }}>
-                {action.description}
-              </p>
-            </div>
-          );
-        })}
       </div>
 
       <div className="content-card">
