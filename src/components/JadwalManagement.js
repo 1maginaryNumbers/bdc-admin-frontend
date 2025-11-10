@@ -599,16 +599,24 @@ const JadwalManagement = () => {
 
       {showModal && (
         <div className="modal" style={{
-          padding: window.innerWidth <= 768 ? '10px' : '20px'
+          padding: window.innerWidth <= 768 ? '5px' : '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto'
         }}>
           <div 
             className="modal-content" 
             ref={modalRef}
             style={{
-              maxWidth: window.innerWidth <= 768 ? '95%' : '600px',
-              maxHeight: window.innerWidth <= 768 ? '90vh' : '90vh',
+              width: window.innerWidth <= 768 ? '100%' : '600px',
+              maxWidth: window.innerWidth <= 768 ? '100%' : '600px',
+              maxHeight: window.innerWidth <= 768 ? '95vh' : '90vh',
               overflowY: 'auto',
-              margin: window.innerWidth <= 768 ? 'auto' : '0'
+              overflowX: 'hidden',
+              margin: 'auto',
+              boxSizing: 'border-box',
+              position: 'relative'
             }}
           >
             <div className="modal-header">
@@ -618,8 +626,8 @@ const JadwalManagement = () => {
               <button className="close-btn" onClick={closeModal}>×</button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
+            <form onSubmit={handleSubmit} style={{ width: '100%', boxSizing: 'border-box' }}>
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                 <label className="form-label">Title *</label>
                 <input
                   type="text"
@@ -628,10 +636,11 @@ const JadwalManagement = () => {
                   onChange={handleChange}
                   className="form-control"
                   required
+                  style={{ width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                 <label className="form-label">Description</label>
                 <textarea
                   name="deskripsi"
@@ -639,15 +648,18 @@ const JadwalManagement = () => {
                   onChange={handleChange}
                   className="form-control"
                   rows="3"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
-                gap: '15px' 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Date *</label>
                   <input
                     type="date"
@@ -656,16 +668,18 @@ const JadwalManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Category</label>
                   <select
                     name="kategori"
                     value={formData.kategori}
                     onChange={handleChange}
                     className="form-control"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   >
                     <option value="">No Category</option>
                     {kategori.map((kat) => (
@@ -680,9 +694,11 @@ const JadwalManagement = () => {
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
-                gap: '15px' 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Start Time</label>
                   <input
                     type="time"
@@ -690,10 +706,11 @@ const JadwalManagement = () => {
                     value={formData.waktuMulai}
                     onChange={handleChange}
                     className="form-control"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">End Time</label>
                   <input
                     type="time"
@@ -701,6 +718,7 @@ const JadwalManagement = () => {
                     value={formData.waktuSelesai}
                     onChange={handleChange}
                     className="form-control"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
@@ -708,9 +726,11 @@ const JadwalManagement = () => {
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
-                gap: '15px' 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Location</label>
                   <input
                     type="text"
@@ -718,10 +738,11 @@ const JadwalManagement = () => {
                     value={formData.tempat}
                     onChange={handleChange}
                     className="form-control"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Capacity</label>
                   <input
                     type="number"
@@ -730,6 +751,7 @@ const JadwalManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     min="1"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
