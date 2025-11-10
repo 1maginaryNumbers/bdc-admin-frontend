@@ -12,7 +12,7 @@ import {
   FiDollarSign,
   FiMessageSquare,
   FiShoppingBag,
-  FiUsers as FiStructure,
+  FiLayers,
   FiInfo,
   FiCheckSquare,
   FiCamera,
@@ -21,7 +21,8 @@ import {
   FiRefreshCw,
   FiActivity,
   FiMenu,
-  FiX
+  FiX,
+  FiHeart
 } from 'react-icons/fi';
 
 const Sidebar = () => {
@@ -54,22 +55,22 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { path: '/', label: 'Dashboard', icon: FiHome },
-    { path: '/umat', label: 'Umat', icon: FiUsers },
-    { path: '/kegiatan', label: 'Kegiatan', icon: FiCalendar },
-    { path: '/jadwal', label: 'Calendar', icon: FiCalendar },
-    { path: '/pengumuman', label: 'Pengumuman', icon: FiBell },
-    { path: '/galeri', label: 'Galeri', icon: FiImage },
-    { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard },
-    { path: '/sumbangan', label: 'Sumbangan', icon: FiDollarSign },
-    { path: '/saran', label: 'Saran', icon: FiMessageSquare },
-    { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag },
-    { path: '/struktur', label: 'Struktur', icon: FiStructure },
-    { path: '/info-umum', label: 'Info Umum', icon: FiInfo },
-    { path: '/absensi', label: 'Absensi', icon: FiCheckSquare },
-    { path: '/scan', label: 'Scan QR', icon: FiCamera },
-    { path: '/activitylog', label: 'Activity Log', icon: FiActivity },
-    { path: '/admin', label: 'Admin', icon: FiSettings }
+    { path: '/', label: 'Dashboard', icon: FiHome, color: '#3498db' },
+    { path: '/umat', label: 'Umat', icon: FiUsers, color: '#9b59b6' },
+    { path: '/kegiatan', label: 'Kegiatan', icon: FiActivity, color: '#e67e22' },
+    { path: '/jadwal', label: 'Calendar', icon: FiCalendar, color: '#e74c3c' },
+    { path: '/pengumuman', label: 'Pengumuman', icon: FiBell, color: '#f39c12' },
+    { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c' },
+    { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085' },
+    { path: '/sumbangan', label: 'Sumbangan', icon: FiHeart, color: '#e91e63' },
+    { path: '/saran', label: 'Saran', icon: FiMessageSquare, color: '#00bcd4' },
+    { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag, color: '#ff9800' },
+    { path: '/struktur', label: 'Struktur', icon: FiLayers, color: '#673ab7' },
+    { path: '/info-umum', label: 'Info Umum', icon: FiInfo, color: '#2196f3' },
+    { path: '/absensi', label: 'Absensi', icon: FiCheckSquare, color: '#4caf50' },
+    { path: '/scan', label: 'Scan QR', icon: FiCamera, color: '#795548' },
+    { path: '/activitylog', label: 'Activity Log', icon: FiActivity, color: '#607d8b' },
+    { path: '/admin', label: 'Admin', icon: FiSettings, color: '#9e9e9e' }
   ];
 
   const isMobile = window.innerWidth <= 768;
@@ -149,15 +150,49 @@ const Sidebar = () => {
                 display: 'flex',
                 alignItems: 'center',
                 padding: '12px 20px',
-                color: isActive ? '#3498db' : 'white',
+                color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.8)',
                 textDecoration: 'none',
-                backgroundColor: isActive ? '#34495e' : 'transparent',
-                borderLeft: isActive ? '3px solid #3498db' : '3px solid transparent',
-                transition: 'all 0.2s'
+                backgroundColor: isActive ? 'rgba(52, 73, 94, 0.5)' : 'transparent',
+                borderLeft: isActive ? `3px solid ${item.color}` : '3px solid transparent',
+                transition: 'all 0.2s ease',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.color = '#fff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)';
+                }
               }}
             >
-              <Icon style={{ marginRight: '12px', fontSize: '18px' }} />
-              {item.label}
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                backgroundColor: isActive ? item.color : 'rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '12px',
+                transition: 'all 0.2s ease',
+                boxShadow: isActive ? `0 2px 8px ${item.color}40` : 'none'
+              }}>
+                <Icon style={{ 
+                  fontSize: '18px',
+                  color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.9)'
+                }} />
+              </div>
+              <span style={{
+                fontWeight: isActive ? '600' : '400',
+                fontSize: '14px'
+              }}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
