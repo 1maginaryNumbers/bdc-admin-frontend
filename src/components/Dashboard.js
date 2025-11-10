@@ -83,7 +83,6 @@ const Dashboard = () => {
       const jadwalData = Array.isArray(jadwalRes.data) ? jadwalRes.data : [];
       setJadwal(jadwalData);
 
-      const now = new Date();
       const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
