@@ -9,7 +9,6 @@ import {
   FiBell,
   FiImage,
   FiClipboard,
-  FiDollarSign,
   FiMessageSquare,
   FiShoppingBag,
   FiLayers,
