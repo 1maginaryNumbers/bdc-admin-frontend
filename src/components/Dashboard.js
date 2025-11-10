@@ -11,103 +11,25 @@ import {
 const Dashboard = () => {
   const { refreshTrigger } = useRefresh();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    umat: 0,
-    kegiatan: 0,
-    pengumuman: 0,
-    galeri: 0,
-    pendaftaran: 0,
-    sumbangan: 0,
-    saran: 0,
-    merchandise: 0,
-    pendingPendaftaran: 0,
-    upcomingKegiatan: 0,
-    monthlySumbangan: 0,
-    totalAbsensi: 0
-  });
   const [jadwal, setJadwal] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    fetchJadwal();
   }, [refreshTrigger]);
 
-  const fetchStats = async () => {
+  const fetchJadwal = async () => {
     try {
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
       
-      const [
-        umatRes,
-        kegiatanRes,
-        pengumumanRes,
-        galeriRes,
-        pendaftaranRes,
-        sumbanganRes,
-        saranRes,
-        merchandiseRes,
-        absensiRes,
-        jadwalRes
-      ] = await Promise.all([
-        axios.get('https://finalbackend-ochre.vercel.app/api/umat'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/kegiatan'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/pengumuman'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/galeri'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/pendaftaran'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/sumbangan'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/saran'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/merchandise'),
-        axios.get('https://finalbackend-ochre.vercel.app/api/absensi'),
-        axios.get(`https://finalbackend-ochre.vercel.app/api/jadwal?year=${year}&month=${month}`)
-      ]);
-
-      const umatData = Array.isArray(umatRes.data) ? umatRes.data : umatRes.data.umat || [];
-      const kegiatanData = Array.isArray(kegiatanRes.data) ? kegiatanRes.data : kegiatanRes.data.kegiatan || [];
-      const pengumumanData = Array.isArray(pengumumanRes.data) ? pengumumanRes.data : pengumumanRes.data.pengumuman || [];
-      const galeriData = Array.isArray(galeriRes.data) ? galeriRes.data : galeriRes.data.galeri || [];
-      const pendaftaranData = Array.isArray(pendaftaranRes.data) ? pendaftaranRes.data : pendaftaranRes.data.pendaftaran || [];
-      const sumbanganData = Array.isArray(sumbanganRes.data) ? sumbanganRes.data : sumbanganRes.data.sumbangan || [];
-      const saranData = Array.isArray(saranRes.data) ? saranRes.data : saranRes.data.saran || [];
-      const merchandiseData = Array.isArray(merchandiseRes.data) ? merchandiseRes.data : merchandiseRes.data.merchandise || [];
-      const absensiData = Array.isArray(absensiRes.data) ? absensiRes.data : absensiRes.data.absensi || [];
+      const jadwalRes = await axios.get(`https://finalbackend-ochre.vercel.app/api/jadwal?year=${year}&month=${month}`);
 
       const jadwalData = Array.isArray(jadwalRes.data) ? jadwalRes.data : [];
       setJadwal(jadwalData);
-
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
-
-      const pendingPendaftaran = pendaftaranData.filter(p => p.status === 'pending').length;
-      const upcomingKegiatan = kegiatanData.filter(k => {
-        const kegiatanDate = new Date(k.tanggal);
-        return kegiatanDate >= now && kegiatanDate <= sevenDaysFromNow;
-      }).length;
-
-      const monthlySumbangan = sumbanganData
-        .filter(s => {
-          const sumbanganDate = new Date(s.tanggal);
-          return sumbanganDate.getMonth() === currentMonth && sumbanganDate.getFullYear() === currentYear;
-        })
-        .reduce((total, s) => total + (s.jumlah || 0), 0);
-
-      setStats({
-        umat: umatData.length,
-        kegiatan: kegiatanData.length,
-        pengumuman: pengumumanData.length,
-        galeri: galeriData.length,
-        pendaftaran: pendaftaranData.length,
-        sumbangan: sumbanganData.length,
-        saran: saranData.length,
-        merchandise: merchandiseData.length,
-        pendingPendaftaran,
-        upcomingKegiatan,
-        monthlySumbangan,
-        totalAbsensi: absensiData.length
-      });
     } catch (error) {
-      toast.error('Failed to fetch statistics');
+      toast.error('Failed to fetch calendar data');
     } finally {
       setLoading(false);
     }
