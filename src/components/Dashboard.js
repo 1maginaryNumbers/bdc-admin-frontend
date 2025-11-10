@@ -10,7 +10,6 @@ import {
   FiCheckCircle,
   FiSend,
   FiBarChart,
-  FiClock,
   FiAlertCircle,
   FiTrendingUp,
   FiCalendar
