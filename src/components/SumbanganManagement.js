@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiDownload } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -390,6 +390,18 @@ const SumbanganManagement = () => {
     setSelectedQrisImage(null);
   };
 
+  const downloadQRIS = (qrisImage) => {
+    if (!qrisImage) return;
+    
+    const imageUrl = getImageUrl(qrisImage);
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = 'qris-donation.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({
@@ -539,21 +551,31 @@ const SumbanganManagement = () => {
                   <td>{formatCurrency(item.danaTerkumpul || 0)}</td>
                   <td>
                     {item.qrisImage ? (
-                      <img 
-                        src={getImageUrl(item.qrisImage)} 
-                        alt="QRIS" 
-                        onClick={() => openQrisModal(item.qrisImage)}
-                        style={{ 
-                          width: '50px', 
-                          height: '50px', 
-                          objectFit: 'cover', 
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
-                        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <img 
+                          src={getImageUrl(item.qrisImage)} 
+                          alt="QRIS" 
+                          onClick={() => openQrisModal(item.qrisImage)}
+                          style={{ 
+                            width: '50px', 
+                            height: '50px', 
+                            objectFit: 'cover', 
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => downloadQRIS(item.qrisImage)}
+                          title="Download QRIS"
+                          style={{ padding: '4px 8px' }}
+                        >
+                          <FiDownload size={12} />
+                        </button>
+                      </div>
                     ) : (
                       <span style={{ color: '#999' }}>No QRIS</span>
                     )}
@@ -954,11 +976,11 @@ const SumbanganManagement = () => {
                   value={paymentFormData.nominal}
                   onChange={handlePaymentChange}
                   className="form-control"
-                  min="10000"
+                  min="1"
                   step="1000"
                   required
                 />
-                <small className="form-text text-muted">Minimum amount: Rp 10,000</small>
+                <small className="form-text text-muted">Enter the donation amount. Target amount is the collective total from all transactions.</small>
               </div>
 
               <div className="modal-footer">
@@ -997,6 +1019,16 @@ const SumbanganManagement = () => {
               <button type="button" className="btn btn-secondary" onClick={closeQrisModal}>
                 Close
               </button>
+              {selectedQrisImage && (
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={() => downloadQRIS(selectedQrisImage)}
+                >
+                  <FiDownload style={{ marginRight: '8px' }} />
+                  Download QRIS
+                </button>
+              )}
             </div>
           </div>
         </div>
