@@ -28,8 +28,6 @@ const SumbanganManagement = () => {
   const [formData, setFormData] = useState({
     namaEvent: '',
     deskripsi: '',
-    bankName: '',
-    bankNumber: '',
     targetDana: '',
     tanggalSelesai: '',
     status: 'aktif'
@@ -198,8 +196,6 @@ const SumbanganManagement = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('namaEvent', formData.namaEvent);
       formDataToSend.append('deskripsi', formData.deskripsi);
-      formDataToSend.append('bankName', formData.bankName);
-      formDataToSend.append('bankNumber', formData.bankNumber);
       formDataToSend.append('targetDana', parseFloat(formData.targetDana));
       if (formData.tanggalSelesai) {
         formDataToSend.append('tanggalSelesai', formData.tanggalSelesai);
@@ -220,7 +216,7 @@ const SumbanganManagement = () => {
       setShowModal(false);
       setEditingSumbangan(null);
       setSelectedFile(null);
-      setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+      setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
       fetchData();
     } catch (error) {
       toast.error('Failed to save donation event');
@@ -267,8 +263,6 @@ const SumbanganManagement = () => {
     setFormData({
       namaEvent: sumbangan.namaEvent || '',
       deskripsi: sumbangan.deskripsi || '',
-      bankName: sumbangan.bankName || '',
-      bankNumber: sumbangan.bankNumber || '',
       targetDana: sumbangan.targetDana ? sumbangan.targetDana.toString() : '',
       tanggalSelesai: sumbangan.tanggalSelesai ? new Date(sumbangan.tanggalSelesai).toISOString().split('T')[0] : '',
       status: sumbangan.status || 'aktif'
@@ -301,13 +295,13 @@ const SumbanganManagement = () => {
 
   const openModal = () => {
     setEditingSumbangan(null);
-    setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+    setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
     setSelectedFile(null);
     setShowModal(true);
   };
 
   const openTransaksiModal = () => {
-    setTransaksiFormData({ nama: '', jumlah: '', metode: '', status: 'pending' });
+    setTransaksiFormData({ sumbangan: '', namaDonatur: '', email: '', nominal: '', metodePembayaran: '', status: 'pending' });
     setShowTransaksiModal(true);
   };
 
@@ -370,7 +364,7 @@ const SumbanganManagement = () => {
     setShowModal(false);
     setEditingSumbangan(null);
     setSelectedFile(null);
-    setFormData({ namaEvent: '', deskripsi: '', bankName: '', bankNumber: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+    setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
   };
 
   const closeTransaksiModal = () => {
@@ -519,7 +513,6 @@ const SumbanganManagement = () => {
               <tr>
                 <th>Event Name</th>
                 <th>Description</th>
-                <th>Bank Info</th>
                 <th>Target</th>
                 <th>Collected</th>
                 <th>QRIS</th>
@@ -533,14 +526,6 @@ const SumbanganManagement = () => {
                   <td style={{ fontWeight: '500' }}>{item.namaEvent || item.namaPaket || '-'}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.deskripsi || '-'}
-                  </td>
-                  <td>
-                    {item.bankName ? (
-                      <div>
-                        <div style={{ fontWeight: '500' }}>{item.bankName}</div>
-                        <div style={{ fontSize: '0.9em', color: '#666' }}>{item.bankNumber || '-'}</div>
-                      </div>
-                    ) : '-'}
                   </td>
                   <td>{formatCurrency(item.targetDana || 0)}</td>
                   <td>{formatCurrency(item.danaTerkumpul || 0)}</td>
@@ -707,32 +692,6 @@ const SumbanganManagement = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
-                  <label className="form-label">Bank Name *</label>
-                  <input
-                    type="text"
-                    name="bankName"
-                    value={formData.bankName}
-                    onChange={handleChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Bank Number *</label>
-                  <input
-                    type="text"
-                    name="bankNumber"
-                    value={formData.bankNumber}
-                    onChange={handleChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
                   <label className="form-label">Target Amount *</label>
                   <input
                     type="number"
@@ -741,7 +700,7 @@ const SumbanganManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     min="0"
-                    step="0.01"
+                    step="1000"
                     required
                   />
                 </div>
