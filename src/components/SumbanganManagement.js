@@ -35,9 +35,11 @@ const SumbanganManagement = () => {
     status: 'aktif'
   });
   const [transaksiFormData, setTransaksiFormData] = useState({
-    nama: '',
-    jumlah: '',
-    metode: '',
+    sumbangan: '',
+    namaDonatur: '',
+    email: '',
+    nominal: '',
+    metodePembayaran: '',
     status: 'pending'
   });
   const [paymentFormData, setPaymentFormData] = useState({
@@ -235,18 +237,28 @@ const SumbanganManagement = () => {
   const handleTransaksiSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!transaksiFormData.sumbangan) {
+        toast.error('Please select a donation event');
+        return;
+      }
+
       const dataToSend = {
-        ...transaksiFormData,
-        jumlah: parseFloat(transaksiFormData.jumlah)
+        sumbangan: transaksiFormData.sumbangan,
+        namaDonatur: transaksiFormData.namaDonatur,
+        email: transaksiFormData.email || undefined,
+        nominal: parseFloat(transaksiFormData.nominal),
+        metodePembayaran: transaksiFormData.metodePembayaran || 'transfer',
+        status: transaksiFormData.status
       };
 
       await axios.post('https://finalbackend-ochre.vercel.app/api/sumbangan/transaksi', dataToSend);
       toast.success('Transaksi created successfully');
       setShowTransaksiModal(false);
-      setTransaksiFormData({ nama: '', jumlah: '', metode: '', status: 'pending' });
+      setTransaksiFormData({ sumbangan: '', namaDonatur: '', email: '', nominal: '', metodePembayaran: '', status: 'pending' });
       fetchData();
     } catch (error) {
-      toast.error('Failed to save transaksi');
+      const errorMessage = error.response?.data?.message || 'Failed to save transaksi';
+      toast.error(errorMessage);
     }
   };
 
@@ -363,7 +375,7 @@ const SumbanganManagement = () => {
 
   const closeTransaksiModal = () => {
     setShowTransaksiModal(false);
-    setTransaksiFormData({ nama: '', jumlah: '', metode: '', status: 'pending' });
+    setTransaksiFormData({ sumbangan: '', namaDonatur: '', email: '', nominal: '', metodePembayaran: '', status: 'pending' });
   };
 
   const openQrisModal = (qrisImage) => {
@@ -812,11 +824,29 @@ const SumbanganManagement = () => {
 
             <form onSubmit={handleTransaksiSubmit}>
               <div className="form-group">
-                <label className="form-label">Nama *</label>
+                <label className="form-label">Donation Event *</label>
+                <select
+                  name="sumbangan"
+                  value={transaksiFormData.sumbangan}
+                  onChange={handleTransaksiChange}
+                  className="form-control"
+                  required
+                >
+                  <option value="">Select Donation Event</option>
+                  {sumbangan.filter(item => item.status === 'aktif').map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.namaEvent || item.namaPaket} - {formatCurrency(item.targetDana || 0)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Donor Name *</label>
                 <input
                   type="text"
-                  name="nama"
-                  value={transaksiFormData.nama}
+                  name="namaDonatur"
+                  value={transaksiFormData.namaDonatur}
                   onChange={handleTransaksiChange}
                   className="form-control"
                   required
@@ -825,47 +855,60 @@ const SumbanganManagement = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div className="form-group">
-                  <label className="form-label">Jumlah *</label>
+                  <label className="form-label">Email</label>
                   <input
-                    type="number"
-                    name="jumlah"
-                    value={transaksiFormData.jumlah}
+                    type="email"
+                    name="email"
+                    value={transaksiFormData.email}
                     onChange={handleTransaksiChange}
                     className="form-control"
-                    min="0"
-                    step="0.01"
-                    required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Metode</label>
+                  <label className="form-label">Amount (IDR) *</label>
+                  <input
+                    type="number"
+                    name="nominal"
+                    value={transaksiFormData.nominal}
+                    onChange={handleTransaksiChange}
+                    className="form-control"
+                    min="0"
+                    step="1000"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div className="form-group">
+                  <label className="form-label">Payment Method</label>
                   <select
-                    name="metode"
-                    value={transaksiFormData.metode}
+                    name="metodePembayaran"
+                    value={transaksiFormData.metodePembayaran}
                     onChange={handleTransaksiChange}
                     className="form-control"
                   >
-                    <option value="">Select Metode</option>
+                    <option value="">Select Method</option>
                     <option value="cash">Cash</option>
                     <option value="transfer">Transfer</option>
                     <option value="check">Check</option>
                   </select>
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  value={transaksiFormData.status}
-                  onChange={handleTransaksiChange}
-                  className="form-control"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="failed">Failed</option>
-                </select>
+                <div className="form-group">
+                  <label className="form-label">Status</label>
+                  <select
+                    name="status"
+                    value={transaksiFormData.status}
+                    onChange={handleTransaksiChange}
+                    className="form-control"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="berhasil">Berhasil</option>
+                    <option value="gagal">Gagal</option>
+                  </select>
+                </div>
               </div>
 
               <div className="modal-footer">
