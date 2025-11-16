@@ -32,6 +32,7 @@ const SumbanganManagement = () => {
     tanggalSelesai: '',
     status: 'aktif'
   });
+  const [regenerateQR, setRegenerateQR] = useState(false);
   const [transaksiFormData, setTransaksiFormData] = useState({
     sumbangan: '',
     namaDonatur: '',
@@ -207,6 +208,9 @@ const SumbanganManagement = () => {
       }
 
       if (editingSumbangan) {
+        if (regenerateQR && !selectedFile) {
+          formDataToSend.append('regenerateQR', 'true');
+        }
         await axios.put(`https://finalbackend-ochre.vercel.app/api/sumbangan/${editingSumbangan._id}`, formDataToSend);
         toast.success('Donation event updated successfully');
       } else {
@@ -216,6 +220,7 @@ const SumbanganManagement = () => {
       setShowModal(false);
       setEditingSumbangan(null);
       setSelectedFile(null);
+      setRegenerateQR(false);
       setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
       fetchData();
     } catch (error) {
@@ -268,6 +273,7 @@ const SumbanganManagement = () => {
       status: sumbangan.status || 'aktif'
     });
     setSelectedFile(null);
+    setRegenerateQR(false);
     setShowModal(true);
   };
 
@@ -297,6 +303,7 @@ const SumbanganManagement = () => {
     setEditingSumbangan(null);
     setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
     setSelectedFile(null);
+    setRegenerateQR(false);
     setShowModal(true);
   };
 
@@ -364,6 +371,7 @@ const SumbanganManagement = () => {
     setShowModal(false);
     setEditingSumbangan(null);
     setSelectedFile(null);
+    setRegenerateQR(false);
     setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
   };
 
@@ -732,7 +740,7 @@ const SumbanganManagement = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">QRIS Image</label>
+                <label className="form-label">QRIS Image {!editingSumbangan && <span style={{ fontSize: '0.85em', color: '#666', fontWeight: 'normal' }}>(Optional - will be auto-generated if not provided)</span>}</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -756,6 +764,16 @@ const SumbanganManagement = () => {
                       alt="Current QRIS" 
                       style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
                     />
+                    <div style={{ marginTop: '10px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={regenerateQR}
+                          onChange={(e) => setRegenerateQR(e.target.checked)}
+                        />
+                        <span style={{ fontSize: '0.9em' }}>Regenerate QR Code using Midtrans</span>
+                      </label>
+                    </div>
                   </div>
                 )}
               </div>
