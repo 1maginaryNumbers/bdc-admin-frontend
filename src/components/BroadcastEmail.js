@@ -133,8 +133,17 @@ const BroadcastEmail = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to send email';
       const errorDetails = error.response?.data?.error;
+      const errorCode = error.response?.data?.code;
       console.error('Email send error:', error.response?.data);
-      toast.error(errorMessage + (errorDetails ? `: ${errorDetails}` : ''));
+      
+      let displayMessage = errorMessage;
+      if (errorCode === 'EAUTH') {
+        displayMessage += ' Check your email username and password in .env file.';
+      } else if (errorCode === 'ECONNECTION' || errorCode === 'ETIMEDOUT') {
+        displayMessage += ' Check your email host and port settings.';
+      }
+      
+      toast.error(displayMessage, { autoClose: 6000 });
     } finally {
       setSending(false);
     }
@@ -158,8 +167,17 @@ const BroadcastEmail = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to send test email';
       const errorDetails = error.response?.data?.error;
+      const errorCode = error.response?.data?.code;
       console.error('Test email error:', error.response?.data);
-      toast.error(errorMessage + (errorDetails ? `: ${errorDetails}` : ''));
+      
+      let displayMessage = errorMessage;
+      if (errorCode === 'EAUTH') {
+        displayMessage += ' Check your email username and password in .env file.';
+      } else if (errorCode === 'ECONNECTION' || errorCode === 'ETIMEDOUT') {
+        displayMessage += ' Check your email host and port settings.';
+      }
+      
+      toast.error(displayMessage, { autoClose: 6000 });
     } finally {
       setTesting(false);
     }
