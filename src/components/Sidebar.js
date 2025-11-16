@@ -127,90 +127,104 @@ const Sidebar = () => {
           background: '#2c3e50',
           color: 'white',
           zIndex: 1000,
-          overflowY: 'auto',
-          transition: 'left 0.3s ease'
+          overflow: 'hidden',
+          transition: 'left 0.3s ease',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
       <div style={{
         padding: '20px',
-        borderBottom: '1px solid #34495e'
+        borderBottom: '1px solid #34495e',
+        flexShrink: 0
       }}>
         <h2 style={{ fontSize: '18px', fontWeight: '600' }}>Vihara Admin</h2>
       </div>
 
-      <nav style={{ padding: '20px 0' }}>
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px 20px',
-                color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.8)',
-                textDecoration: 'none',
-                backgroundColor: isActive ? 'rgba(52, 73, 94, 0.5)' : 'transparent',
-                borderLeft: isActive ? `3px solid ${item.color}` : '3px solid transparent',
-                transition: 'all 0.2s ease',
-                position: 'relative'
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.color = '#fff';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)';
-                }
-              }}
-            >
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                backgroundColor: isActive ? item.color : 'rgba(255, 255, 255, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '12px',
-                transition: 'all 0.2s ease',
-                boxShadow: isActive ? `0 2px 8px ${item.color}40` : 'none'
-              }}>
-                <Icon style={{ 
-                  fontSize: '18px',
-                  color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.9)'
-                }} />
-              </div>
-              <span style={{
-                fontWeight: isActive ? '600' : '400',
-                fontSize: '14px'
-              }}>
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-
       <div style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '20px',
-        right: '20px'
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        overflow: 'hidden'
       }}>
+        <nav style={{ padding: '20px 0', flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 20px',
+                  color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.8)',
+                  textDecoration: 'none',
+                  backgroundColor: isActive ? 'rgba(52, 73, 94, 0.5)' : 'transparent',
+                  borderLeft: isActive ? `3px solid ${item.color}` : '3px solid transparent',
+                  transition: 'all 0.2s ease',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)';
+                  }
+                }}
+              >
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  backgroundColor: isActive ? item.color : 'rgba(255, 255, 255, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isActive ? `0 2px 8px ${item.color}40` : 'none'
+                }}>
+                  <Icon style={{ 
+                    fontSize: '18px',
+                    color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.9)'
+                  }} />
+                </div>
+                <span style={{
+                  fontWeight: isActive ? '600' : '400',
+                  fontSize: '14px'
+                }}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div style={{
+          padding: '20px',
+          flexShrink: 0,
+          borderTop: '1px solid #34495e',
+          background: '#2c3e50'
+        }}>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
           <button
-            onClick={handleRefresh}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleRefresh();
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               flex: 1,
               padding: '12px',
               background: '#3498db',
@@ -220,20 +234,31 @@ const Sidebar = () => {
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: '500',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              WebkitTapHighlightColor: 'transparent'
             }}
             onMouseEnter={(e) => e.target.style.backgroundColor = '#2980b9'}
             onMouseLeave={(e) => e.target.style.backgroundColor = '#3498db'}
+            onTouchStart={(e) => e.target.style.backgroundColor = '#2980b9'}
+            onTouchEnd={(e) => {
+              e.target.style.backgroundColor = '#3498db';
+              handleRefresh();
+            }}
           >
             <FiRefreshCw style={{ marginRight: '8px' }} />
             Refresh
           </button>
         </div>
         <button
-          onClick={logout}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            logout();
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             width: '100%',
             padding: '12px',
             background: '#e74c3c',
@@ -243,14 +268,21 @@ const Sidebar = () => {
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: '500',
-            transition: 'background-color 0.2s'
+            transition: 'background-color 0.2s',
+            WebkitTapHighlightColor: 'transparent'
           }}
           onMouseEnter={(e) => e.target.style.backgroundColor = '#c0392b'}
           onMouseLeave={(e) => e.target.style.backgroundColor = '#e74c3c'}
+          onTouchStart={(e) => e.target.style.backgroundColor = '#c0392b'}
+          onTouchEnd={(e) => {
+            e.target.style.backgroundColor = '#e74c3c';
+            logout();
+          }}
         >
           <FiLogOut style={{ marginRight: '8px' }} />
           Logout
         </button>
+      </div>
       </div>
       </div>
     </>
