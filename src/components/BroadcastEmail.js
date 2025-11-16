@@ -9,6 +9,9 @@ const BroadcastEmail = () => {
   const [recipients, setRecipients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [showTestModal, setShowTestModal] = useState(false);
   const [formData, setFormData] = useState({
     subject: '',
     message: '',
@@ -22,14 +25,16 @@ const BroadcastEmail = () => {
   }, []);
 
   useEscapeKey(() => {
-    if (showPreview) {
-      setShowPreview(false);
+    if (showTestModal) {
+      setShowTestModal(false);
+      setTestEmail('');
     }
   });
 
   const modalRef = useOutsideClick(() => {
-    if (showPreview) {
-      setShowPreview(false);
+    if (showTestModal) {
+      setShowTestModal(false);
+      setTestEmail('');
     }
   });
 
@@ -106,7 +111,19 @@ const BroadcastEmail = () => {
 
       const response = await axios.post('https://finalbackend-ochre.vercel.app/api/umat/broadcast', payload);
       
-      toast.success(`Email sent successfully to ${response.data.totalRecipients} recipient(s)!`);
+      if (response.data.successful > 0) {
+        const message = response.data.failed > 0
+          ? `Email sent to ${response.data.successful} recipient(s), ${response.data.failed} failed`
+          : `Email sent successfully to ${response.data.successful} recipient(s)!`;
+        toast.success(message);
+        
+        if (response.data.failed > 0 && response.data.failedEmails) {
+          console.warn('Failed emails:', response.data.failedEmails);
+        }
+      } else {
+        toast.error('All emails failed to send. Please check server logs and email configuration.');
+      }
+      
       setFormData({
         subject: '',
         message: '',
@@ -115,9 +132,36 @@ const BroadcastEmail = () => {
       });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to send email';
-      toast.error(errorMessage);
+      const errorDetails = error.response?.data?.error;
+      console.error('Email send error:', error.response?.data);
+      toast.error(errorMessage + (errorDetails ? `: ${errorDetails}` : ''));
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmail || !testEmail.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setTesting(true);
+    try {
+      const response = await axios.post('https://finalbackend-ochre.vercel.app/api/umat/broadcast/test', {
+        testEmail
+      });
+      
+      toast.success(`Test email sent successfully to ${testEmail}! Please check your inbox.`);
+      setTestEmail('');
+      setShowTestModal(false);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to send test email';
+      const errorDetails = error.response?.data?.error;
+      console.error('Test email error:', error.response?.data);
+      toast.error(errorMessage + (errorDetails ? `: ${errorDetails}` : ''));
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -320,6 +364,15 @@ const BroadcastEmail = () => {
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
             <button
               type="button"
+              className="btn btn-info"
+              onClick={() => setShowTestModal(true)}
+              style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }}
+            >
+              <FiMail style={{ marginRight: '8px' }} />
+              Test Email
+            </button>
+            <button
+              type="button"
               className="btn btn-secondary"
               onClick={() => {
                 setFormData({
@@ -351,6 +404,59 @@ const BroadcastEmail = () => {
           </div>
         </form>
       </div>
+
+      {showTestModal && (
+        <div className="modal">
+          <div className="modal-content" style={{ maxWidth: '500px' }} ref={modalRef}>
+            <div className="modal-header">
+              <h3 className="modal-title">Test Email Configuration</h3>
+              <button className="close-btn" onClick={() => {
+                setShowTestModal(false);
+                setTestEmail('');
+              }}>×</button>
+            </div>
+
+            <div style={{ padding: '20px' }}>
+              <div className="form-group">
+                <label className="form-label">Test Email Address *</label>
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="form-control"
+                  placeholder="Enter your email address to test"
+                  required
+                />
+                <small style={{ color: '#6c757d', marginTop: '8px', display: 'block' }}>
+                  A test email will be sent to verify your email configuration is working correctly.
+                </small>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowTestModal(false);
+                    setTestEmail('');
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-info"
+                  onClick={handleTestEmail}
+                  disabled={testing}
+                  style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }}
+                >
+                  {testing ? 'Sending...' : 'Send Test Email'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
