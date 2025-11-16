@@ -15,6 +15,8 @@ const SumbanganManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showTransaksiModal, setShowTransaksiModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedSumbangan, setSelectedSumbangan] = useState(null);
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [selectedQrisImage, setSelectedQrisImage] = useState(null);
   const [editingSumbangan, setEditingSumbangan] = useState(null);
@@ -38,9 +40,32 @@ const SumbanganManagement = () => {
     metode: '',
     status: 'pending'
   });
+  const [paymentFormData, setPaymentFormData] = useState({
+    namaDonatur: '',
+    email: '',
+    nomorTelepon: '',
+    nominal: ''
+  });
 
   useEffect(() => {
     fetchData();
+    
+    const isProduction = process.env.REACT_APP_MIDTRANS_IS_PRODUCTION === 'true';
+    const scriptUrl = isProduction 
+      ? 'https://app.midtrans.com/snap/snap.js'
+      : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    
+    const script = document.createElement('script');
+    script.src = scriptUrl;
+    script.setAttribute('data-client-key', process.env.REACT_APP_MIDTRANS_CLIENT_KEY || '');
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
   }, [refreshTrigger]);
 
   useEscapeKey(() => {
@@ -49,6 +74,9 @@ const SumbanganManagement = () => {
     }
     if (showTransaksiModal) {
       closeTransaksiModal();
+    }
+    if (showPaymentModal) {
+      closePaymentModal();
     }
     if (showQrisModal) {
       closeQrisModal();
@@ -70,6 +98,12 @@ const SumbanganManagement = () => {
   const qrisModalRef = useOutsideClick(() => {
     if (showQrisModal) {
       closeQrisModal();
+    }
+  });
+
+  const paymentModalRef = useOutsideClick(() => {
+    if (showPaymentModal) {
+      closePaymentModal();
     }
   });
 
@@ -265,6 +299,61 @@ const SumbanganManagement = () => {
     setShowTransaksiModal(true);
   };
 
+  const openPaymentModal = (sumbangan) => {
+    setSelectedSumbangan(sumbangan);
+    setPaymentFormData({ namaDonatur: '', email: '', nomorTelepon: '', nominal: '' });
+    setShowPaymentModal(true);
+  };
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setSelectedSumbangan(null);
+    setPaymentFormData({ namaDonatur: '', email: '', nomorTelepon: '', nominal: '' });
+  };
+
+  const handlePaymentChange = (e) => {
+    setPaymentFormData({
+      ...paymentFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('https://finalbackend-ochre.vercel.app/api/sumbangan/payment', {
+        sumbangan: selectedSumbangan._id,
+        namaDonatur: paymentFormData.namaDonatur,
+        email: paymentFormData.email,
+        nomorTelepon: paymentFormData.nomorTelepon,
+        nominal: parseFloat(paymentFormData.nominal)
+      });
+
+      if (response.data.token) {
+        window.snap.pay(response.data.token, {
+          onSuccess: function(result) {
+            toast.success('Payment successful!');
+            closePaymentModal();
+            fetchData();
+          },
+          onPending: function(result) {
+            toast.info('Payment pending. Please complete the payment.');
+            closePaymentModal();
+            fetchData();
+          },
+          onError: function(result) {
+            toast.error('Payment failed. Please try again.');
+          },
+          onClose: function() {
+            toast.info('Payment window closed.');
+          }
+        });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to create payment');
+    }
+  };
+
   const closeModal = () => {
     setShowModal(false);
     setEditingSumbangan(null);
@@ -334,7 +423,15 @@ const SumbanganManagement = () => {
       'ditutup': { text: 'Ditutup', class: 'btn-danger' },
       'pending': { text: 'Pending', class: 'btn-secondary' },
       'completed': { text: 'Completed', class: 'btn-success' },
-      'failed': { text: 'Failed', class: 'btn-danger' }
+      'berhasil': { text: 'Berhasil', class: 'btn-success' },
+      'settlement': { text: 'Settlement', class: 'btn-success' },
+      'capture': { text: 'Capture', class: 'btn-success' },
+      'failed': { text: 'Failed', class: 'btn-danger' },
+      'gagal': { text: 'Gagal', class: 'btn-danger' },
+      'deny': { text: 'Deny', class: 'btn-danger' },
+      'cancel': { text: 'Cancel', class: 'btn-danger' },
+      'expire': { text: 'Expire', class: 'btn-danger' },
+      'refund': { text: 'Refund', class: 'btn-warning' }
     };
     const statusInfo = statusMap[status] || { text: status, class: 'btn-secondary' };
     return <span className={`btn btn-sm ${statusInfo.class}`}>{statusInfo.text}</span>;
@@ -459,6 +556,16 @@ const SumbanganManagement = () => {
                   <td>{getStatusBadge(item.status)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                      {item.status === 'aktif' && (
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => openPaymentModal(item)}
+                          style={{ flexShrink: 0 }}
+                          title="Create Payment"
+                        >
+                          💳
+                        </button>
+                      )}
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => handleEdit(item)}
@@ -504,7 +611,26 @@ const SumbanganManagement = () => {
                 <tr key={item._id}>
                   <td style={{ fontWeight: '500' }}>{item.nama || item.namaDonatur || '-'}</td>
                   <td>{formatCurrency(item.jumlah || item.nominal || 0)}</td>
-                  <td>{item.metode || item.metodePembayaran || '-'}</td>
+                  <td>
+                    {item.paymentGateway === 'midtrans' ? (
+                      <div>
+                        <div style={{ fontWeight: '500' }}>Midtrans</div>
+                        {item.midtransPaymentType && (
+                          <div style={{ fontSize: '0.85em', color: '#666' }}>
+                            {item.midtransPaymentType}
+                            {item.midtransBank && ` - ${item.midtransBank}`}
+                          </div>
+                        )}
+                        {item.midtransVaNumber && (
+                          <div style={{ fontSize: '0.85em', color: '#666' }}>
+                            VA: {item.midtransVaNumber}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      item.metode || item.metodePembayaran || '-'
+                    )}
+                  </td>
                   <td>{getStatusBadge(item.status)}</td>
                   <td>{formatDate(item.tanggal || item.tanggalTransaksi)}</td>
                   <td>
@@ -748,6 +874,79 @@ const SumbanganManagement = () => {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showPaymentModal && selectedSumbangan && (
+        <div className="modal">
+          <div className="modal-content" ref={paymentModalRef}>
+            <div className="modal-header">
+              <h3 className="modal-title">Create Payment - {selectedSumbangan.namaEvent}</h3>
+              <button className="close-btn" onClick={closePaymentModal}>×</button>
+            </div>
+
+            <form onSubmit={handlePaymentSubmit}>
+              <div className="form-group">
+                <label className="form-label">Donor Name *</label>
+                <input
+                  type="text"
+                  name="namaDonatur"
+                  value={paymentFormData.namaDonatur}
+                  onChange={handlePaymentChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={paymentFormData.email}
+                    onChange={handlePaymentChange}
+                    className="form-control"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <input
+                    type="text"
+                    name="nomorTelepon"
+                    value={paymentFormData.nomorTelepon}
+                    onChange={handlePaymentChange}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Amount (IDR) *</label>
+                <input
+                  type="number"
+                  name="nominal"
+                  value={paymentFormData.nominal}
+                  onChange={handlePaymentChange}
+                  className="form-control"
+                  min="10000"
+                  step="1000"
+                  required
+                />
+                <small className="form-text text-muted">Minimum amount: Rp 10,000</small>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closePaymentModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Proceed to Payment
                 </button>
               </div>
             </form>
