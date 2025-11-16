@@ -554,6 +554,7 @@ const PendaftaranManagement = () => {
                 <th>Nomor Telepon</th>
                 <th>Email</th>
                 <th>Kegiatan</th>
+                <th>Tanggal Kegiatan</th>
                 <th>Tipe Person</th>
                 <th>Tanggal Daftar</th>
                 <th>QR Code</th>
@@ -574,6 +575,26 @@ const PendaftaranManagement = () => {
                   <td>{item.nomorTelepon || '-'}</td>
                   <td>{item.email || '-'}</td>
                   <td>{item.namaKegiatan || '-'}</td>
+                  <td>
+                    {(() => {
+                      const kegiatanId = item.kegiatan?._id || item.kegiatan;
+                      const matchedKegiatan = kegiatan.find(k => k._id === kegiatanId || k._id?.toString() === kegiatanId?.toString());
+                      if (matchedKegiatan) {
+                        if (matchedKegiatan.tanggalMulai && matchedKegiatan.tanggalSelesai) {
+                          const startDate = formatDate(matchedKegiatan.tanggalMulai);
+                          const endDate = formatDate(matchedKegiatan.tanggalSelesai);
+                          return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+                        }
+                      }
+                      // Fallback to populated kegiatan if available
+                      if (item.kegiatan?.tanggalMulai && item.kegiatan?.tanggalSelesai) {
+                        const startDate = formatDate(item.kegiatan.tanggalMulai);
+                        const endDate = formatDate(item.kegiatan.tanggalSelesai);
+                        return startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+                      }
+                      return '-';
+                    })()}
+                  </td>
                   <td>
                     <div className={`tipe-person-indicator ${item.tipePerson === 'internal' ? 'internal' : 'external'}`}>
                       {item.tipePerson === 'internal' ? 'Internal' : 'External'}
