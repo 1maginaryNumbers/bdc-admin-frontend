@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiDownload } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiDownload, FiCopy } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -537,6 +537,7 @@ const SumbanganManagement = () => {
                 <th>Collected</th>
                 <th>QRIS</th>
                 <th>Status</th>
+                <th>ID</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -601,6 +602,42 @@ const SumbanganManagement = () => {
                     )}
                   </td>
                   <td>{getStatusBadge(item.status)}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ 
+                        fontSize: '0.75em', 
+                        color: '#666', 
+                        fontFamily: 'monospace',
+                        maxWidth: '100px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }} title={item._id}>
+                        {item._id.substring(0, 8)}...
+                      </span>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={async () => {
+                          const qrisImageUrl = `https://finalbackend-ochre.vercel.app/api/sumbangan/${item._id}/qris-image`;
+                          try {
+                            await navigator.clipboard.writeText(qrisImageUrl);
+                            toast.success('QRIS Image URL copied to clipboard!');
+                          } catch (err) {
+                            const textArea = document.createElement('textarea');
+                            textArea.value = qrisImageUrl;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            toast.success('QRIS Image URL copied to clipboard!');
+                          }
+                        }}
+                        title="Copy QRIS Image URL"
+                        style={{ padding: '2px 6px', fontSize: '0.7em' }}
+                      >
+                        <FiCopy size={10} />
+                      </button>
+                    </div>
+                  </td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
                       {item.status === 'aktif' && (
