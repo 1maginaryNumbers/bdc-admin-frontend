@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiDownload } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiDownload, FiSend } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -31,6 +31,9 @@ const PendaftaranManagement = () => {
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedQRCode, setSelectedQRCode] = useState(null);
   const [selectedKegiatanStatus, setSelectedKegiatanStatus] = useState(null);
+  const [sendingEmail, setSendingEmail] = useState(null);
+  const [bulkSending, setBulkSending] = useState(false);
+  const [originalKegiatanStatus, setOriginalKegiatanStatus] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -138,6 +141,9 @@ const PendaftaranManagement = () => {
       const selectedKegiatan = kegiatan.find(k => k._id === e.target.value);
       if (selectedKegiatan) {
         setSelectedKegiatanStatus(selectedKegiatan.status);
+        if (editingPendaftaran && formData.kegiatan && formData.kegiatan !== e.target.value) {
+          toast.info('QR code will be regenerated when kegiatan is changed');
+        }
       } else {
         setSelectedKegiatanStatus(null);
       }
@@ -181,7 +187,7 @@ const PendaftaranManagement = () => {
 
   const handleEdit = (pendaftaran) => {
     setEditingPendaftaran(pendaftaran);
-    const kegiatanId = pendaftaran.kegiatan?._id || '';
+    const kegiatanId = pendaftaran.kegiatan?._id || pendaftaran.kegiatan || '';
     setFormData({
       namaLengkap: pendaftaran.namaLengkap || '',
       nomorTelepon: pendaftaran.nomorTelepon || '',
@@ -193,11 +199,14 @@ const PendaftaranManagement = () => {
       const selectedKegiatan = kegiatan.find(k => k._id === kegiatanId);
       if (selectedKegiatan) {
         setSelectedKegiatanStatus(selectedKegiatan.status);
+        setOriginalKegiatanStatus(selectedKegiatan.status);
       } else {
         setSelectedKegiatanStatus(null);
+        setOriginalKegiatanStatus(null);
       }
     } else {
       setSelectedKegiatanStatus(null);
+      setOriginalKegiatanStatus(null);
     }
     checkUmatMember(pendaftaran.namaLengkap);
     setShowModal(true);
@@ -232,6 +241,60 @@ const PendaftaranManagement = () => {
       } catch (error) {
         toast.error('Failed to delete selected pendaftaran');
       }
+    }
+  };
+
+  const handleBulkSendQRCode = async () => {
+    if (selectedIds.length === 0) {
+      toast.error('Please select items to send QR codes');
+      return;
+    }
+
+    const selectedPendaftaran = pendaftaran.filter(p => selectedIds.includes(p._id));
+    const validPendaftaran = selectedPendaftaran.filter(p => p.email && p.qrCode);
+    
+    if (validPendaftaran.length === 0) {
+      toast.error('No valid registrations found with both email and QR code');
+      return;
+    }
+
+    if (validPendaftaran.length < selectedIds.length) {
+      const missing = selectedIds.length - validPendaftaran.length;
+      if (!window.confirm(`${missing} selected registration(s) do not have email or QR code. Send QR codes to ${validPendaftaran.length} valid registration(s)?`)) {
+        return;
+      }
+    } else {
+      if (!window.confirm(`Send QR codes to ${validPendaftaran.length} selected registration(s)?`)) {
+        return;
+      }
+    }
+
+    setBulkSending(true);
+    try {
+      const response = await axios.post(
+        'https://finalbackend-ochre.vercel.app/api/pendaftaran/bulk-send-qr',
+        { ids: selectedIds }
+      );
+      
+      if (response.data.successful > 0) {
+        const message = response.data.failed > 0
+          ? `QR codes sent to ${response.data.successful} recipient(s), ${response.data.failed} failed`
+          : `QR codes sent successfully to ${response.data.successful} recipient(s)!`;
+        toast.success(message);
+        
+        if (response.data.failed > 0 && response.data.failedEmails) {
+          console.warn('Failed emails:', response.data.failedEmails);
+        }
+      } else {
+        toast.error('All emails failed to send. Please check server logs and email configuration.');
+      }
+      
+      setSelectedIds([]);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to send QR codes';
+      toast.error(errorMessage);
+    } finally {
+      setBulkSending(false);
     }
   };
 
@@ -289,6 +352,7 @@ const PendaftaranManagement = () => {
     setFormData({ namaLengkap: '', nomorTelepon: '', email: '', kegiatan: '', tipePerson: 'external' });
     setIsUmatMember(false);
     setSelectedKegiatanStatus(null);
+    setOriginalKegiatanStatus(null);
   };
 
   const openQRModal = (pendaftaran) => {
@@ -316,6 +380,31 @@ const PendaftaranManagement = () => {
     toast.success('QR code downloaded successfully');
   };
 
+  const handleSendQRCodeEmail = async (pendaftaran) => {
+    if (!pendaftaran.email) {
+      toast.error('No email address found for this registration');
+      return;
+    }
+
+    if (!pendaftaran.qrCode) {
+      toast.error('No QR code available for this registration');
+      return;
+    }
+
+    setSendingEmail(pendaftaran._id);
+    try {
+      const response = await axios.post(
+        `https://finalbackend-ochre.vercel.app/api/pendaftaran/${pendaftaran._id}/send-qr`
+      );
+      toast.success(`QR code and details sent successfully to ${pendaftaran.email}`);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to send email';
+      toast.error(errorMessage);
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('id-ID');
   };
@@ -336,9 +425,25 @@ const PendaftaranManagement = () => {
           <h3>Pendaftaran List</h3>
           <div className="d-flex gap-2">
             {selectedIds.length > 0 && (
-              <button className="btn btn-danger" onClick={handleBulkDelete}>
-                <FiTrash2 /> Delete Selected ({selectedIds.length})
-              </button>
+              <>
+                <button 
+                  className="btn btn-info" 
+                  onClick={handleBulkSendQRCode}
+                  disabled={bulkSending}
+                  style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8', color: 'white' }}
+                >
+                  {bulkSending ? (
+                    <>Sending...</>
+                  ) : (
+                    <>
+                      <FiSend style={{ marginRight: '4px' }} /> Send QR Codes ({selectedIds.length})
+                    </>
+                  )}
+                </button>
+                <button className="btn btn-danger" onClick={handleBulkDelete}>
+                  <FiTrash2 /> Delete Selected ({selectedIds.length})
+                </button>
+              </>
             )}
             <button className="btn btn-primary" onClick={openModal}>
               <FiPlus /> Add Pendaftaran
@@ -505,6 +610,21 @@ const PendaftaranManagement = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                      {item.email && item.qrCode && (
+                        <button
+                          className="btn btn-sm btn-info"
+                          onClick={() => handleSendQRCodeEmail(item)}
+                          disabled={sendingEmail === item._id}
+                          style={{ flexShrink: 0, backgroundColor: '#17a2b8', borderColor: '#17a2b8', color: 'white' }}
+                          title="Send QR code via email"
+                        >
+                          {sendingEmail === item._id ? (
+                            <span>Sending...</span>
+                          ) : (
+                            <FiSend />
+                          )}
+                        </button>
+                      )}
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => handleEdit(item)}
@@ -585,6 +705,11 @@ const PendaftaranManagement = () => {
                   onChange={handleChange}
                   className="form-control"
                   required
+                  disabled={editingPendaftaran && originalKegiatanStatus === 'selesai'}
+                  style={{
+                    backgroundColor: editingPendaftaran && originalKegiatanStatus === 'selesai' ? '#e9ecef' : 'white',
+                    cursor: editingPendaftaran && originalKegiatanStatus === 'selesai' ? 'not-allowed' : 'pointer'
+                  }}
                 >
                   <option value="">Select Kegiatan</option>
                   {kegiatan.map((kegiatan) => (
@@ -593,6 +718,21 @@ const PendaftaranManagement = () => {
                     </option>
                   ))}
                 </select>
+                {editingPendaftaran && originalKegiatanStatus === 'selesai' && (
+                  <div style={{ marginTop: '8px' }}>
+                    <small style={{
+                      padding: '6px 10px',
+                      borderRadius: '4px',
+                      display: 'inline-block',
+                      fontWeight: '500',
+                      backgroundColor: '#f8d7da',
+                      color: '#721c24',
+                      border: '1px solid #f5c6cb'
+                    }}>
+                      ⚠ Tidak dapat mengubah kegiatan karena status kegiatan saat ini adalah "Selesai"
+                    </small>
+                  </div>
+                )}
                 {selectedKegiatanStatus && (
                   <div style={{ marginTop: '8px' }}>
                     <small style={{
