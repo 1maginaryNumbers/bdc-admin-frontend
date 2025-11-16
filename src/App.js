@@ -9,6 +9,7 @@ import Dashboard from './components/Dashboard';
 import UmatManagement from './components/UmatManagement';
 import KegiatanManagement from './components/KegiatanManagement';
 import PengumumanManagement from './components/PengumumanManagement';
+import BroadcastEmail from './components/BroadcastEmail';
 import GaleriManagement from './components/GaleriManagement';
 import PendaftaranManagement from './components/PendaftaranManagement';
 import SumbanganManagement from './components/SumbanganManagement';
@@ -74,6 +75,13 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <PengumumanManagement />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/broadcast-email" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <BroadcastEmail />
                 </AdminLayout>
               </ProtectedRoute>
             } />

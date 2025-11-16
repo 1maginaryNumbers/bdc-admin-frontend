@@ -21,7 +21,8 @@ import {
   FiActivity,
   FiMenu,
   FiX,
-  FiHeart
+  FiHeart,
+  FiMail
 } from 'react-icons/fi';
 
 const Sidebar = () => {
@@ -59,6 +60,7 @@ const Sidebar = () => {
     { path: '/kegiatan', label: 'Kegiatan', icon: FiActivity, color: '#e67e22' },
     { path: '/jadwal', label: 'Calendar', icon: FiCalendar, color: '#e74c3c' },
     { path: '/pengumuman', label: 'Pengumuman', icon: FiBell, color: '#f39c12' },
+    { path: '/broadcast-email', label: 'Broadcast Email', icon: FiMail, color: '#009688' },
     { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c' },
     { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085' },
     { path: '/sumbangan', label: 'Sumbangan', icon: FiHeart, color: '#e91e63' },
