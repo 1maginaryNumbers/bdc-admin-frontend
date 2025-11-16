@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiSettings } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -23,6 +23,10 @@ const GaleriManagement = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [kategoris, setKategoris] = useState([]);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryFormData, setCategoryFormData] = useState({ nama: '', warna: '#3b82f6' });
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -41,6 +45,9 @@ const GaleriManagement = () => {
     if (showImageModal) {
       closeImageModal();
     }
+    if (showCategoryModal) {
+      closeCategoryModal();
+    }
   });
 
   const modalRef = useOutsideClick(() => {
@@ -52,6 +59,12 @@ const GaleriManagement = () => {
   const imageModalRef = useOutsideClick(() => {
     if (showImageModal) {
       closeImageModal();
+    }
+  });
+
+  const categoryModalRef = useOutsideClick(() => {
+    if (showCategoryModal) {
+      closeCategoryModal();
     }
   });
 
@@ -108,9 +121,19 @@ const GaleriManagement = () => {
     }
   }, [currentPage]);
 
+  const fetchKategoris = useCallback(async () => {
+    try {
+      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/kategori-galeri');
+      setKategoris(response.data);
+    } catch (error) {
+      console.error('Error fetching kategoris:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchGaleri();
-  }, [fetchGaleri, refreshTrigger]);
+    fetchKategoris();
+  }, [fetchGaleri, fetchKategoris, refreshTrigger]);
 
   const handleChange = (e) => {
     setFormData({
@@ -204,7 +227,8 @@ const GaleriManagement = () => {
       
       setShowModal(false);
       setEditingGaleri(null);
-      setFormData({ judul: '', deskripsi: '', kategori: 'umum' });
+      const defaultKategori = kategoris.length > 0 ? kategoris[0].nama : 'umum';
+      setFormData({ judul: '', deskripsi: '', kategori: defaultKategori });
       setSelectedFile(null);
       setCurrentPage(1);
       fetchGaleri();
@@ -243,15 +267,78 @@ const GaleriManagement = () => {
 
   const openModal = () => {
     setEditingGaleri(null);
-    setFormData({ judul: '', deskripsi: '', kategori: 'umum' });
+    const defaultKategori = kategoris.length > 0 ? kategoris[0].nama : 'umum';
+    setFormData({ judul: '', deskripsi: '', kategori: defaultKategori });
     setSelectedFile(null);
     setShowModal(true);
+  };
+
+  const openCategoryModal = () => {
+    setEditingCategory(null);
+    setCategoryFormData({ nama: '', warna: '#3b82f6' });
+    setShowCategoryModal(true);
+  };
+
+  const closeCategoryModal = () => {
+    setShowCategoryModal(false);
+    setEditingCategory(null);
+    setCategoryFormData({ nama: '', warna: '#3b82f6' });
+  };
+
+  const handleCategoryChange = (e) => {
+    setCategoryFormData({
+      ...categoryFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleCategorySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingCategory) {
+        await axios.put(
+          `https://finalbackend-ochre.vercel.app/api/kategori-galeri/${editingCategory._id}`,
+          categoryFormData
+        );
+        toast.success('Category updated successfully');
+      } else {
+        await axios.post(
+          'https://finalbackend-ochre.vercel.app/api/kategori-galeri',
+          categoryFormData
+        );
+        toast.success('Category created successfully');
+      }
+      closeCategoryModal();
+      fetchKategoris();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to save category';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({ nama: category.nama, warna: category.warna || '#3b82f6' });
+    setShowCategoryModal(true);
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        await axios.delete(`https://finalbackend-ochre.vercel.app/api/kategori-galeri/${id}`);
+        toast.success('Category deleted successfully');
+        fetchKategoris();
+      } catch (error) {
+        toast.error('Failed to delete category');
+      }
+    }
   };
 
   const closeModal = () => {
     setShowModal(false);
     setEditingGaleri(null);
-    setFormData({ judul: '', deskripsi: '', kategori: 'umum' });
+    const defaultKategori = kategoris.length > 0 ? kategoris[0].nama : 'umum';
+    setFormData({ judul: '', deskripsi: '', kategori: defaultKategori });
     setSelectedFile(null);
   };
 
@@ -355,14 +442,22 @@ const GaleriManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Galeri List</h3>
-          <button 
-            className="btn btn-primary" 
-            onClick={openModal}
-            disabled={isMobile}
-            style={isMobile ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
-          >
-            <FiPlus /> Add Image
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className="btn btn-outline-primary" 
+              onClick={openCategoryModal}
+            >
+              <FiSettings /> Manage Categories
+            </button>
+            <button 
+              className="btn btn-primary" 
+              onClick={openModal}
+              disabled={isMobile}
+              style={isMobile ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+            >
+              <FiPlus /> Add Image
+            </button>
+          </div>
         </div>
         {isMobile && (
           <div style={{ 
@@ -435,9 +530,22 @@ const GaleriManagement = () => {
                     {item.deskripsi || '-'}
                   </td>
                   <td>
-                    <span className={`btn btn-sm ${item.kategori === 'umum' ? 'btn-secondary' : 'btn-primary'}`}>
-                      {item.kategori}
-                    </span>
+                    {(() => {
+                      const kategori = kategoris.find(k => k.nama === item.kategori);
+                      const warna = kategori?.warna || '#6c757d';
+                      return (
+                        <span 
+                          className="btn btn-sm" 
+                          style={{ 
+                            backgroundColor: warna, 
+                            borderColor: warna,
+                            color: 'white'
+                          }}
+                        >
+                          {item.kategori}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td>{formatDate(item.tanggalUpload)}</td>
                   <td>
@@ -510,10 +618,15 @@ const GaleriManagement = () => {
                   onChange={handleChange}
                   className="form-control"
                 >
-                  <option value="umum">Umum</option>
-                  <option value="kegiatan">Kegiatan</option>
-                  <option value="acara">Acara</option>
-                  <option value="bangunan">Bangunan</option>
+                  {kategoris.length > 0 ? (
+                    kategoris.map((kat) => (
+                      <option key={kat._id} value={kat.nama}>
+                        {kat.nama}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="umum">Umum</option>
+                  )}
                 </select>
               </div>
 
@@ -644,6 +757,115 @@ const GaleriManagement = () => {
               <button type="button" className="btn btn-secondary" onClick={closeImageModal}>
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCategoryModal && (
+        <div className="modal" style={{ zIndex: 1002 }}>
+          <div className="modal-content" style={{ maxWidth: '600px' }} ref={categoryModalRef}>
+            <div className="modal-header">
+              <h3 className="modal-title">
+                {editingCategory ? 'Edit Category' : 'Add New Category'}
+              </h3>
+              <button className="close-btn" onClick={closeCategoryModal}>×</button>
+            </div>
+            <form onSubmit={handleCategorySubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Category Name *</label>
+                  <input
+                    type="text"
+                    name="nama"
+                    value={categoryFormData.nama}
+                    onChange={handleCategoryChange}
+                    className="form-control"
+                    required
+                    placeholder="Enter category name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Color</label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input
+                      type="color"
+                      name="warna"
+                      value={categoryFormData.warna}
+                      onChange={handleCategoryChange}
+                      style={{ width: '60px', height: '40px', cursor: 'pointer' }}
+                    />
+                    <input
+                      type="text"
+                      name="warna"
+                      value={categoryFormData.warna}
+                      onChange={handleCategoryChange}
+                      className="form-control"
+                      style={{ flex: 1 }}
+                      placeholder="#3b82f6"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeCategoryModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editingCategory ? 'Update' : 'Create'} Category
+                </button>
+              </div>
+            </form>
+            <div style={{ padding: '20px', borderTop: '1px solid #dee2e6' }}>
+              <h4 style={{ marginBottom: '15px' }}>Existing Categories</h4>
+              {kategoris.length === 0 ? (
+                <p style={{ color: '#6c757d' }}>No categories yet. Create your first category above.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {kategoris.map((kat) => (
+                    <div
+                      key={kat._id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '6px',
+                        border: '1px solid #dee2e6'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            backgroundColor: kat.warna || '#3b82f6',
+                            borderRadius: '4px',
+                            border: '2px solid #fff',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                        <span style={{ fontWeight: '500' }}>{kat.nama}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => handleEditCategory(kat)}
+                        >
+                          <FiEdit />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDeleteCategory(kat._id)}
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
