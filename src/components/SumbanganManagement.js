@@ -577,7 +577,27 @@ const SumbanganManagement = () => {
                         </button>
                       </div>
                     ) : (
-                      <span style={{ color: '#999' }}>No QRIS</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#999' }}>No QRIS</span>
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={async () => {
+                            try {
+                              const formData = new FormData();
+                              formData.append('regenerateQR', 'true');
+                              await axios.put(`https://finalbackend-ochre.vercel.app/api/sumbangan/${item._id}`, formData);
+                              toast.success('QRIS generated successfully');
+                              fetchData();
+                            } catch (error) {
+                              toast.error('Failed to generate QRIS');
+                            }
+                          }}
+                          title="Generate QRIS"
+                          style={{ padding: '4px 8px', fontSize: '0.75em' }}
+                        >
+                          Generate
+                        </button>
+                      </div>
                     )}
                   </td>
                   <td>{getStatusBadge(item.status)}</td>
