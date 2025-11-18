@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiClock, FiUser, FiActivity, FiDatabase, FiTrash2, FiDownload } from 'react-icons/fi';
+import { FiClock, FiUser, FiActivity, FiDatabase, FiTrash2, FiDownload, FiGlobe } from 'react-icons/fi';
 import { useRefresh } from '../contexts/RefreshContext';
 
 const ActivityLog = () => {
@@ -230,6 +230,7 @@ const ActivityLog = () => {
                 <th>Action</th>
                 <th>Entity</th>
                 <th>Description</th>
+                <th>IP Address</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -269,6 +270,14 @@ const ActivityLog = () => {
                   </td>
                   <td style={{ maxWidth: '300px', wordWrap: 'break-word' }}>
                     {log.description}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <FiGlobe style={{ color: '#666', fontSize: '14px' }} />
+                      <span style={{ fontSize: '13px', fontFamily: 'monospace' }}>
+                        {log.ipAddress || 'Unknown'}
+                      </span>
+                    </div>
                   </td>
                   <td>
                     <span className={`btn btn-sm ${log.status === 'SUCCESS' ? 'btn-success' : log.status === 'FAILED' ? 'btn-danger' : 'btn-warning'}`}>

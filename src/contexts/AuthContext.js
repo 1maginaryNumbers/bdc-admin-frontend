@@ -45,11 +45,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('adminToken');
-    delete axios.defaults.headers.common['Authorization'];
-    setIsAuthenticated(false);
-    setUser(null);
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        await axios.post('https://finalbackend-ochre.vercel.app/api/admin/logout');
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    } finally {
+      localStorage.removeItem('adminToken');
+      delete axios.defaults.headers.common['Authorization'];
+      setIsAuthenticated(false);
+      setUser(null);
+    }
   };
 
   const value = {
