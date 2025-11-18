@@ -1,70 +1,187 @@
-# Getting Started with Create React App
+# Vihara Management System - Admin Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React-based admin dashboard for managing the Vihara (Buddhist temple) management system. This is the administrative interface where temple administrators can manage all aspects of the temple operations.
+
+## Features
+
+- **Dashboard Overview**: View statistics and recent activities
+- **Announcement Management**: Create, edit, and delete temple announcements
+- **Event Management**: Manage temple events and activities
+- **Registration Management**: View and manage event registrations
+- **Attendance Tracking**: QR code scanning for event attendance
+- **Member Management**: Manage congregation members (Umat)
+- **Gallery Management**: Upload and organize temple photos with categories
+- **Donation Management**: 
+  - Create donation events
+  - Generate QRIS codes for payments
+  - View and manage donation transactions
+  - Sync transactions with Midtrans
+- **Merchandise Management**: Manage temple merchandise inventory
+- **Feedback Management**: View and respond to member feedback
+- **Organizational Structure**: Manage temple leadership structure
+- **Broadcast System**: Send emails to congregation members
+- **Schedule Management**: Manage temple schedules and categories
+- **Activity Logs**: View all admin activities
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- Backend API server running (see backend README)
+
+## Installation
+
+1. Navigate to the admin directory:
+   ```bash
+   cd frontend/admin
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the `frontend/admin` directory:
+   ```
+   REACT_APP_API_URL=http://localhost:5000
+   ```
+
+   For production:
+   ```
+   REACT_APP_API_URL=https://your-backend-url.com
+   ```
+
+4. Start the development server:
+   ```bash
+   npm start
+   ```
+
+   The app will open at [http://localhost:3000](http://localhost:3000)
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the app in development mode. The page will reload when you make changes.
 
 ### `npm run build`
+Builds the app for production to the `build` folder. The build is optimized for production.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `npm test`
+Launches the test runner in interactive watch mode.
 
 ### `npm run eject`
+**Note: This is a one-way operation.** Ejects from Create React App configuration.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Environment Variables
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Create a `.env` file in the `frontend/admin` directory:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+REACT_APP_API_URL=http://localhost:5000
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Important**: Never commit the `.env` file to version control. It is already included in `.gitignore`.
 
-## Learn More
+## Project Structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+frontend/admin/
+├── public/
+│   ├── index.html
+│   └── ...
+├── src/
+│   ├── components/
+│   │   ├── Dashboard.js
+│   │   ├── Login.js
+│   │   ├── Sidebar.js
+│   │   ├── PengumumanManagement.js
+│   │   ├── KegiatanManagement.js
+│   │   ├── PendaftaranManagement.js
+│   │   ├── AbsensiManagement.js
+│   │   ├── UmatManagement.js
+│   │   ├── GaleriManagement.js
+│   │   ├── SumbanganManagement.js
+│   │   ├── MerchandiseManagement.js
+│   │   ├── SaranManagement.js
+│   │   ├── StrukturManagement.js
+│   │   ├── AdminManagement.js
+│   │   ├── InfoUmumManagement.js
+│   │   └── QRScan.js
+│   ├── contexts/
+│   │   ├── AuthContext.js
+│   │   └── RefreshContext.js
+│   ├── hooks/
+│   │   ├── useEscapeKey.js
+│   │   └── useOutsideClick.js
+│   ├── utils/
+│   │   └── imageCompression.js
+│   ├── App.js
+│   └── index.js
+└── package.json
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Key Features
 
-### Code Splitting
+### Authentication
+- Secure login with JWT tokens
+- Automatic token refresh
+- Protected routes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### QR Code Features
+- QR code generation for event registrations
+- QR code scanning for attendance tracking
+- QRIS generation for donation payments
 
-### Analyzing the Bundle Size
+### Payment Integration
+- Midtrans payment integration
+- QRIS code generation and display
+- Transaction status management
+- Manual transaction sync with Midtrans
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### File Upload
+- Image compression before upload
+- Support for gallery and merchandise images
+- Base64 encoding for QRIS images
 
-### Making a Progressive Web App
+## Technologies Used
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- React 18.2.0
+- React Router DOM 6.8.1
+- Axios for API calls
+- React Icons for icons
+- React Toastify for notifications
+- QRCode library for QR code generation
+- QR Scanner for QR code scanning
 
-### Advanced Configuration
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Build for Production
 
-### Deployment
+```bash
+npm run build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+This creates an optimized production build in the `build` folder.
 
-### `npm run build` fails to minify
+### Deploy to Vercel
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Install Vercel CLI:
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Deploy:
+   ```bash
+   vercel
+   ```
+
+3. Set environment variables in Vercel dashboard:
+   - `REACT_APP_API_URL`: Your backend API URL
+
+## Notes
+
+- The admin dashboard requires authentication to access
+- All API calls are made to the backend server configured in `REACT_APP_API_URL`
+- QRIS codes are automatically generated when creating donation events
+- Transaction statuses are updated via Midtrans webhooks
+- Image uploads are compressed before sending to reduce file size
