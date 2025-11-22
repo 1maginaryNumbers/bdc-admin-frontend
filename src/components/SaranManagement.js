@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiTrash2, FiCheckSquare, FiSquare } from 'react-icons/fi';
+import { FiTrash2, FiCheckSquare, FiSquare, FiEye } from 'react-icons/fi';
 import { useRefresh } from '../contexts/RefreshContext';
+import useEscapeKey from '../hooks/useEscapeKey';
+import useOutsideClick from '../hooks/useOutsideClick';
 
 const SaranManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [saran, setSaran] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedSaran, setSelectedSaran] = useState(null);
 
   useEffect(() => {
     fetchSaran();
@@ -78,6 +82,28 @@ const SaranManagement = () => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('id-ID');
   };
+
+  const openDetailModal = (item) => {
+    setSelectedSaran(item);
+    setShowDetailModal(true);
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedSaran(null);
+  };
+
+  useEscapeKey(() => {
+    if (showDetailModal) {
+      closeDetailModal();
+    }
+  });
+
+  const detailModalRef = useOutsideClick(() => {
+    if (showDetailModal) {
+      closeDetailModal();
+    }
+  });
 
   if (loading) {
     return <div className="loading">Loading saran data...</div>;
@@ -154,16 +180,39 @@ const SaranManagement = () => {
                   <td>{item.nomorTelepon || '-'}</td>
                   <td>{item.kategori || '-'}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.kritikSaran}
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => openDetailModal(item)}
+                      style={{ border: 'none', padding: '4px 8px', textAlign: 'left', width: '100%' }}
+                      title="Click to view full text"
+                    >
+                      <span style={{ 
+                        display: 'block', 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        whiteSpace: 'nowrap' 
+                      }}>
+                        {item.kritikSaran}
+                      </span>
+                    </button>
                   </td>
                   <td>{formatDate(item.tanggal)}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(item._id)}
-                    >
-                      <FiTrash2 />
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        className="btn btn-sm btn-secondary"
+                        onClick={() => openDetailModal(item)}
+                        title="View details"
+                      >
+                        <FiEye />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(item._id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -171,6 +220,58 @@ const SaranManagement = () => {
           </table>
         </div>
       </div>
+
+      {showDetailModal && selectedSaran && (
+        <div className="modal">
+          <div className="modal-content" ref={detailModalRef} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Detail Kritik & Saran</h3>
+              <button className="close-btn" onClick={closeDetailModal}>×</button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Nama Lengkap:</label>
+                <p>{selectedSaran.namaLengkap}</p>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Email:</label>
+                <p>{selectedSaran.email || '-'}</p>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Nomor Telepon:</label>
+                <p>{selectedSaran.nomorTelepon || '-'}</p>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Kategori:</label>
+                <p>{selectedSaran.kategori || '-'}</p>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Kritik & Saran:</label>
+                <div style={{ 
+                  padding: '12px', 
+                  backgroundColor: '#f5f5f5', 
+                  borderRadius: '4px',
+                  maxHeight: '300px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word'
+                }}>
+                  {selectedSaran.kritikSaran}
+                </div>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Tanggal:</label>
+                <p>{formatDate(selectedSaran.tanggal)}</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={closeDetailModal}>
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

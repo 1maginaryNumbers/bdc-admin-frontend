@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiEye } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -9,8 +9,12 @@ import { useRefresh } from '../contexts/RefreshContext';
 const MerchandiseManagement = () => {
   const { refreshTrigger } = useRefresh();
   const [merchandise, setMerchandise] = useState([]);
+  const [transaksi, setTransaksi] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [transaksiLoading, setTransaksiLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showTransaksiModal, setShowTransaksiModal] = useState(false);
+  const [selectedTransaksi, setSelectedTransaksi] = useState(null);
   const [editingMerchandise, setEditingMerchandise] = useState(null);
   const [formData, setFormData] = useState({
     nama: '',
