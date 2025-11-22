@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiPlus, FiTrash2, FiCalendar } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiCalendar, FiClock } from 'react-icons/fi';
 
 const InfoUmumManagement = () => {
   const [infoUmum, setInfoUmum] = useState({
@@ -13,7 +13,8 @@ const InfoUmumManagement = () => {
     visi: '',
     misi: '',
     jamOperasional: [],
-    tanggalKhusus: []
+    tanggalKhusus: [],
+    jadwalPujaBakti: []
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,7 +53,8 @@ const InfoUmumManagement = () => {
           visi: data.visi || '',
           misi: data.misi || '',
           jamOperasional: jamOperasional,
-          tanggalKhusus: data.tanggalKhusus && Array.isArray(data.tanggalKhusus) ? data.tanggalKhusus : []
+          tanggalKhusus: data.tanggalKhusus && Array.isArray(data.tanggalKhusus) ? data.tanggalKhusus : [],
+          jadwalPujaBakti: data.jadwalPujaBakti && Array.isArray(data.jadwalPujaBakti) ? data.jadwalPujaBakti : []
         });
       }
     } catch (error) {
@@ -136,6 +138,43 @@ const InfoUmumManagement = () => {
     setInfoUmum({
       ...infoUmum,
       tanggalKhusus: newTanggalKhusus
+    });
+  };
+
+  const handleAddJadwalPujaBakti = () => {
+    setInfoUmum({
+      ...infoUmum,
+      jadwalPujaBakti: [
+        ...infoUmum.jadwalPujaBakti,
+        { hari: ['minggu'], waktu: '08:00', keterangan: '' }
+      ]
+    });
+  };
+
+  const handleRemoveJadwalPujaBakti = (index) => {
+    const newJadwalPujaBakti = infoUmum.jadwalPujaBakti.filter((_, i) => i !== index);
+    setInfoUmum({
+      ...infoUmum,
+      jadwalPujaBakti: newJadwalPujaBakti
+    });
+  };
+
+  const handleJadwalPujaBaktiChange = (index, field, value) => {
+    const newJadwalPujaBakti = [...infoUmum.jadwalPujaBakti];
+    if (field === 'hari') {
+      // Handle multi-select for days
+      const currentDays = newJadwalPujaBakti[index].hari || [];
+      if (currentDays.includes(value)) {
+        newJadwalPujaBakti[index].hari = currentDays.filter(d => d !== value);
+      } else {
+        newJadwalPujaBakti[index].hari = [...currentDays, value];
+      }
+    } else {
+      newJadwalPujaBakti[index][field] = value;
+    }
+    setInfoUmum({
+      ...infoUmum,
+      jadwalPujaBakti: newJadwalPujaBakti
     });
   };
 
@@ -448,6 +487,122 @@ const InfoUmumManagement = () => {
                       <p style={{ margin: 0, fontSize: '13px', color: '#856404' }}>
                         <strong>Status:</strong> Temple will be closed on this date
                       </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Jadwal Puja Bakti Section */}
+          <div className="form-group" style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #e9ecef' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <label className="form-label" style={{ marginBottom: 0, fontSize: '18px', fontWeight: 'bold' }}>
+                <FiClock style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                Jadwal Puja Bakti (Prayer Schedule)
+              </label>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={handleAddJadwalPujaBakti}
+              >
+                <FiPlus style={{ marginRight: '5px' }} />
+                Add Schedule
+              </button>
+            </div>
+            
+            <p style={{ color: '#6c757d', fontSize: '13px', marginBottom: '15px', fontStyle: 'italic' }}>
+              Add prayer schedules for specific days and times
+            </p>
+            
+            {infoUmum.jadwalPujaBakti.length === 0 ? (
+              <p style={{ color: '#666', fontStyle: 'italic', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                No prayer schedules set. Click "Add Schedule" to add one.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {infoUmum.jadwalPujaBakti.map((jadwal, index) => (
+                  <div key={index} style={{ 
+                    border: '1px solid #dee2e6', 
+                    borderRadius: '8px', 
+                    padding: '20px',
+                    backgroundColor: '#e7f3ff'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#004085' }}>
+                        Prayer Schedule {index + 1}
+                      </h4>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleRemoveJadwalPujaBakti(index)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                      <label className="form-label" style={{ fontSize: '13px', marginBottom: '8px', display: 'block', fontWeight: '600' }}>
+                        Pilih Hari (Select Days) *
+                      </label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {daysOfWeek.map(day => {
+                          const isSelected = (jadwal.hari || []).includes(day.value);
+                          return (
+                            <button
+                              key={day.value}
+                              type="button"
+                              onClick={() => handleJadwalPujaBaktiChange(index, 'hari', day.value)}
+                              style={{
+                                padding: '8px 16px',
+                                borderRadius: '6px',
+                                border: `2px solid ${isSelected ? '#004085' : '#dee2e6'}`,
+                                backgroundColor: isSelected ? '#004085' : '#fff',
+                                color: isSelected ? '#fff' : '#495057',
+                                cursor: 'pointer',
+                                fontSize: '13px',
+                                fontWeight: isSelected ? '600' : '400',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {day.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {(jadwal.hari || []).length === 0 && (
+                        <p style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+                          Please select at least one day
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '15px' }}>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '13px', marginBottom: '5px', display: 'block', fontWeight: '600' }}>
+                          Waktu (Time) *
+                        </label>
+                        <input
+                          type="time"
+                          value={jadwal.waktu}
+                          onChange={(e) => handleJadwalPujaBaktiChange(index, 'waktu', e.target.value)}
+                          className="form-control"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="form-label" style={{ fontSize: '13px', marginBottom: '5px', display: 'block', fontWeight: '600' }}>
+                          Keterangan (Description)
+                        </label>
+                        <input
+                          type="text"
+                          value={jadwal.keterangan || ''}
+                          onChange={(e) => handleJadwalPujaBaktiChange(index, 'keterangan', e.target.value)}
+                          className="form-control"
+                          placeholder="e.g., Puja Pagi, Puja Sore, etc."
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
