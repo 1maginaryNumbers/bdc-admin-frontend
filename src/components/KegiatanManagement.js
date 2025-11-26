@@ -528,7 +528,7 @@ const KegiatanManagement = () => {
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.deskripsi}
                   </td>
-                  <td>{item.kategori?.namaKategori || '-'}</td>
+                  <td>{item.kategori?.nama || '-'}</td>
                   <td>{formatDate(item.tanggalMulai)}</td>
                   <td>{formatDate(item.tanggalSelesai)}</td>
                   <td>
