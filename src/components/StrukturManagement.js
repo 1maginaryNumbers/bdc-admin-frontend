@@ -12,6 +12,7 @@ const StrukturManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingStruktur, setEditingStruktur] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [formData, setFormData] = useState({
     nama: '',
     jabatan: '',
@@ -104,6 +105,40 @@ const StrukturManagement = () => {
     }
   };
 
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === struktur.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(struktur.map(item => item._id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      toast.warning('Please select items to delete');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} item(s)?`)) {
+      try {
+        await axios.post('https://finalbackend-ochre.vercel.app/api/struktur/bulk-delete', { ids: selectedItems });
+        toast.success(`Successfully deleted ${selectedItems.length} item(s)`);
+        setSelectedItems([]);
+        fetchStruktur();
+      } catch (error) {
+        toast.error('Failed to delete items');
+      }
+    }
+  };
+
   const openModal = () => {
     setEditingStruktur(null);
     setFormData({ nama: '', jabatan: '', periode: '', kontak: '' });
@@ -130,15 +165,29 @@ const StrukturManagement = () => {
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Struktur List</h3>
-          <button className="btn btn-primary" onClick={openModal}>
-            <FiPlus /> Add Struktur
-          </button>
+          <div className="d-flex gap-2">
+            {selectedItems.length > 0 && (
+              <button className="btn btn-danger" onClick={handleBulkDelete}>
+                <FiTrash2 /> Delete Selected ({selectedItems.length})
+              </button>
+            )}
+            <button className="btn btn-primary" onClick={openModal}>
+              <FiPlus /> Add Struktur
+            </button>
+          </div>
         </div>
 
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === struktur.length && struktur.length > 0}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th>Nama</th>
                 <th>Jabatan</th>
                 <th>Periode</th>
@@ -149,6 +198,13 @@ const StrukturManagement = () => {
             <tbody>
               {struktur.map((item) => (
                 <tr key={item._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => handleSelectItem(item._id)}
+                    />
+                  </td>
                   <td style={{ fontWeight: '500' }}>{item.nama}</td>
                   <td>{item.jabatan || '-'}</td>
                   <td>{item.periode || '-'}</td>
