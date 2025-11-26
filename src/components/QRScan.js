@@ -130,8 +130,15 @@ const QRScan = () => {
     
     setLoading(true);
     try {
+      // Trim and validate QR code data
+      const trimmedQrData = qrData.trim();
+      
+      if (!trimmedQrData) {
+        throw new Error('QR Code data is empty');
+      }
+      
       const response = await axios.post('https://finalbackend-ochre.vercel.app/api/absensi/scan', {
-        qrCodeData: qrData,
+        qrCodeData: trimmedQrData,
         kegiatanId: selectedKegiatan
       });
 
@@ -145,7 +152,8 @@ const QRScan = () => {
       toast.success(response.data.message);
       stopScanning();
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to process QR code';
+      console.error('Error scanning QR code:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Gagal memproses QR Code. Pastikan QR Code yang dipindai adalah QR Code absensi yang benar.';
       setLastScanResult({
         success: false,
         message: errorMessage,
@@ -154,6 +162,10 @@ const QRScan = () => {
       
       if (error.response?.status === 409) {
         toast.warning(errorMessage);
+      } else if (error.response?.status === 400) {
+        toast.error(errorMessage);
+      } else if (error.response?.status === 404) {
+        toast.error(errorMessage);
       } else {
         toast.error(errorMessage);
       }

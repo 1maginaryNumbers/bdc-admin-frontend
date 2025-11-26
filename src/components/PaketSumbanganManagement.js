@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FiEdit, FiTrash2, FiPlus, FiX } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiX, FiEye } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useRefresh } from '../contexts/RefreshContext';
@@ -30,6 +30,8 @@ const PaketSumbanganManagement = () => {
     jumlah: 1,
     keterangan: ''
   });
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedTransaksi, setSelectedTransaksi] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -38,6 +40,10 @@ const PaketSumbanganManagement = () => {
   useEscapeKey(() => {
     if (showModal) {
       closeModal();
+    }
+    if (showDetailModal) {
+      setShowDetailModal(false);
+      setSelectedTransaksi(null);
     }
   });
 
@@ -360,23 +366,34 @@ const PaketSumbanganManagement = () => {
                   <td>{getStatusBadge(item.status)}</td>
                   <td>{formatDate(item.tanggalTransaksi)}</td>
                   <td>
-                    {item.status === 'pending' && (
-                      <>
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => handleUpdateTransaksiStatus(item._id, 'berhasil')}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleUpdateTransaksiStatus(item._id, 'gagal')}
-                          style={{ marginLeft: '8px' }}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      <button
+                        className="btn btn-sm btn-info"
+                        onClick={() => {
+                          setSelectedTransaksi(item);
+                          setShowDetailModal(true);
+                        }}
+                        title="View Details"
+                      >
+                        <FiEye />
+                      </button>
+                      {item.status === 'pending' && (
+                        <>
+                          <button
+                            className="btn btn-sm btn-success"
+                            onClick={() => handleUpdateTransaksiStatus(item._id, 'berhasil')}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleUpdateTransaksiStatus(item._id, 'gagal')}
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -579,6 +596,163 @@ const PaketSumbanganManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDetailModal && selectedTransaksi && (
+        <div className="modal">
+          <div className="modal-content" style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Detail Transaksi</h3>
+              <button className="close-btn" onClick={() => {
+                setShowDetailModal(false);
+                setSelectedTransaksi(null);
+              }}>×</button>
+            </div>
+            <div className="modal-body">
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ marginBottom: '15px', color: '#2c3e50' }}>Informasi Pembeli</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '8px 0', color: '#666', width: '40%' }}>Nama:</td>
+                      <td style={{ padding: '8px 0', fontWeight: '500' }}>{selectedTransaksi.namaPembeli || '-'}</td>
+                    </tr>
+                    {selectedTransaksi.email && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666' }}>Email:</td>
+                        <td style={{ padding: '8px 0' }}>{selectedTransaksi.email}</td>
+                      </tr>
+                    )}
+                    {selectedTransaksi.nomorTelepon && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666' }}>Nomor Telepon:</td>
+                        <td style={{ padding: '8px 0' }}>{selectedTransaksi.nomorTelepon}</td>
+                      </tr>
+                    )}
+                    {selectedTransaksi.alamat && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666', verticalAlign: 'top' }}>Alamat:</td>
+                        <td style={{ padding: '8px 0', whiteSpace: 'pre-wrap' }}>{selectedTransaksi.alamat}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ marginBottom: '15px', color: '#2c3e50' }}>Detail Pembayaran</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '8px 0', color: '#666', width: '40%' }}>Jumlah:</td>
+                      <td style={{ padding: '8px 0', fontWeight: 'bold', fontSize: '18px', color: '#667eea' }}>
+                        {formatCurrency(selectedTransaksi.nominal || 0)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '8px 0', color: '#666' }}>Status:</td>
+                      <td style={{ padding: '8px 0' }}>{getStatusBadge(selectedTransaksi.status)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '8px 0', color: '#666' }}>Tanggal:</td>
+                      <td style={{ padding: '8px 0' }}>{formatDate(selectedTransaksi.tanggalTransaksi)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '8px 0', color: '#666' }}>Metode Pembayaran:</td>
+                      <td style={{ padding: '8px 0' }}>
+                        {selectedTransaksi.paymentGateway === 'midtrans' ? (
+                          <div>
+                            <div style={{ fontWeight: '500' }}>Midtrans</div>
+                            {selectedTransaksi.midtransPaymentType && (
+                              <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                {selectedTransaksi.midtransPaymentType}
+                                {selectedTransaksi.midtransBank && ` - ${selectedTransaksi.midtransBank}`}
+                              </div>
+                            )}
+                            {selectedTransaksi.midtransVaNumber && (
+                              <div style={{ fontSize: '0.9em', color: '#666', fontFamily: 'monospace' }}>
+                                VA: {selectedTransaksi.midtransVaNumber}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          'Manual'
+                        )}
+                      </td>
+                    </tr>
+                    {selectedTransaksi.midtransOrderId && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666' }}>Order ID:</td>
+                        <td style={{ padding: '8px 0', fontFamily: 'monospace', fontSize: '0.9em' }}>
+                          {selectedTransaksi.midtransOrderId}
+                        </td>
+                      </tr>
+                    )}
+                    {selectedTransaksi.midtransTransactionId && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666' }}>Transaction ID:</td>
+                        <td style={{ padding: '8px 0', fontFamily: 'monospace', fontSize: '0.9em' }}>
+                          {selectedTransaksi.midtransTransactionId}
+                        </td>
+                      </tr>
+                    )}
+                    {selectedTransaksi.midtransTransactionStatus && (
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666' }}>Transaction Status:</td>
+                        <td style={{ padding: '8px 0' }}>{selectedTransaksi.midtransTransactionStatus}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {selectedTransaksi.paketSumbangan && (
+                <div style={{ marginBottom: '20px' }}>
+                  <h4 style={{ marginBottom: '15px', color: '#2c3e50' }}>Paket Sumbangan</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '8px 0', color: '#666', width: '40%' }}>Nama Paket:</td>
+                        <td style={{ padding: '8px 0', fontWeight: '500' }}>
+                          {selectedTransaksi.paketSumbangan?.namaPaket || '-'}
+                        </td>
+                      </tr>
+                      {selectedTransaksi.paketSumbangan?.deskripsi && (
+                        <tr>
+                          <td style={{ padding: '8px 0', color: '#666', verticalAlign: 'top' }}>Deskripsi:</td>
+                          <td style={{ padding: '8px 0' }}>{selectedTransaksi.paketSumbangan.deskripsi}</td>
+                        </tr>
+                      )}
+                      {selectedTransaksi.paketSumbangan?.detailBarang && selectedTransaksi.paketSumbangan.detailBarang.length > 0 && (
+                        <tr>
+                          <td style={{ padding: '8px 0', color: '#666', verticalAlign: 'top' }}>Isi Paket:</td>
+                          <td style={{ padding: '8px 0' }}>
+                            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                              {selectedTransaksi.paketSumbangan.detailBarang.map((barang, idx) => (
+                                <li key={idx}>
+                                  {barang.namaBarang || barang.namaItem || 'Item'} (x{barang.jumlah})
+                                  {barang.keterangan && ` - ${barang.keterangan}`}
+                                </li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => {
+                setShowDetailModal(false);
+                setSelectedTransaksi(null);
+              }}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
