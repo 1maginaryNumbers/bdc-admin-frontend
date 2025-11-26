@@ -23,17 +23,8 @@ const SumbanganManagement = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTransaksi, setSelectedTransaksi] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [filters, setFilters] = useState({
-    name: '',
-    date: ''
-  });
-  const [formData, setFormData] = useState({
-    namaEvent: '',
-    deskripsi: '',
-    targetDana: '',
-    tanggalSelesai: '',
-    status: 'aktif'
-  });
+  // No filters needed for voluntary donation
+  const [formData, setFormData] = useState({});
   const [regenerateQR, setRegenerateQR] = useState(false);
   const [transaksiFormData, setTransaksiFormData] = useState({
     sumbangan: '',
@@ -132,23 +123,9 @@ const SumbanganManagement = () => {
         sumbanganList = sumbanganData.sumbangan;
       }
       
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const updatedSumbangan = sumbanganList.map((item) => {
-        if (item.tanggalSelesai && item.status === 'aktif') {
-          const endDate = new Date(item.tanggalSelesai);
-          endDate.setHours(0, 0, 0, 0);
-          
-          if (endDate < today) {
-            return { ...item, status: 'selesai' };
-          }
-        }
-        return item;
-      });
-      
-      setSumbangan(updatedSumbangan);
-      setFilteredSumbangan(updatedSumbangan);
+      // Voluntary donation is always active
+      setSumbangan(sumbanganList);
+      setFilteredSumbangan(sumbanganList);
       
       setTransaksi(transaksiRes.data);
     } catch (error) {
@@ -204,13 +181,6 @@ const SumbanganManagement = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('namaEvent', formData.namaEvent);
-      formDataToSend.append('deskripsi', formData.deskripsi);
-      formDataToSend.append('targetDana', parseFloat(formData.targetDana));
-      if (formData.tanggalSelesai) {
-        formDataToSend.append('tanggalSelesai', formData.tanggalSelesai);
-      }
-      formDataToSend.append('status', formData.status);
 
       if (selectedFile) {
         formDataToSend.append('qrisImage', selectedFile);
@@ -221,19 +191,19 @@ const SumbanganManagement = () => {
           formDataToSend.append('regenerateQR', 'true');
         }
         await axios.put(`https://finalbackend-ochre.vercel.app/api/sumbangan/${editingSumbangan._id}`, formDataToSend);
-        toast.success('Donation event updated successfully');
+        toast.success('QRIS updated successfully');
       } else {
         await axios.post('https://finalbackend-ochre.vercel.app/api/sumbangan', formDataToSend);
-        toast.success('Donation event created successfully');
+        toast.success('QRIS created successfully');
       }
       setShowModal(false);
       setEditingSumbangan(null);
       setSelectedFile(null);
       setRegenerateQR(false);
-      setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+      setFormData({});
       fetchData();
     } catch (error) {
-      toast.error('Failed to save donation event');
+      toast.error('Failed to save QRIS');
     }
   };
 
@@ -274,13 +244,7 @@ const SumbanganManagement = () => {
 
   const handleEdit = (sumbangan) => {
     setEditingSumbangan(sumbangan);
-    setFormData({
-      namaEvent: sumbangan.namaEvent || '',
-      deskripsi: sumbangan.deskripsi || '',
-      targetDana: sumbangan.targetDana ? sumbangan.targetDana.toString() : '',
-      tanggalSelesai: sumbangan.tanggalSelesai ? new Date(sumbangan.tanggalSelesai).toISOString().split('T')[0] : '',
-      status: sumbangan.status || 'aktif'
-    });
+    setFormData({});
     setSelectedFile(null);
     setRegenerateQR(false);
     setShowModal(true);
@@ -310,7 +274,7 @@ const SumbanganManagement = () => {
 
   const openModal = () => {
     setEditingSumbangan(null);
-    setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+    setFormData({});
     setSelectedFile(null);
     setRegenerateQR(false);
     setShowModal(true);
@@ -381,7 +345,7 @@ const SumbanganManagement = () => {
     setEditingSumbangan(null);
     setSelectedFile(null);
     setRegenerateQR(false);
-    setFormData({ namaEvent: '', deskripsi: '', targetDana: '', tanggalSelesai: '', status: 'aktif' });
+    setFormData({});
   };
 
   const closeTransaksiModal = () => {
@@ -420,24 +384,9 @@ const SumbanganManagement = () => {
   };
 
   useEffect(() => {
-    let filtered = [...sumbangan];
-    
-    if (filters.name) {
-      filtered = filtered.filter(item => 
-        (item.namaEvent || item.namaPaket || '').toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    
-    if (filters.date) {
-      filtered = filtered.filter(item => {
-        if (!item.tanggalSelesai) return false;
-        const itemDate = new Date(item.tanggalSelesai).toISOString().split('T')[0];
-        return itemDate === filters.date;
-      });
-    }
-    
-    setFilteredSumbangan(filtered);
-  }, [filters, sumbangan]);
+    // No filtering needed for voluntary donation
+    setFilteredSumbangan(sumbangan);
+  }, [sumbangan]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -494,47 +443,15 @@ const SumbanganManagement = () => {
     <div>
       <div className="page-header">
         <h1 className="page-title">Sumbangan Management</h1>
-        <p className="page-subtitle">Manage donation events and transactions</p>
+        <p className="page-subtitle">Manage voluntary donation QRIS and transactions</p>
       </div>
 
       <div className="content-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Donation Events</h3>
+          <h3>QRIS Donasi Sukarela</h3>
           <div className="d-flex gap-2">
             <button className="btn btn-primary" onClick={openModal}>
-              <FiPlus /> Add Event
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by Name</label>
-            <input
-              type="text"
-              name="name"
-              value={filters.name}
-              onChange={handleFilterChange}
-              className="form-control"
-              placeholder="Search event name..."
-            />
-          </div>
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label className="form-label" style={{ marginBottom: '5px', display: 'block' }}>Filter by End Date</label>
-            <input
-              type="date"
-              name="date"
-              value={filters.date}
-              onChange={handleFilterChange}
-              className="form-control"
-            />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button
-              className="btn btn-secondary"
-              onClick={() => setFilters({ name: '', date: '' })}
-            >
-              Clear Filters
+              <FiPlus /> {filteredSumbangan.length > 0 ? 'Update QRIS' : 'Setup QRIS'}
             </button>
           </div>
         </div>
@@ -543,25 +460,14 @@ const SumbanganManagement = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Event Name</th>
-                <th>Description</th>
-                <th>Target</th>
-                <th>Collected</th>
                 <th>QRIS</th>
-                <th>Status</th>
                 <th>ID</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredSumbangan.map((item) => (
+              {filteredSumbangan.length > 0 ? filteredSumbangan.map((item) => (
                 <tr key={item._id}>
-                  <td style={{ fontWeight: '500' }}>{item.namaEvent || item.namaPaket || '-'}</td>
-                  <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.deskripsi || '-'}
-                  </td>
-                  <td>{formatCurrency(item.targetDana || 0)}</td>
-                  <td>{formatCurrency(item.danaTerkumpul || 0)}</td>
                   <td>
                     {item.qrisImage ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -613,7 +519,6 @@ const SumbanganManagement = () => {
                       </div>
                     )}
                   </td>
-                  <td>{getStatusBadge(item.status)}</td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <span style={{ 
@@ -652,16 +557,6 @@ const SumbanganManagement = () => {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
-                      {item.status === 'aktif' && (
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => openPaymentModal(item)}
-                          style={{ flexShrink: 0 }}
-                          title="Create Payment"
-                        >
-                          💳
-                        </button>
-                      )}
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => handleEdit(item)}
@@ -669,17 +564,16 @@ const SumbanganManagement = () => {
                       >
                         <FiEdit />
                       </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(item._id)}
-                        style={{ flexShrink: 0 }}
-                      >
-                        <FiTrash2 />
-                      </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan="3" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                    Belum ada QRIS. Klik tombol "Setup QRIS" untuk membuat QRIS donasi sukarela.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -771,76 +665,12 @@ const SumbanganManagement = () => {
           <div className="modal-content" ref={modalRef}>
             <div className="modal-header">
               <h3 className="modal-title">
-                {editingSumbangan ? 'Edit Donation Event' : 'Add New Donation Event'}
+                {editingSumbangan ? 'Update QRIS Donasi Sukarela' : 'Setup QRIS Donasi Sukarela'}
               </h3>
               <button className="close-btn" onClick={closeModal}>×</button>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">Event Name *</label>
-                <input
-                  type="text"
-                  name="namaEvent"
-                  value={formData.namaEvent}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea
-                  name="deskripsi"
-                  value={formData.deskripsi}
-                  onChange={handleChange}
-                  className="form-control"
-                  rows="3"
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Target Amount *</label>
-                  <input
-                    type="number"
-                    name="targetDana"
-                    value={formData.targetDana}
-                    onChange={handleChange}
-                    className="form-control"
-                    min="0"
-                    step="1000"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">End Date</label>
-                  <input
-                    type="date"
-                    name="tanggalSelesai"
-                    value={formData.tanggalSelesai}
-                    onChange={handleChange}
-                    className="form-control"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="form-control"
-                >
-                  <option value="aktif">Aktif</option>
-                  <option value="selesai">Selesai</option>
-                  <option value="ditutup">Ditutup</option>
-                </select>
-              </div>
-
               <div className="form-group">
                 <label className="form-label">QRIS Image {!editingSumbangan && <span style={{ fontSize: '0.85em', color: '#666', fontWeight: 'normal' }}>(Optional - will be auto-generated if not provided)</span>}</label>
                 <input
@@ -897,7 +727,7 @@ const SumbanganManagement = () => {
         <div className="modal">
           <div className="modal-content" ref={paymentModalRef}>
             <div className="modal-header">
-              <h3 className="modal-title">Create Payment - {selectedSumbangan.namaEvent}</h3>
+              <h3 className="modal-title">Create Payment - Donasi Sukarela</h3>
               <button className="close-btn" onClick={closePaymentModal}>×</button>
             </div>
 
@@ -1124,7 +954,7 @@ const SumbanganManagement = () => {
                       <tr>
                         <td style={{ padding: '8px 0', color: '#666', width: '40%' }}>Nama Event:</td>
                         <td style={{ padding: '8px 0', fontWeight: '500' }}>
-                          {selectedTransaksi.sumbangan?.namaEvent || '-'}
+                          Donasi Sukarela
                         </td>
                       </tr>
                     </tbody>
