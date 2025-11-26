@@ -13,6 +13,7 @@ import BroadcastEmail from './components/BroadcastEmail';
 import GaleriManagement from './components/GaleriManagement';
 import PendaftaranManagement from './components/PendaftaranManagement';
 import SumbanganManagement from './components/SumbanganManagement';
+import PaketSumbanganManagement from './components/PaketSumbanganManagement';
 import SaranManagement from './components/SaranManagement';
 import MerchandiseManagement from './components/MerchandiseManagement';
 import StrukturManagement from './components/StrukturManagement';
@@ -103,6 +104,13 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <SumbanganManagement />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/paket-sumbangan" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <PaketSumbanganManagement />
                 </AdminLayout>
               </ProtectedRoute>
             } />

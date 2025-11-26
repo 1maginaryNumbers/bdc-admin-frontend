@@ -112,7 +112,7 @@ const SaranManagement = () => {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Saran Management</h1>
+        <h1 className="page-title">Kritik & Saran Management</h1>
         <p className="page-subtitle">Manage suggestions and feedback</p>
       </div>
 

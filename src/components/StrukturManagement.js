@@ -158,7 +158,7 @@ const StrukturManagement = () => {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Struktur Management</h1>
+        <h1 className="page-title">Struktur Organisasi Management</h1>
         <p className="page-subtitle">Manage temple organizational structure</p>
       </div>
 

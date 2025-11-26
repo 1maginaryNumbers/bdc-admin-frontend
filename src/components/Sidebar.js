@@ -64,9 +64,10 @@ const Sidebar = () => {
     { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c' },
     { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085' },
     { path: '/sumbangan', label: 'Sumbangan', icon: FiHeart, color: '#e91e63' },
-    { path: '/saran', label: 'Saran', icon: FiMessageSquare, color: '#00bcd4' },
+    { path: '/paket-sumbangan', label: 'Paket Sumbangan', icon: FiHeart, color: '#c2185b' },
+    { path: '/saran', label: 'Kritik & Saran', icon: FiMessageSquare, color: '#00bcd4' },
     { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag, color: '#ff9800' },
-    { path: '/struktur', label: 'Struktur', icon: FiLayers, color: '#673ab7' },
+    { path: '/struktur', label: 'Struktur Organisasi', icon: FiLayers, color: '#673ab7' },
     { path: '/info-umum', label: 'Info Umum', icon: FiInfo, color: '#2196f3' },
     { path: '/absensi', label: 'Absensi', icon: FiCheckSquare, color: '#4caf50' },
     { path: '/scan', label: 'Scan QR', icon: FiCamera, color: '#795548' },
@@ -138,7 +139,7 @@ const Sidebar = () => {
         borderBottom: '1px solid #34495e',
         flexShrink: 0
       }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600' }}>Vihara Admin</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: '600' }}>BDC Admin</h2>
       </div>
 
       <div style={{
