@@ -435,7 +435,7 @@ const SumbanganManagement = () => {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Sumbangan Management</h1>
+        <h1 className="page-title">Donasi Management</h1>
         <p className="page-subtitle">Manage voluntary donation QRIS and transactions</p>
       </div>
 

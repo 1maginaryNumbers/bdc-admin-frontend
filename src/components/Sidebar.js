@@ -64,7 +64,7 @@ const Sidebar = () => {
     { path: '/broadcast-email', label: 'Broadcast Email', icon: FiMail, color: '#009688' },
     { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c' },
     { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085' },
-    { path: '/sumbangan', label: 'Sumbangan', icon: FiHeart, color: '#e91e63' },
+    { path: '/sumbangan', label: 'Donasi', icon: FiHeart, color: '#e91e63' },
     { path: '/paket-sumbangan', label: 'Paket Sumbangan', icon: FiPackage, color: '#c2185b' },
     { path: '/saran', label: 'Kritik & Saran', icon: FiMessageSquare, color: '#00bcd4' },
     { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag, color: '#ff9800' },
