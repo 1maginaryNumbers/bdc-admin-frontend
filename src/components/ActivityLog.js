@@ -209,12 +209,6 @@ const ActivityLog = () => {
             >
               <FiDownload /> Export CSV
             </button>
-            <button
-              className="btn btn-info btn-sm"
-              onClick={() => handleExport('json')}
-            >
-              <FiDownload /> Export JSON
-            </button>
           </div>
         </div>
 

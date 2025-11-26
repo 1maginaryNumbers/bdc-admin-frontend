@@ -48,19 +48,14 @@ const AbsensiManagement = () => {
   const fetchData = async (kegiatanFilter = 'all', tanggalFilter = '', namaFilter = '') => {
     try {
       const [absensiRes, kegiatanRes, pendaftaranRes] = await Promise.all([
-        axios.get('https://finalbackend-ochre.vercel.app/api/absensi'),
+        axios.get('https://finalbackend-ochre.vercel.app/api/absensi?includeMissing=true'),
         axios.get('https://finalbackend-ochre.vercel.app/api/kegiatan'),
         axios.get('https://finalbackend-ochre.vercel.app/api/pendaftaran')
       ]);
       
       let filteredAbsensi = absensiRes.data;
       
-      // Handle both old format (array) and new format (object with absensi property)
-      if (Array.isArray(filteredAbsensi)) {
-        // Already an array, use as is
-      } else if (filteredAbsensi.absensi && Array.isArray(filteredAbsensi.absensi)) {
-        filteredAbsensi = filteredAbsensi.absensi;
-      } else {
+      if (!Array.isArray(filteredAbsensi)) {
         filteredAbsensi = [];
       }
       
@@ -198,11 +193,25 @@ const AbsensiManagement = () => {
     fetchData(selectedKegiatan, selectedTanggal, namaSearchInput);
   };
 
-  const handleStatusToggle = async (id, currentStatus) => {
+  const handleStatusToggle = async (id, currentStatus, isMissing) => {
     try {
       const newStatus = currentStatus === 'hadir' ? 'tidak_hadir' : 'hadir';
-      await axios.put(`https://finalbackend-ochre.vercel.app/api/absensi/${id}`, { status: newStatus });
-      toast.success(`Status updated to ${newStatus}`);
+      
+      if (isMissing) {
+        const absensiItem = absensi.find(item => !item._id && item.pendaftaran?._id);
+        if (absensiItem) {
+          await axios.post('https://finalbackend-ochre.vercel.app/api/absensi', {
+            pendaftaran: absensiItem.pendaftaran._id,
+            kegiatan: absensiItem.kegiatan._id,
+            status: newStatus,
+            tipePerson: absensiItem.tipePerson
+          });
+          toast.success(`Absensi created with status ${newStatus}`);
+        }
+      } else {
+        await axios.put(`https://finalbackend-ochre.vercel.app/api/absensi/${id}`, { status: newStatus });
+        toast.success(`Status updated to ${newStatus}`);
+      }
       fetchData(selectedKegiatan, selectedTanggal, selectedNama);
     } catch (error) {
       toast.error('Failed to update status');
@@ -327,7 +336,7 @@ const AbsensiManagement = () => {
       const nama = item.pendaftaran?.namaLengkap || 'Unknown';
       const kegiatan = item.kegiatan?.namaKegiatan || 'Unknown';
       const status = item.status || 'Unknown';
-      const tanggal = item.tanggalAbsensi ? formatDate(item.tanggalAbsensi) : 'Unknown';
+      const tanggal = item.tanggal ? formatDate(item.tanggal) : 'Unknown';
       const tipePerson = item.tipePerson || 'external';
       
       return `"${nama}","${kegiatan}","${status}","${tanggal}","${tipePerson}"`;
@@ -539,7 +548,7 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
                   <td>
                     <div 
                       className={`status-switch ${item.status === 'hadir' ? 'active' : 'inactive'}`}
-                      onClick={() => handleStatusToggle(item._id, item.status)}
+                      onClick={() => handleStatusToggle(item._id, item.status, item.isMissing)}
                       title={`Switch to ${item.status === 'hadir' ? 'tidak_hadir' : 'hadir'}`}
                       style={{
                         width: '60px',
@@ -577,22 +586,26 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
-                      <button
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => handleEdit(item)}
-                        style={{ flexShrink: 0 }}
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(item._id)}
-                        style={{ flexShrink: 0 }}
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
+                    {item._id ? (
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'nowrap' }}>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => handleEdit(item)}
+                          style={{ flexShrink: 0 }}
+                        >
+                          <FiEdit />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(item._id)}
+                          style={{ flexShrink: 0 }}
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#999', fontSize: '0.85em' }}>No actions</span>
+                    )}
                   </td>
                 </tr>
               ))}

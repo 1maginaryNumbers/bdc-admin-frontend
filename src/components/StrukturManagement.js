@@ -16,8 +16,7 @@ const StrukturManagement = () => {
     nama: '',
     jabatan: '',
     periode: '',
-    kontak: '',
-    foto: ''
+    kontak: ''
   });
 
   useEffect(() => {
@@ -75,7 +74,7 @@ const StrukturManagement = () => {
       }
       setShowModal(false);
       setEditingStruktur(null);
-      setFormData({ nama: '', jabatan: '', periode: '', kontak: '', foto: '' });
+      setFormData({ nama: '', jabatan: '', periode: '', kontak: '' });
       fetchStruktur();
     } catch (error) {
       toast.error('Failed to save struktur');
@@ -88,8 +87,7 @@ const StrukturManagement = () => {
       nama: struktur.nama,
       jabatan: struktur.jabatan || '',
       periode: struktur.periode || '',
-      kontak: struktur.kontak || '',
-      foto: struktur.foto || ''
+      kontak: struktur.kontak || ''
     });
     setShowModal(true);
   };
@@ -108,14 +106,14 @@ const StrukturManagement = () => {
 
   const openModal = () => {
     setEditingStruktur(null);
-    setFormData({ nama: '', jabatan: '', periode: '', kontak: '', foto: '' });
+    setFormData({ nama: '', jabatan: '', periode: '', kontak: '' });
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setEditingStruktur(null);
-    setFormData({ nama: '', jabatan: '', periode: '', kontak: '', foto: '' });
+    setFormData({ nama: '', jabatan: '', periode: '', kontak: '' });
   };
 
   if (loading) {
@@ -237,18 +235,6 @@ const StrukturManagement = () => {
                     className="form-control"
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Foto URL</label>
-                <input
-                  type="url"
-                  name="foto"
-                  value={formData.foto}
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="https://example.com/photo.jpg"
-                />
               </div>
 
               <div className="modal-footer">

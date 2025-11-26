@@ -411,21 +411,20 @@ const GaleriManagement = () => {
         if (base64Data && base64Data.length > 100) {
           return url;
         } else {
-          console.warn('Invalid or too short base64 data');
           return '';
         }
       } catch (e) {
-        console.error('Error parsing data URI:', e);
         return '';
       }
     }
     if (url.startsWith('http')) {
       return url;
     }
+    const apiUrl = process.env.REACT_APP_API_URL || 'https://finalbackend-ochre.vercel.app';
     if (url.startsWith('/')) {
-      return `https://finalbackend-ochre.vercel.app${url}`;
+      return `${apiUrl}${url}`;
     }
-    return `https://finalbackend-ochre.vercel.app/${url}`;
+    return `${apiUrl}/${url}`;
   };
 
   if (loading) {
@@ -504,9 +503,10 @@ const GaleriManagement = () => {
                       }}
                       onClick={() => openImageModal(item)}
                       onError={(e) => {
-                        console.error('Image failed to load for:', item.judul, 'URL:', item.url?.substring(0, 100));
                         e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
+                        if (e.target.nextSibling) {
+                          e.target.nextSibling.style.display = 'flex';
+                        }
                       }}
                     />
                     <div 
@@ -686,6 +686,9 @@ const GaleriManagement = () => {
                         objectFit: 'cover',
                         borderRadius: '4px'
                       }}
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzZiNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+                      }}
                     />
                   </div>
                 )}
@@ -737,6 +740,9 @@ const GaleriManagement = () => {
                   objectFit: 'contain',
                   borderRadius: '8px',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                }}
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZiNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIE5vdCBGb3VuZDwvdGV4dD48L3N2Zz4=';
                 }}
               />
             </div>

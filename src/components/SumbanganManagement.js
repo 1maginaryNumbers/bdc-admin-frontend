@@ -486,9 +486,6 @@ const SumbanganManagement = () => {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Donation Events</h3>
           <div className="d-flex gap-2">
-            <button className="btn btn-success" onClick={openTransaksiModal}>
-              <FiPlus /> Add Transaksi
-            </button>
             <button className="btn btn-primary" onClick={openModal}>
               <FiPlus /> Add Event
             </button>
@@ -863,116 +860,6 @@ const SumbanganManagement = () => {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   {editingSumbangan ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showTransaksiModal && (
-        <div className="modal">
-          <div className="modal-content" ref={transaksiModalRef}>
-            <div className="modal-header">
-              <h3 className="modal-title">Add New Transaksi</h3>
-              <button className="close-btn" onClick={closeTransaksiModal}>×</button>
-            </div>
-
-            <form onSubmit={handleTransaksiSubmit}>
-              <div className="form-group">
-                <label className="form-label">Donation Event *</label>
-                <select
-                  name="sumbangan"
-                  value={transaksiFormData.sumbangan}
-                  onChange={handleTransaksiChange}
-                  className="form-control"
-                  required
-                >
-                  <option value="">Select Donation Event</option>
-                  {sumbangan.filter(item => item.status === 'aktif').map((item) => (
-                    <option key={item._id} value={item._id}>
-                      {item.namaEvent || item.namaPaket} - {formatCurrency(item.targetDana || 0)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Donor Name *</label>
-                <input
-                  type="text"
-                  name="namaDonatur"
-                  value={transaksiFormData.namaDonatur}
-                  onChange={handleTransaksiChange}
-                  className="form-control"
-                  required
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={transaksiFormData.email}
-                    onChange={handleTransaksiChange}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Amount (IDR) *</label>
-                  <input
-                    type="number"
-                    name="nominal"
-                    value={transaksiFormData.nominal}
-                    onChange={handleTransaksiChange}
-                    className="form-control"
-                    min="0"
-                    step="1000"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Payment Method</label>
-                  <select
-                    name="metodePembayaran"
-                    value={transaksiFormData.metodePembayaran}
-                    onChange={handleTransaksiChange}
-                    className="form-control"
-                  >
-                    <option value="">Select Method</option>
-                    <option value="cash">Cash</option>
-                    <option value="transfer">Transfer</option>
-                    <option value="check">Check</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select
-                    name="status"
-                    value={transaksiFormData.status}
-                    onChange={handleTransaksiChange}
-                    className="form-control"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="berhasil">Berhasil</option>
-                    <option value="gagal">Gagal</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={closeTransaksiModal}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Create
                 </button>
               </div>
             </form>

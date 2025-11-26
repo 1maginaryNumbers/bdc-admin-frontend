@@ -4,8 +4,10 @@ import { toast } from 'react-toastify';
 import { FiSend, FiMail, FiUsers, FiCheck } from 'react-icons/fi';
 import useEscapeKey from '../hooks/useEscapeKey';
 import useOutsideClick from '../hooks/useOutsideClick';
+import { useRefresh } from '../contexts/RefreshContext';
 
 const BroadcastEmail = () => {
+  const { refreshTrigger } = useRefresh();
   const [recipients, setRecipients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -22,7 +24,7 @@ const BroadcastEmail = () => {
 
   useEffect(() => {
     fetchRecipients();
-  }, []);
+  }, [refreshTrigger]);
 
   useEscapeKey(() => {
     if (showTestModal) {
@@ -382,15 +384,6 @@ const BroadcastEmail = () => {
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
             <button
               type="button"
-              className="btn btn-info"
-              onClick={() => setShowTestModal(true)}
-              style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }}
-            >
-              <FiMail style={{ marginRight: '8px' }} />
-              Test Email
-            </button>
-            <button
-              type="button"
               className="btn btn-secondary"
               onClick={() => {
                 setFormData({
@@ -423,58 +416,6 @@ const BroadcastEmail = () => {
         </form>
       </div>
 
-      {showTestModal && (
-        <div className="modal">
-          <div className="modal-content" style={{ maxWidth: '500px' }} ref={modalRef}>
-            <div className="modal-header">
-              <h3 className="modal-title">Test Email Configuration</h3>
-              <button className="close-btn" onClick={() => {
-                setShowTestModal(false);
-                setTestEmail('');
-              }}>×</button>
-            </div>
-
-            <div style={{ padding: '20px' }}>
-              <div className="form-group">
-                <label className="form-label">Test Email Address *</label>
-                <input
-                  type="email"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  className="form-control"
-                  placeholder="Enter your email address to test"
-                  required
-                />
-                <small style={{ color: '#6c757d', marginTop: '8px', display: 'block' }}>
-                  A test email will be sent to verify your email configuration is working correctly.
-                </small>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setShowTestModal(false);
-                    setTestEmail('');
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-info"
-                  onClick={handleTestEmail}
-                  disabled={testing}
-                  style={{ backgroundColor: '#17a2b8', borderColor: '#17a2b8' }}
-                >
-                  {testing ? 'Sending...' : 'Send Test Email'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

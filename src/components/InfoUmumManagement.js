@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FiPlus, FiTrash2, FiCalendar, FiClock } from 'react-icons/fi';
+import { useRefresh } from '../contexts/RefreshContext';
 
 const InfoUmumManagement = () => {
+  const { refreshTrigger } = useRefresh();
   const [infoUmum, setInfoUmum] = useState({
     judul: '',
     alamat: '',
@@ -31,7 +33,7 @@ const InfoUmumManagement = () => {
 
   useEffect(() => {
     fetchInfoUmum();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchInfoUmum = async () => {
     try {
