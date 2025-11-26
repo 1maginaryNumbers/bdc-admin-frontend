@@ -37,12 +37,7 @@ const FAQManagement = () => {
 
   const fetchFAQs = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/faq', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await axios.get('https://finalbackend-ochre.vercel.app/api/faq');
       const data = response.data;
       if (Array.isArray(data)) {
         setFaqs(data);
@@ -68,27 +63,16 @@ const FAQManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       if (editingFAQ) {
         await axios.put(
           `https://finalbackend-ochre.vercel.app/api/faq/${editingFAQ._id}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          formData
         );
         toast.success('FAQ updated successfully');
       } else {
         await axios.post(
           'https://finalbackend-ochre.vercel.app/api/faq',
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          formData
         );
         toast.success('FAQ created successfully');
       }
@@ -115,12 +99,7 @@ const FAQManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this FAQ?')) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`https://finalbackend-ochre.vercel.app/api/faq/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        await axios.delete(`https://finalbackend-ochre.vercel.app/api/faq/${id}`);
         toast.success('FAQ deleted successfully');
         fetchFAQs();
       } catch (error) {
