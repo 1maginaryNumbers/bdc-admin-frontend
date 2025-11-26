@@ -23,7 +23,8 @@ import {
   FiX,
   FiHeart,
   FiMail,
-  FiPackage
+  FiPackage,
+  FiHelpCircle
 } from 'react-icons/fi';
 
 const Sidebar = () => {
@@ -73,7 +74,8 @@ const Sidebar = () => {
     { path: '/absensi', label: 'Absensi', icon: FiCheckSquare, color: '#4caf50' },
     { path: '/scan', label: 'Scan QR', icon: FiCamera, color: '#795548' },
     { path: '/activitylog', label: 'Activity Log', icon: FiActivity, color: '#607d8b' },
-    { path: '/admin', label: 'Admin', icon: FiSettings, color: '#9e9e9e' }
+    { path: '/admin', label: 'Admin', icon: FiSettings, color: '#9e9e9e' },
+    { path: '/faq', label: 'FAQ Management', icon: FiHelpCircle, color: '#17a2b8' }
   ];
 
   const isMobile = window.innerWidth <= 768;

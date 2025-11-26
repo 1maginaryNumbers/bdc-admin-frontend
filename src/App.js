@@ -23,6 +23,7 @@ import AdminManagement from './components/AdminManagement';
 import QRScan from './components/QRScan';
 import ActivityLog from './components/ActivityLog';
 import JadwalManagement from './components/JadwalManagement';
+import FAQManagement from './components/FAQManagement';
 import Sidebar from './components/Sidebar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { RefreshProvider } from './contexts/RefreshContext';
@@ -174,6 +175,13 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <JadwalManagement />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/faq" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <FAQManagement />
                 </AdminLayout>
               </ProtectedRoute>
             } />
