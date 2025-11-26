@@ -504,6 +504,7 @@ const KegiatanManagement = () => {
                 </th>
                 <th>Nama Kegiatan</th>
                 <th>Deskripsi</th>
+                <th>Kategori</th>
                 <th>Tanggal Mulai</th>
                 <th>Tanggal Selesai</th>
                 <th>Waktu</th>
@@ -527,6 +528,7 @@ const KegiatanManagement = () => {
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.deskripsi}
                   </td>
+                  <td>{item.kategori?.namaKategori || '-'}</td>
                   <td>{formatDate(item.tanggalMulai)}</td>
                   <td>{formatDate(item.tanggalSelesai)}</td>
                   <td>
