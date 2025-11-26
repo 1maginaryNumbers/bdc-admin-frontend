@@ -237,13 +237,19 @@ const PaketSumbanganManagement = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    const d = new Date(dateString);
+    
+    // Use same timezone as backend (Asia/Jakarta)
+    const options = {
+      timeZone: 'Asia/Jakarta',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit'
-    });
+    };
+    
+    return d.toLocaleDateString('id-ID', options);
   };
 
   const getStatusBadge = (status) => {
