@@ -375,13 +375,6 @@ const SumbanganManagement = () => {
     document.body.removeChild(link);
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({
-      ...filters,
-      [name]: value
-    });
-  };
 
   useEffect(() => {
     // No filtering needed for voluntary donation
