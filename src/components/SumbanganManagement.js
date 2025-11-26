@@ -110,6 +110,13 @@ const SumbanganManagement = () => {
     }
   });
 
+  const detailModalRef = useOutsideClick(() => {
+    if (showDetailModal) {
+      setShowDetailModal(false);
+      setSelectedTransaksi(null);
+    }
+  });
+
   const fetchData = async () => {
     try {
       const [sumbanganRes, transaksiRes] = await Promise.all([
@@ -434,7 +441,13 @@ const SumbanganManagement = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID');
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const formatCurrency = (amount) => {
@@ -993,7 +1006,7 @@ const SumbanganManagement = () => {
 
       {showDetailModal && selectedTransaksi && (
         <div className="modal">
-          <div className="modal-content" style={{ maxWidth: '600px' }}>
+          <div className="modal-content" ref={detailModalRef} style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h3 className="modal-title">Detail Transaksi</h3>
               <button className="close-btn" onClick={() => {

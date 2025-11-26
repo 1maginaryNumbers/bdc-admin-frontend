@@ -53,6 +53,13 @@ const PaketSumbanganManagement = () => {
     }
   });
 
+  const detailModalRef = useOutsideClick(() => {
+    if (showDetailModal) {
+      setShowDetailModal(false);
+      setSelectedTransaksi(null);
+    }
+  });
+
   const fetchData = async () => {
     try {
       const [paketRes, transaksiRes] = await Promise.all([
@@ -230,7 +237,13 @@ const PaketSumbanganManagement = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID');
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const getStatusBadge = (status) => {
@@ -286,6 +299,7 @@ const PaketSumbanganManagement = () => {
             <thead>
               <tr>
                 <th>Nama Paket</th>
+                <th>Deskripsi</th>
                 <th>Nominal</th>
                 <th>Detail Barang</th>
                 <th>Stok</th>
@@ -298,6 +312,9 @@ const PaketSumbanganManagement = () => {
               {paketSumbangan.map((item) => (
                 <tr key={item._id}>
                   <td style={{ fontWeight: '500' }}>{item.namaPaket}</td>
+                  <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.deskripsi || '-'}>
+                    {item.deskripsi || '-'}
+                  </td>
                   <td>{formatCurrency(item.nominal || 0)}</td>
                   <td>
                     {item.detailBarang && item.detailBarang.length > 0 ? (
@@ -602,7 +619,7 @@ const PaketSumbanganManagement = () => {
 
       {showDetailModal && selectedTransaksi && (
         <div className="modal">
-          <div className="modal-content" style={{ maxWidth: '600px' }}>
+          <div className="modal-content" ref={detailModalRef} style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h3 className="modal-title">Detail Transaksi</h3>
               <button className="close-btn" onClick={() => {
