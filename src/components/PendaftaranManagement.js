@@ -34,6 +34,8 @@ const PendaftaranManagement = () => {
   const [sendingEmail, setSendingEmail] = useState(null);
   const [bulkSending, setBulkSending] = useState(false);
   const [originalKegiatanStatus, setOriginalKegiatanStatus] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportKegiatan, setExportKegiatan] = useState('all');
 
   useEffect(() => {
     fetchData();
@@ -46,6 +48,9 @@ const PendaftaranManagement = () => {
     if (showQRModal) {
       closeQRModal();
     }
+    if (showExportModal) {
+      setShowExportModal(false);
+    }
   });
 
   const modalRef = useOutsideClick(() => {
@@ -57,6 +62,12 @@ const PendaftaranManagement = () => {
   const qrModalRef = useOutsideClick(() => {
     if (showQRModal) {
       closeQRModal();
+    }
+  });
+
+  const exportModalRef = useOutsideClick(() => {
+    if (showExportModal) {
+      setShowExportModal(false);
     }
   });
 
@@ -409,6 +420,71 @@ const PendaftaranManagement = () => {
     return new Date(dateString).toLocaleDateString('id-ID');
   };
 
+  const exportToCSV = (kegiatanFilter = null) => {
+    let dataToExport = [...pendaftaran];
+    
+    if (kegiatanFilter && kegiatanFilter !== 'all') {
+      dataToExport = dataToExport.filter(item => item.namaKegiatan === kegiatanFilter);
+    }
+    
+    if (dataToExport.length === 0) {
+      toast.error('No data to export');
+      return;
+    }
+    
+    const csvHeader = 'Nama Lengkap,Nomor Telepon,Email,Kegiatan,Tanggal Kegiatan,Tipe Person,Tanggal Daftar\n';
+    const csvData = dataToExport.map(item => {
+      const nama = item.namaLengkap || '';
+      const nomorTelepon = item.nomorTelepon || '';
+      const email = item.email || '';
+      const kegiatan = item.namaKegiatan || '';
+      
+      let tanggalKegiatan = '-';
+      const kegiatanId = item.kegiatan?._id || item.kegiatan;
+      const matchedKegiatan = kegiatan.find(k => k._id === kegiatanId || k._id?.toString() === kegiatanId?.toString());
+      if (matchedKegiatan) {
+        if (matchedKegiatan.tanggalMulai && matchedKegiatan.tanggalSelesai) {
+          const startDate = formatDate(matchedKegiatan.tanggalMulai);
+          const endDate = formatDate(matchedKegiatan.tanggalSelesai);
+          tanggalKegiatan = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+        }
+      } else if (item.kegiatan?.tanggalMulai && item.kegiatan?.tanggalSelesai) {
+        const startDate = formatDate(item.kegiatan.tanggalMulai);
+        const endDate = formatDate(item.kegiatan.tanggalSelesai);
+        tanggalKegiatan = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      }
+      
+      const tipePerson = item.tipePerson === 'internal' ? 'Internal' : 'External';
+      const tanggalDaftar = item.tanggalDaftar ? formatDate(item.tanggalDaftar) : '-';
+      
+      return `"${nama}","${nomorTelepon}","${email}","${kegiatan}","${tanggalKegiatan}","${tipePerson}","${tanggalDaftar}"`;
+    }).join('\n');
+    
+    const csvContent = csvHeader + csvData;
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    
+    const kegiatanName = kegiatanFilter && kegiatanFilter !== 'all' 
+      ? kegiatanFilter.replace(/[^a-z0-9]/gi, '_').toLowerCase() 
+      : 'all';
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `pendaftaran_${kegiatanName}_${dateStr}.csv`;
+    link.click();
+    
+    toast.success(`Exported ${dataToExport.length} registration(s) successfully!`);
+  };
+
+  const handleExportClick = () => {
+    setExportKegiatan('all');
+    setShowExportModal(true);
+  };
+
+  const handleExportConfirm = () => {
+    exportToCSV(exportKegiatan);
+    setShowExportModal(false);
+  };
+
   if (loading) {
     return <div className="loading">Loading pendaftaran data...</div>;
   }
@@ -445,9 +521,14 @@ const PendaftaranManagement = () => {
                 </button>
               </>
             )}
-            <button className="btn btn-primary" onClick={openModal}>
-              <FiPlus /> Add Pendaftaran
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn btn-success" onClick={handleExportClick}>
+                <FiDownload /> Export CSV
+              </button>
+              <button className="btn btn-primary" onClick={openModal}>
+                <FiPlus /> Add Pendaftaran
+              </button>
+            </div>
           </div>
         </div>
 
@@ -882,6 +963,62 @@ const PendaftaranManagement = () => {
                   Download QR Code
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExportModal && (
+        <div className="modal">
+          <div className="modal-content" style={{ maxWidth: '500px' }} ref={exportModalRef}>
+            <div className="modal-header">
+              <h3 className="modal-title">Export Data Pendaftaran</h3>
+              <button className="close-btn" onClick={() => setShowExportModal(false)}>×</button>
+            </div>
+            
+            <div style={{ padding: '20px' }}>
+              <div className="form-group">
+                <label className="form-label">Pilih Kegiatan:</label>
+                <select
+                  value={exportKegiatan}
+                  onChange={(e) => setExportKegiatan(e.target.value)}
+                  className="form-control"
+                >
+                  <option value="all">All Kegiatan</option>
+                  {uniqueKegiatan.map((kegiatanName, index) => (
+                    <option key={index} value={kegiatanName}>
+                      {kegiatanName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                <small className="text-muted">
+                  {exportKegiatan === 'all' 
+                    ? `Akan mengexport semua ${pendaftaran.length} pendaftaran`
+                    : `Akan mengexport ${pendaftaran.filter(p => p.namaKegiatan === exportKegiatan).length} pendaftaran untuk kegiatan "${exportKegiatan}"`
+                  }
+                </small>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={() => setShowExportModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-success" 
+                onClick={handleExportConfirm}
+              >
+                <FiDownload style={{ marginRight: '8px' }} />
+                Export CSV
+              </button>
             </div>
           </div>
         </div>
