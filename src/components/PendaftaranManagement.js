@@ -421,6 +421,11 @@ const PendaftaranManagement = () => {
   };
 
   const exportToCSV = (kegiatanFilter = null) => {
+    if (!Array.isArray(pendaftaran) || pendaftaran.length === 0) {
+      toast.error('No data to export');
+      return;
+    }
+    
     let dataToExport = [...pendaftaran];
     
     if (kegiatanFilter && kegiatanFilter !== 'all') {
@@ -428,7 +433,7 @@ const PendaftaranManagement = () => {
     }
     
     if (dataToExport.length === 0) {
-      toast.error('No data to export');
+      toast.error('No data to export for selected kegiatan');
       return;
     }
     
@@ -437,18 +442,21 @@ const PendaftaranManagement = () => {
       const nama = item.namaLengkap || '';
       const nomorTelepon = item.nomorTelepon || '';
       const email = item.email || '';
-      const kegiatan = item.namaKegiatan || '';
+      const namaKegiatan = item.namaKegiatan || '';
       
       let tanggalKegiatan = '-';
       const kegiatanId = item.kegiatan?._id || item.kegiatan;
-      const matchedKegiatan = kegiatan.find(k => k._id === kegiatanId || k._id?.toString() === kegiatanId?.toString());
-      if (matchedKegiatan) {
-        if (matchedKegiatan.tanggalMulai && matchedKegiatan.tanggalSelesai) {
-          const startDate = formatDate(matchedKegiatan.tanggalMulai);
-          const endDate = formatDate(matchedKegiatan.tanggalSelesai);
-          tanggalKegiatan = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      if (Array.isArray(kegiatan)) {
+        const matchedKegiatan = kegiatan.find(k => k._id === kegiatanId || k._id?.toString() === kegiatanId?.toString());
+        if (matchedKegiatan) {
+          if (matchedKegiatan.tanggalMulai && matchedKegiatan.tanggalSelesai) {
+            const startDate = formatDate(matchedKegiatan.tanggalMulai);
+            const endDate = formatDate(matchedKegiatan.tanggalSelesai);
+            tanggalKegiatan = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+          }
         }
-      } else if (item.kegiatan?.tanggalMulai && item.kegiatan?.tanggalSelesai) {
+      }
+      if (tanggalKegiatan === '-' && item.kegiatan?.tanggalMulai && item.kegiatan?.tanggalSelesai) {
         const startDate = formatDate(item.kegiatan.tanggalMulai);
         const endDate = formatDate(item.kegiatan.tanggalSelesai);
         tanggalKegiatan = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
@@ -457,7 +465,7 @@ const PendaftaranManagement = () => {
       const tipePerson = item.tipePerson === 'internal' ? 'Internal' : 'External';
       const tanggalDaftar = item.tanggalDaftar ? formatDate(item.tanggalDaftar) : '-';
       
-      return `"${nama}","${nomorTelepon}","${email}","${kegiatan}","${tanggalKegiatan}","${tipePerson}","${tanggalDaftar}"`;
+      return `"${nama}","${nomorTelepon}","${email}","${namaKegiatan}","${tanggalKegiatan}","${tipePerson}","${tanggalDaftar}"`;
     }).join('\n');
     
     const csvContent = csvHeader + csvData;
@@ -985,7 +993,7 @@ const PendaftaranManagement = () => {
                   className="form-control"
                 >
                   <option value="all">All Kegiatan</option>
-                  {uniqueKegiatan.map((kegiatanName, index) => (
+                  {Array.isArray(uniqueKegiatan) && uniqueKegiatan.map((kegiatanName, index) => (
                     <option key={index} value={kegiatanName}>
                       {kegiatanName}
                     </option>
@@ -996,8 +1004,8 @@ const PendaftaranManagement = () => {
               <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
                 <small className="text-muted">
                   {exportKegiatan === 'all' 
-                    ? `Akan mengexport semua ${pendaftaran.length} pendaftaran`
-                    : `Akan mengexport ${pendaftaran.filter(p => p.namaKegiatan === exportKegiatan).length} pendaftaran untuk kegiatan "${exportKegiatan}"`
+                    ? `Akan mengexport semua ${Array.isArray(pendaftaran) ? pendaftaran.length : 0} pendaftaran`
+                    : `Akan mengexport ${Array.isArray(pendaftaran) ? pendaftaran.filter(p => p.namaKegiatan === exportKegiatan).length : 0} pendaftaran untuk kegiatan "${exportKegiatan}"`
                   }
                 </small>
               </div>
