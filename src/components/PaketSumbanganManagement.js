@@ -654,14 +654,21 @@ const PaketSumbanganManagement = () => {
                         <td style={{ padding: '8px 0' }}>{selectedTransaksi.nomorTelepon}</td>
                       </tr>
                     )}
-                    {selectedTransaksi.alamat && (
-                      <tr>
-                        <td style={{ padding: '8px 0', color: '#666', verticalAlign: 'top' }}>Alamat:</td>
-                        <td style={{ padding: '8px 0', whiteSpace: 'pre-wrap' }}>{selectedTransaksi.alamat}</td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
+              </div>
+
+              <div style={{ 
+                marginBottom: '20px', 
+                padding: '15px', 
+                backgroundColor: '#e7f3ff', 
+                borderLeft: '4px solid #2196F3',
+                borderRadius: '6px'
+              }}>
+                <h4 style={{ marginBottom: '10px', color: '#1565C0' }}>Informasi Pengambilan Paket</h4>
+                <p style={{ margin: '0', color: '#424242', fontSize: '14px', lineHeight: '1.6' }}>
+                  Paket sumbangan harus diambil langsung di Vihara BDC dengan menunjukkan kuitansi pembayaran. Email bukti pembayaran dapat digunakan sebagai kuitansi.
+                </p>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
