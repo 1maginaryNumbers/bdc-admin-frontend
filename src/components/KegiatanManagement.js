@@ -32,6 +32,7 @@ const KegiatanManagement = () => {
     kategori: '',
     status: 'akan_datang'
   });
+  const [sameDay, setSameDay] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState([]);
   const [pagination, setPagination] = useState({
@@ -232,10 +233,28 @@ const KegiatanManagement = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox' && name === 'sameDay') {
+      setSameDay(checked);
+      if (checked) {
+        setFormData({
+          ...formData,
+          tanggalSelesai: formData.tanggalMulai
+        });
+      }
+    } else {
+      const newFormData = {
+        ...formData,
+        [name]: value
+      };
+      
+      if (name === 'tanggalMulai' && sameDay) {
+        newFormData.tanggalSelesai = value;
+      }
+      
+      setFormData(newFormData);
+    }
   };
 
 
@@ -267,11 +286,12 @@ const KegiatanManagement = () => {
   };
 
   const resetForm = () => {
+    const today = new Date().toISOString().split('T')[0];
     setFormData({
       namaKegiatan: '',
       deskripsi: '',
-      tanggalMulai: new Date().toISOString().split('T')[0],
-      tanggalSelesai: new Date().toISOString().split('T')[0],
+      tanggalMulai: today,
+      tanggalSelesai: today,
       waktuMulai: '',
       waktuSelesai: '',
       tempat: '',
@@ -279,22 +299,28 @@ const KegiatanManagement = () => {
       kategori: '',
       status: 'akan_datang'
     });
+    setSameDay(true);
   };
 
   const handleEdit = (kegiatan) => {
     setEditingKegiatan(kegiatan);
+    const tanggalMulai = kegiatan.tanggalMulai ? kegiatan.tanggalMulai.split('T')[0] : new Date().toISOString().split('T')[0];
+    const tanggalSelesai = kegiatan.tanggalSelesai ? kegiatan.tanggalSelesai.split('T')[0] : tanggalMulai;
+    const isSameDay = !kegiatan.tanggalSelesai || tanggalMulai === tanggalSelesai;
+    
     setFormData({
-      namaKegiatan: kegiatan.namaKegiatan,
-      deskripsi: kegiatan.deskripsi,
-      tanggalMulai: kegiatan.tanggalMulai ? kegiatan.tanggalMulai.split('T')[0] : new Date().toISOString().split('T')[0],
-      tanggalSelesai: kegiatan.tanggalSelesai ? kegiatan.tanggalSelesai.split('T')[0] : new Date().toISOString().split('T')[0],
+      namaKegiatan: kegiatan.namaKegiatan || '',
+      deskripsi: kegiatan.deskripsi || '',
+      tanggalMulai: tanggalMulai,
+      tanggalSelesai: tanggalSelesai,
       waktuMulai: kegiatan.waktuMulai || kegiatan.waktu || '',
       waktuSelesai: kegiatan.waktuSelesai || '',
       tempat: kegiatan.tempat || '',
       kapasitas: kegiatan.kapasitas || '',
       kategori: kegiatan.kategori?._id || kegiatan.kategori || '',
-      status: kegiatan.status
+      status: kegiatan.status || 'akan_datang'
     });
+    setSameDay(isSameDay);
     setShowModal(true);
   };
 
@@ -588,18 +614,37 @@ const KegiatanManagement = () => {
       </div>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content" style={{ maxWidth: '600px' }} ref={modalRef}>
+        <div className="modal" style={{
+          padding: window.innerWidth <= 768 ? '5px' : '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto'
+        }}>
+          <div 
+            className="modal-content" 
+            ref={modalRef}
+            style={{
+              width: window.innerWidth <= 768 ? '100%' : '600px',
+              maxWidth: window.innerWidth <= 768 ? '100%' : '600px',
+              maxHeight: window.innerWidth <= 768 ? '95vh' : '90vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              margin: 'auto',
+              boxSizing: 'border-box',
+              position: 'relative'
+            }}
+          >
             <div className="modal-header">
               <h3 className="modal-title">
-                {editingKegiatan ? 'Edit Kegiatan' : 'Add New Kegiatan'}
+                {editingKegiatan ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}
               </h3>
               <button className="close-btn" onClick={closeModal}>×</button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">Nama Kegiatan *</label>
+            <form onSubmit={handleSubmit} style={{ width: '100%', boxSizing: 'border-box' }}>
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                <label className="form-label">Judul *</label>
                 <input
                   type="text"
                   name="namaKegiatan"
@@ -607,23 +652,30 @@ const KegiatanManagement = () => {
                   onChange={handleChange}
                   className="form-control"
                   required
+                  style={{ width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Deskripsi *</label>
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                <label className="form-label">Deskripsi</label>
                 <textarea
                   name="deskripsi"
                   value={formData.deskripsi}
                   onChange={handleChange}
                   className="form-control"
                   rows="3"
-                  required
+                  style={{ width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Tanggal Mulai *</label>
                   <input
                     type="date"
@@ -632,10 +684,11 @@ const KegiatanManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Tanggal Selesai *</label>
                   <input
                     type="date"
@@ -644,48 +697,125 @@ const KegiatanManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    disabled={sameDay}
+                    min={formData.tanggalMulai}
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Start Time</label>
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box', marginBottom: '15px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    name="sameDay"
+                    checked={sameDay}
+                    onChange={handleChange}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span>Kegiatan dimulai dan berakhir di hari yang sama</span>
+                </label>
+              </div>
+
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Kategori *</label>
+                  <select
+                    name="kategori"
+                    value={formData.kategori}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  >
+                    <option value="">Tidak Ada Kategori</option>
+                    {kategori.map((kat) => (
+                      <option key={kat._id} value={kat._id}>
+                        {kat.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Status *</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  >
+                    <option value="akan_datang">Akan Datang</option>
+                    <option value="sedang_berlangsung">Sedang Berlangsung</option>
+                    <option value="selesai">Selesai</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Waktu Mulai *</label>
                   <input
                     type="time"
                     name="waktuMulai"
                     value={formData.waktuMulai}
                     onChange={handleChange}
                     className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">End Time</label>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Waktu Selesai *</label>
                   <input
                     type="time"
                     name="waktuSelesai"
                     value={formData.waktuSelesai}
                     onChange={handleChange}
                     className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Tempat</label>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Tempat *</label>
                   <input
                     type="text"
                     name="tempat"
                     value={formData.tempat}
                     onChange={handleChange}
                     className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Kapasitas</label>
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Kapasitas *</label>
                   <input
                     type="number"
                     name="kapasitas"
@@ -693,47 +823,37 @@ const KegiatanManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     min="1"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Kategori</label>
-                <select
-                  name="kategori"
-                  value={formData.kategori}
-                  onChange={handleChange}
-                  className="form-control"
+              <div className="modal-footer" style={{
+                display: 'flex',
+                flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                gap: '10px'
+              }}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={closeModal}
+                  style={{
+                    width: window.innerWidth <= 768 ? '100%' : 'auto',
+                    padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+                  }}
                 >
-                  <option value="">No Category</option>
-                  {kategori.map((kat) => (
-                    <option key={kat._id} value={kat._id}>
-                      {kat.nama}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="form-control"
-                >
-                  <option value="akan_datang">Akan Datang</option>
-                  <option value="sedang_berlangsung">Sedang Berlangsung</option>
-                  <option value="selesai">Selesai</option>
-                </select>
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>
-                  Cancel
+                  Batal
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingKegiatan ? 'Update' : 'Create'}
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  style={{
+                    width: window.innerWidth <= 768 ? '100%' : 'auto',
+                    padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
+                  }}
+                >
+                  {editingKegiatan ? 'Perbarui' : 'Buat'}
                 </button>
               </div>
             </form>

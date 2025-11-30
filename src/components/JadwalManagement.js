@@ -655,14 +655,14 @@ const JadwalManagement = () => {
           >
             <div className="modal-header">
               <h3 className="modal-title">
-                {editingJadwal ? 'Edit Event' : 'Add New Event'}
+                {editingJadwal ? 'Edit Kegiatan' : 'Tambah Kegiatan Baru'}
               </h3>
               <button className="close-btn" onClick={closeModal}>×</button>
             </div>
 
             <form onSubmit={handleSubmit} style={{ width: '100%', boxSizing: 'border-box' }}>
               <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                <label className="form-label">Title *</label>
+                <label className="form-label">Judul *</label>
                 <input
                   type="text"
                   name="judul"
@@ -675,7 +675,7 @@ const JadwalManagement = () => {
               </div>
 
               <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                <label className="form-label">Description</label>
+                <label className="form-label">Deskripsi</label>
                 <textarea
                   name="deskripsi"
                   value={formData.deskripsi}
@@ -743,7 +743,7 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Category *</label>
+                  <label className="form-label">Kategori *</label>
                   <select
                     name="kategori"
                     value={formData.kategori}
@@ -752,7 +752,7 @@ const JadwalManagement = () => {
                     required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   >
-                    <option value="">No Category</option>
+                    <option value="">Tidak Ada Kategori</option>
                     {kategori.map((kat) => (
                       <option key={kat._id} value={kat._id}>
                         {kat.nama}
@@ -786,7 +786,7 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Start Time *</label>
+                  <label className="form-label">Waktu Mulai *</label>
                   <input
                     type="time"
                     name="waktuMulai"
@@ -799,7 +799,7 @@ const JadwalManagement = () => {
                 </div>
 
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">End Time *</label>
+                  <label className="form-label">Waktu Selesai *</label>
                   <input
                     type="time"
                     name="waktuSelesai"
@@ -820,7 +820,7 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Location *</label>
+                  <label className="form-label">Tempat *</label>
                   <input
                     type="text"
                     name="tempat"
@@ -833,7 +833,7 @@ const JadwalManagement = () => {
                 </div>
 
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Capacity *</label>
+                  <label className="form-label">Kapasitas *</label>
                   <input
                     type="number"
                     name="kapasitas"
@@ -861,7 +861,7 @@ const JadwalManagement = () => {
                     padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
                   }}
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button 
                   type="submit" 
@@ -871,7 +871,7 @@ const JadwalManagement = () => {
                     padding: window.innerWidth <= 768 ? '12px' : '8px 16px'
                   }}
                 >
-                  {editingJadwal ? 'Update' : 'Create'}
+                  {editingJadwal ? 'Perbarui' : 'Buat'}
                 </button>
               </div>
             </form>
