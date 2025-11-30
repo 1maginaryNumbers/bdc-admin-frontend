@@ -124,7 +124,9 @@ const ActivityLog = () => {
           style={{
             padding: '6px 12px',
             minWidth: '70px',
-            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             flexShrink: 0
           }}
         >
@@ -142,10 +144,13 @@ const ActivityLog = () => {
               className={`btn btn-sm ${pageNum === pagination.currentPage ? 'btn-primary' : 'btn-outline-secondary'}`}
               onClick={() => handlePageChange(pageNum)}
               style={{
-                padding: '6px 12px',
+                padding: '6px',
                 minWidth: '40px',
                 width: '40px',
-                textAlign: 'center',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 flexShrink: 0
               }}
             >
@@ -161,7 +166,9 @@ const ActivityLog = () => {
           style={{
             padding: '6px 12px',
             minWidth: '70px',
-            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             flexShrink: 0
           }}
         >
