@@ -25,7 +25,8 @@ const JadwalManagement = () => {
     waktuSelesai: '',
     kategori: '',
     tempat: '',
-    kapasitas: ''
+    kapasitas: '',
+    status: 'akan_datang'
   });
   const [sameDay, setSameDay] = useState(true);
   const [kategoriFormData, setKategoriFormData] = useState({
@@ -220,7 +221,8 @@ const JadwalManagement = () => {
       waktuSelesai: '',
       kategori: '',
       tempat: '',
-      kapasitas: ''
+      kapasitas: '',
+      status: 'akan_datang'
     });
     setSameDay(true);
     setShowModal(true);
@@ -241,7 +243,8 @@ const JadwalManagement = () => {
       waktuSelesai: jadwal.waktuSelesai || '',
       kategori: jadwal.kategori?._id || jadwal.kategori || '',
       tempat: jadwal.tempat || '',
-      kapasitas: jadwal.kapasitas || ''
+      kapasitas: jadwal.kapasitas || '',
+      status: jadwal.status || 'akan_datang'
     });
     setSameDay(isSameDay);
     setShowModal(true);
@@ -268,7 +271,8 @@ const JadwalManagement = () => {
       waktuSelesai: '',
       kategori: '',
       tempat: '',
-      kapasitas: ''
+      kapasitas: '',
+      status: 'akan_datang'
     });
     setSameDay(true);
   };
@@ -739,12 +743,13 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Category</label>
+                  <label className="form-label">Category *</label>
                   <select
                     name="kategori"
                     value={formData.kategori}
                     onChange={handleChange}
                     className="form-control"
+                    required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   >
                     <option value="">No Category</option>
@@ -753,6 +758,22 @@ const JadwalManagement = () => {
                         {kat.nama}
                       </option>
                     ))}
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Status *</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  >
+                    <option value="akan_datang">Akan Datang</option>
+                    <option value="sedang_berlangsung">Sedang Berlangsung</option>
+                    <option value="selesai">Selesai</option>
                   </select>
                 </div>
               </div>
@@ -765,25 +786,27 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Start Time</label>
+                  <label className="form-label">Start Time *</label>
                   <input
                     type="time"
                     name="waktuMulai"
                     value={formData.waktuMulai}
                     onChange={handleChange}
                     className="form-control"
+                    required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">End Time</label>
+                  <label className="form-label">End Time *</label>
                   <input
                     type="time"
                     name="waktuSelesai"
                     value={formData.waktuSelesai}
                     onChange={handleChange}
                     className="form-control"
+                    required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
@@ -797,19 +820,20 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Location</label>
+                  <label className="form-label">Location *</label>
                   <input
                     type="text"
                     name="tempat"
                     value={formData.tempat}
                     onChange={handleChange}
                     className="form-control"
+                    required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Capacity</label>
+                  <label className="form-label">Capacity *</label>
                   <input
                     type="number"
                     name="kapasitas"
@@ -817,6 +841,7 @@ const JadwalManagement = () => {
                     onChange={handleChange}
                     className="form-control"
                     min="1"
+                    required
                     style={{ width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
