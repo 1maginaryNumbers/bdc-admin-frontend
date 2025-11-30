@@ -21,6 +21,8 @@ const BroadcastEmail = () => {
     selectedRecipients: []
   });
   const [showPreview, setShowPreview] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState(null);
 
   useEffect(() => {
     fetchRecipients();
@@ -31,12 +33,27 @@ const BroadcastEmail = () => {
       setShowTestModal(false);
       setTestEmail('');
     }
+    if (showResultModal) {
+      setShowResultModal(false);
+      setBroadcastResult(null);
+    }
   });
 
   const modalRef = useOutsideClick(() => {
     if (showTestModal) {
       setShowTestModal(false);
       setTestEmail('');
+    }
+    if (showResultModal) {
+      setShowResultModal(false);
+      setBroadcastResult(null);
+    }
+  });
+
+  const resultModalRef = useOutsideClick(() => {
+    if (showResultModal) {
+      setShowResultModal(false);
+      setBroadcastResult(null);
     }
   });
 
@@ -113,6 +130,8 @@ const BroadcastEmail = () => {
 
       const response = await axios.post('https://finalbackend-ochre.vercel.app/api/umat/broadcast', payload);
       
+      setBroadcastResult(response.data);
+      
       if (response.data.successful > 0) {
         const message = response.data.failed > 0
           ? `Email sent to ${response.data.successful} recipient(s), ${response.data.failed} failed`
@@ -120,10 +139,13 @@ const BroadcastEmail = () => {
         toast.success(message);
         
         if (response.data.failed > 0 && response.data.failedEmails) {
-          console.warn('Failed emails:', response.data.failedEmails);
+          setShowResultModal(true);
         }
       } else {
         toast.error('All emails failed to send. Please check server logs and email configuration.');
+        if (response.data.failedEmails && response.data.failedEmails.length > 0) {
+          setShowResultModal(true);
+        }
       }
       
       setFormData({
@@ -415,6 +437,112 @@ const BroadcastEmail = () => {
           </div>
         </form>
       </div>
+
+      {showResultModal && broadcastResult && (
+        <div className="modal" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" ref={resultModalRef} style={{ maxWidth: '700px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Broadcast Email Result</h3>
+              <button className="close-btn" onClick={() => {
+                setShowResultModal(false);
+                setBroadcastResult(null);
+              }}>×</button>
+            </div>
+            
+            <div style={{ padding: '20px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '15px' }}>
+                  <div style={{ flex: 1, padding: '15px', backgroundColor: '#d4edda', borderRadius: '8px', borderLeft: '4px solid #28a745' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>
+                      {broadcastResult.successful || 0}
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#155724' }}>Successfully Sent</div>
+                  </div>
+                  <div style={{ flex: 1, padding: '15px', backgroundColor: '#f8d7da', borderRadius: '8px', borderLeft: '4px solid #dc3545' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc3545' }}>
+                      {broadcastResult.failed || 0}
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#721c24' }}>Failed</div>
+                  </div>
+                  <div style={{ flex: 1, padding: '15px', backgroundColor: '#d1ecf1', borderRadius: '8px', borderLeft: '4px solid #17a2b8' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#17a2b8' }}>
+                      {broadcastResult.totalRecipients || 0}
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#0c5460' }}>Total Recipients</div>
+                  </div>
+                </div>
+              </div>
+
+              {broadcastResult.successfulEmails && broadcastResult.successfulEmails.length > 0 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <h4 style={{ marginBottom: '10px', color: '#28a745', fontSize: '16px', fontWeight: '600' }}>
+                    Successfully Sent ({broadcastResult.successfulEmails.length})
+                  </h4>
+                  <div style={{ 
+                    maxHeight: '150px', 
+                    overflowY: 'auto', 
+                    border: '1px solid #dee2e6', 
+                    borderRadius: '4px', 
+                    padding: '10px',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    {broadcastResult.successfulEmails.map((email, index) => (
+                      <div key={index} style={{ padding: '5px 0', fontSize: '14px', color: '#155724' }}>
+                        ✓ {email}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {broadcastResult.failedEmails && broadcastResult.failedEmails.length > 0 && (
+                <div>
+                  <h4 style={{ marginBottom: '10px', color: '#dc3545', fontSize: '16px', fontWeight: '600' }}>
+                    Failed to Send ({broadcastResult.failedEmails.length})
+                  </h4>
+                  <div style={{ 
+                    maxHeight: '250px', 
+                    overflowY: 'auto', 
+                    border: '1px solid #dc3545', 
+                    borderRadius: '4px', 
+                    padding: '10px',
+                    backgroundColor: '#fff'
+                  }}>
+                    {broadcastResult.failedEmails.map((item, index) => (
+                      <div key={index} style={{ 
+                        padding: '10px', 
+                        marginBottom: '8px', 
+                        backgroundColor: '#f8d7da', 
+                        borderRadius: '4px',
+                        borderLeft: '3px solid #dc3545'
+                      }}>
+                        <div style={{ fontWeight: '500', color: '#721c24', marginBottom: '4px' }}>
+                          ✗ {item.email}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#856404' }}>
+                          Error: {item.error || 'Unknown error'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                className="btn btn-primary" 
+                onClick={() => {
+                  setShowResultModal(false);
+                  setBroadcastResult(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

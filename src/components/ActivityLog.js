@@ -225,7 +225,6 @@ const ActivityLog = () => {
                 <th>Entity</th>
                 <th>Description</th>
                 <th>IP Address</th>
-                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -272,11 +271,6 @@ const ActivityLog = () => {
                         {log.ipAddress || 'Unknown'}
                       </span>
                     </div>
-                  </td>
-                  <td>
-                    <span className={`btn btn-sm ${log.status === 'SUCCESS' ? 'btn-success' : log.status === 'FAILED' ? 'btn-danger' : 'btn-warning'}`}>
-                      {log.status}
-                    </span>
                   </td>
                 </tr>
               ))}
