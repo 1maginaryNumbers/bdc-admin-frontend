@@ -435,7 +435,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="content-card">
+      <div className="content-card" style={{ overflow: 'visible' }}>
         <ActivityLog />
       </div>
     </div>

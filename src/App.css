@@ -281,6 +281,19 @@ body {
   width: 100%;
 }
 
+.pagination-container {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-container button {
+  flex-shrink: 0 !important;
+}
+
 /* Utility classes for mobile responsiveness */
 .overflow-x-auto {
   overflow-x: auto;
@@ -388,6 +401,16 @@ body {
     font-size: 12px;
   }
 
+  .pagination-container {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    display: flex !important;
+  }
+
+  .pagination-container button {
+    flex-shrink: 0 !important;
+  }
+
   .table th,
   .table td {
     padding: 8px 4px;
@@ -454,6 +477,16 @@ body {
     gap: 10px;
   }
 
+  .pagination-container {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    display: flex !important;
+  }
+
+  .pagination-container button {
+    flex-shrink: 0 !important;
+  }
+
   /* Table wrapper for horizontal scroll */
   .table-wrapper {
     overflow-x: auto;
@@ -472,6 +505,34 @@ body {
   .table-wrapper {
     margin: 0 -10px;
     padding: 0 10px;
+  }
+
+  .nama-search-container {
+    flex-direction: row !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    gap: 6px !important;
+  }
+
+  .nama-search-container label {
+    font-size: 12px !important;
+    min-width: 45px !important;
+  }
+
+  .nama-search-input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+
+  .nama-search-button {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 50px !important;
   }
 
   .table-wrapper table {
@@ -520,6 +581,34 @@ body {
 
   .modal-content {
     padding: 12px;
+  }
+
+  .nama-search-container {
+    flex-direction: row !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    gap: 6px !important;
+  }
+
+  .nama-search-container label {
+    font-size: 12px !important;
+    min-width: 45px !important;
+  }
+
+  .nama-search-input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+
+  .nama-search-button {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 50px !important;
   }
 }
 

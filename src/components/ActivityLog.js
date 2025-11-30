@@ -108,40 +108,52 @@ const ActivityLog = () => {
     if (pagination.totalPages <= 1) return null;
 
     return (
-      <div className="d-flex justify-content-center align-items-center mt-3">
-        <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={() => handlePageChange(pagination.currentPage - 1)}
-            disabled={!pagination.hasPrevPage}
-          >
-            Previous
-          </button>
+      <div className="pagination-container" style={{
+        marginTop: '20px'
+      }}>
+        <button
+          className="btn btn-outline-secondary btn-sm"
+          onClick={() => handlePageChange(pagination.currentPage - 1)}
+          disabled={!pagination.hasPrevPage}
+          style={{
+            minWidth: '80px',
+            flexShrink: 0
+          }}
+        >
+          Previous
+        </button>
+        
+        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+          const startPage = Math.max(1, pagination.currentPage - 2);
+          const pageNum = startPage + i;
+          if (pageNum > pagination.totalPages) return null;
           
-          {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-            const startPage = Math.max(1, pagination.currentPage - 2);
-            const pageNum = startPage + i;
-            if (pageNum > pagination.totalPages) return null;
-            
-            return (
-              <button
-                key={pageNum}
-                className={`btn btn-sm ${pageNum === pagination.currentPage ? 'btn-primary' : 'btn-outline-secondary'}`}
-                onClick={() => handlePageChange(pageNum)}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
-          
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={!pagination.hasNextPage}
-          >
-            Next
-          </button>
-        </div>
+          return (
+            <button
+              key={pageNum}
+              className={`btn btn-sm ${pageNum === pagination.currentPage ? 'btn-primary' : 'btn-outline-secondary'}`}
+              onClick={() => handlePageChange(pageNum)}
+              style={{
+                minWidth: '40px',
+                flexShrink: 0
+              }}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+        
+        <button
+          className="btn btn-outline-secondary btn-sm"
+          onClick={() => handlePageChange(pagination.currentPage + 1)}
+          disabled={!pagination.hasNextPage}
+          style={{
+            minWidth: '80px',
+            flexShrink: 0
+          }}
+        >
+          Next
+        </button>
       </div>
     );
   };
@@ -201,8 +213,15 @@ const ActivityLog = () => {
       </div>
 
       <div className="content-card">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="d-flex gap-2">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               className="btn btn-success btn-sm"
               onClick={() => handleExport('csv')}

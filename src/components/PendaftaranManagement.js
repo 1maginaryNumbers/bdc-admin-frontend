@@ -602,19 +602,19 @@ const PendaftaranManagement = () => {
                 gap: '8px',
                 flex: '1',
                 minWidth: '250px'
-              }}>
+              }} className="nama-search-container">
                 <label style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>Nama:</label>
                 <input
                   type="text"
                   value={namaSearchInput}
                   onChange={handleNamaInputChange}
                   placeholder="Search by name..."
-                  className="form-control"
+                  className="form-control nama-search-input"
                   style={{ flex: '1' }}
                 />
                 <button
                   type="button"
-                  className="btn btn-outline-primary btn-sm"
+                  className="btn btn-outline-primary btn-sm nama-search-button"
                   onClick={handleNamaSearch}
                   style={{ padding: '6px 12px' }}
                 >
