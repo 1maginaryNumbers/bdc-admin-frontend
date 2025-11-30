@@ -20,12 +20,14 @@ const JadwalManagement = () => {
     judul: '',
     deskripsi: '',
     tanggal: '',
+    tanggalSelesai: '',
     waktuMulai: '',
     waktuSelesai: '',
     kategori: '',
     tempat: '',
     kapasitas: ''
   });
+  const [sameDay, setSameDay] = useState(true);
   const [kategoriFormData, setKategoriFormData] = useState({
     nama: '',
     warna: '#3b82f6'
@@ -69,10 +71,28 @@ const JadwalManagement = () => {
   }, [fetchData, refreshTrigger]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox' && name === 'sameDay') {
+      setSameDay(checked);
+      if (checked) {
+        setFormData({
+          ...formData,
+          tanggalSelesai: formData.tanggal
+        });
+      }
+    } else {
+      const newFormData = {
+        ...formData,
+        [name]: value
+      };
+      
+      if (name === 'tanggal' && sameDay) {
+        newFormData.tanggalSelesai = value;
+      }
+      
+      setFormData(newFormData);
+    }
   };
 
   const handleKategoriChange = (e) => {
@@ -88,6 +108,7 @@ const JadwalManagement = () => {
       const dataToSend = {
         ...formData,
         tanggal: new Date(formData.tanggal).toISOString(),
+        tanggalSelesai: formData.tanggalSelesai ? new Date(formData.tanggalSelesai).toISOString() : new Date(formData.tanggal).toISOString(),
         kapasitas: formData.kapasitas ? parseInt(formData.kapasitas) : null
       };
 
@@ -184,7 +205,6 @@ const JadwalManagement = () => {
     setEditingJadwal(null);
     let dateStr = '';
     if (date) {
-      // Use local date components to avoid timezone issues
       const localDate = new Date(date);
       const year = localDate.getFullYear();
       const month = String(localDate.getMonth() + 1).padStart(2, '0');
@@ -195,27 +215,35 @@ const JadwalManagement = () => {
       judul: '',
       deskripsi: '',
       tanggal: dateStr,
+      tanggalSelesai: dateStr,
       waktuMulai: '',
       waktuSelesai: '',
       kategori: '',
       tempat: '',
       kapasitas: ''
     });
+    setSameDay(true);
     setShowModal(true);
   };
 
   const openEditModal = (jadwal) => {
     setEditingJadwal(jadwal);
+    const tanggalMulai = jadwal.tanggal ? new Date(jadwal.tanggal).toISOString().split('T')[0] : '';
+    const tanggalSelesai = jadwal.tanggalSelesai ? new Date(jadwal.tanggalSelesai).toISOString().split('T')[0] : tanggalMulai;
+    const isSameDay = !jadwal.tanggalSelesai || tanggalMulai === tanggalSelesai;
+    
     setFormData({
       judul: jadwal.judul || '',
       deskripsi: jadwal.deskripsi || '',
-      tanggal: jadwal.tanggal ? new Date(jadwal.tanggal).toISOString().split('T')[0] : '',
+      tanggal: tanggalMulai,
+      tanggalSelesai: tanggalSelesai,
       waktuMulai: jadwal.waktuMulai || '',
       waktuSelesai: jadwal.waktuSelesai || '',
       kategori: jadwal.kategori?._id || jadwal.kategori || '',
       tempat: jadwal.tempat || '',
       kapasitas: jadwal.kapasitas || ''
     });
+    setSameDay(isSameDay);
     setShowModal(true);
   };
 
@@ -235,12 +263,14 @@ const JadwalManagement = () => {
       judul: '',
       deskripsi: '',
       tanggal: '',
+      tanggalSelesai: '',
       waktuMulai: '',
       waktuSelesai: '',
       kategori: '',
       tempat: '',
       kapasitas: ''
     });
+    setSameDay(true);
   };
 
   const closeKategoriModal = () => {
@@ -660,7 +690,7 @@ const JadwalManagement = () => {
                 boxSizing: 'border-box'
               }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
-                  <label className="form-label">Date *</label>
+                  <label className="form-label">Tanggal Mulai *</label>
                   <input
                     type="date"
                     name="tanggal"
@@ -672,6 +702,42 @@ const JadwalManagement = () => {
                   />
                 </div>
 
+                <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
+                  <label className="form-label">Tanggal Selesai *</label>
+                  <input
+                    type="date"
+                    name="tanggalSelesai"
+                    value={formData.tanggalSelesai}
+                    onChange={handleChange}
+                    className="form-control"
+                    required
+                    disabled={sameDay}
+                    min={formData.tanggal}
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ width: '100%', boxSizing: 'border-box', marginBottom: '15px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    name="sameDay"
+                    checked={sameDay}
+                    onChange={handleChange}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span>Kegiatan dimulai dan berakhir di hari yang sama</span>
+                </label>
+              </div>
+
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr', 
+                gap: '15px',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
                 <div className="form-group" style={{ width: '100%', boxSizing: 'border-box' }}>
                   <label className="form-label">Category</label>
                   <select
