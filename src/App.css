@@ -389,6 +389,16 @@ body {
     font-size: 12px;
   }
 
+  .activity-log-pagination {
+    flex-direction: row !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .activity-log-pagination button {
+    flex-shrink: 0 !important;
+  }
+
   .table th,
   .table td {
     padding: 8px 4px;
@@ -453,6 +463,16 @@ body {
   .justify-content-between {
     flex-direction: column;
     gap: 10px;
+  }
+
+  .activity-log-pagination {
+    flex-direction: row !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .activity-log-pagination button {
+    flex-shrink: 0 !important;
   }
 
   /* Table wrapper for horizontal scroll */
