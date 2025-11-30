@@ -35,6 +35,7 @@ const Sidebar = () => {
   const { triggerRefresh } = useRefresh();
   const [isOpen, setIsOpen] = useState(false);
   const [sortAZ, setSortAZ] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,7 +57,12 @@ const Sidebar = () => {
   };
 
   const handleRefresh = () => {
+    setIsRefreshing(true);
     triggerRefresh();
+    // Reset refreshing state after a short delay to show visual feedback
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 500);
   };
 
   const allMenuItems = [
@@ -277,32 +283,53 @@ const Sidebar = () => {
               e.stopPropagation();
               handleRefresh();
             }}
+            disabled={isRefreshing}
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flex: 1,
               padding: '12px',
-              background: '#3498db',
+              background: isRefreshing ? '#95a5a6' : '#3498db',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer',
+              cursor: isRefreshing ? 'not-allowed' : 'pointer',
               fontSize: '14px',
               fontWeight: '500',
-              transition: 'background-color 0.2s',
-              WebkitTapHighlightColor: 'transparent'
+              transition: 'all 0.2s',
+              WebkitTapHighlightColor: 'transparent',
+              opacity: isRefreshing ? 0.7 : 1
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#2980b9'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#3498db'}
-            onTouchStart={(e) => e.target.style.backgroundColor = '#2980b9'}
+            onMouseEnter={(e) => {
+              if (!isRefreshing) {
+                e.target.style.backgroundColor = '#2980b9';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isRefreshing) {
+                e.target.style.backgroundColor = '#3498db';
+              }
+            }}
+            onTouchStart={(e) => {
+              if (!isRefreshing) {
+                e.target.style.backgroundColor = '#2980b9';
+              }
+            }}
             onTouchEnd={(e) => {
-              e.target.style.backgroundColor = '#3498db';
-              handleRefresh();
+              if (!isRefreshing) {
+                e.target.style.backgroundColor = '#3498db';
+                handleRefresh();
+              }
             }}
           >
-            <FiRefreshCw style={{ marginRight: '8px' }} />
-            Refresh
+            <FiRefreshCw 
+              style={{ 
+                marginRight: '8px',
+                animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
+              }} 
+            />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
         <button

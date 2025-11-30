@@ -366,6 +366,41 @@ const JadwalManagement = () => {
     });
   };
 
+  const formatDateRange = (startDate, endDate) => {
+    if (!startDate) return '';
+    
+    const start = new Date(startDate);
+    const startFormatted = start.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    if (!endDate) {
+      return startFormatted;
+    }
+    
+    const end = new Date(endDate);
+    const startDateOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endDateOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    
+    // If same day, just return single date
+    if (startDateOnly.getTime() === endDateOnly.getTime()) {
+      return startFormatted;
+    }
+    
+    // If different days, show range
+    const endFormatted = end.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    return `${startFormatted} - ${endFormatted}`;
+  };
+
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -603,7 +638,7 @@ const JadwalManagement = () => {
                       onChange={() => handleSelectItem(item._id)}
                     />
                   </td>
-                  <td>{formatDate(item.tanggal)}</td>
+                  <td>{formatDateRange(item.tanggal, item.tanggalSelesai)}</td>
                   <td style={{ fontWeight: '500' }}>{item.judul}</td>
                   <td>
                     {item.waktuMulai && item.waktuSelesai
