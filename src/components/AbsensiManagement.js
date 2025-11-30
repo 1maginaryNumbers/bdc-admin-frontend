@@ -327,19 +327,30 @@ const AbsensiManagement = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('id-ID');
   };
 
+  const formatTime = (dateString) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleTimeString('id-ID', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
   const exportToCSV = () => {
-    const csvHeader = 'Nama Lengkap,Kegiatan,Status,Tanggal Absensi,Tipe Person\n';
+    const csvHeader = 'Nama Lengkap,Kegiatan,Status,Tanggal Absensi,Waktu Absensi,Tipe Person\n';
     const csvData = absensi.map(item => {
       const nama = item.pendaftaran?.namaLengkap || 'Unknown';
       const kegiatan = item.kegiatan?.namaKegiatan || 'Unknown';
       const status = item.status || 'Unknown';
       const tanggal = item.tanggal ? formatDate(item.tanggal) : 'Unknown';
+      const waktu = item.waktuAbsensi ? formatTime(item.waktuAbsensi) : '-';
       const tipePerson = item.tipePerson || 'external';
       
-      return `"${nama}","${kegiatan}","${status}","${tanggal}","${tipePerson}"`;
+      return `"${nama}","${kegiatan}","${status}","${tanggal}","${waktu}","${tipePerson}"`;
     }).join('\n');
     
     const csvContent = csvHeader + csvData;
@@ -523,6 +534,7 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
                 <th>Kegiatan</th>
                 <th>Tipe Person</th>
                 <th>Tanggal</th>
+                <th>Waktu Absensi</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -545,6 +557,7 @@ ${[...new Set(absensi.map(a => a.kegiatan?.namaKegiatan).filter(Boolean))].map(a
                     </div>
                   </td>
                   <td>{formatDate(item.tanggal)}</td>
+                  <td>{item.waktuAbsensi ? formatTime(item.waktuAbsensi) : '-'}</td>
                   <td>
                     <div 
                       className={`status-switch ${item.status === 'hadir' ? 'active' : 'inactive'}`}
