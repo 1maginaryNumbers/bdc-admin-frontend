@@ -300,7 +300,7 @@ const PaketSumbanganManagement = () => {
           </button>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
@@ -368,7 +368,7 @@ const PaketSumbanganManagement = () => {
           <h3>Transaksi List</h3>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>

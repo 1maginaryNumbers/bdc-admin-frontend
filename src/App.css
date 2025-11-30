@@ -372,6 +372,7 @@ body {
   .content-card {
     padding: 15px;
     margin-bottom: 15px;
+    overflow-x: auto;
   }
 
   .table {
@@ -380,12 +381,26 @@ body {
 
   .table th,
   .table td {
-    padding: 8px;
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+
+  /* Make tables horizontally scrollable on mobile */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .table-wrapper table {
+    min-width: 600px;
   }
 
   .btn {
     font-size: 12px;
     padding: 6px 12px;
+    width: 100%;
+    justify-content: center;
   }
 
   .btn-sm {
@@ -393,14 +408,65 @@ body {
     font-size: 11px;
   }
 
+  .modal {
+    padding: 10px;
+  }
+
   .modal-content {
     width: 95%;
     padding: 15px;
     max-height: 95vh;
+    margin: 10px;
   }
 
   .modal-title {
     font-size: 16px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .d-flex {
+    flex-direction: column;
+  }
+
+  .justify-content-between {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Table wrapper for horizontal scroll */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    margin: 0 -15px;
+    padding: 0 15px;
+  }
+
+  .table-wrapper table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-wrapper {
+    margin: 0 -10px;
+    padding: 0 10px;
+  }
+
+  .table-wrapper table {
+    min-width: 700px;
   }
 }
 

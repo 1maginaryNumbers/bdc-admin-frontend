@@ -258,7 +258,7 @@ const MerchandiseManagement = () => {
           </button>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
@@ -328,7 +328,7 @@ const MerchandiseManagement = () => {
         {transaksiLoading ? (
           <div className="loading">Loading transaction data...</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ overflowX: 'auto' }}>
             <table className="table">
               <thead>
                 <tr>

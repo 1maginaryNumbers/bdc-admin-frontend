@@ -449,7 +449,7 @@ const SumbanganManagement = () => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
@@ -577,7 +577,7 @@ const SumbanganManagement = () => {
           <h3>Transaksi List</h3>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>

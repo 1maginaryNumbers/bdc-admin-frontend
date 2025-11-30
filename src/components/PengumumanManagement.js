@@ -175,7 +175,7 @@ const PengumumanManagement = () => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
               <tr>
