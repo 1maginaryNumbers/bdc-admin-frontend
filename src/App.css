@@ -281,18 +281,6 @@ body {
   width: 100%;
 }
 
-.pagination-container {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-container button {
-  flex-shrink: 0 !important;
-}
 
 /* Utility classes for mobile responsiveness */
 .overflow-x-auto {
@@ -401,16 +389,6 @@ body {
     font-size: 12px;
   }
 
-  .pagination-container {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    display: flex !important;
-  }
-
-  .pagination-container button {
-    flex-shrink: 0 !important;
-  }
-
   .table th,
   .table td {
     padding: 8px 4px;
@@ -475,16 +453,6 @@ body {
   .justify-content-between {
     flex-direction: column;
     gap: 10px;
-  }
-
-  .pagination-container {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    display: flex !important;
-  }
-
-  .pagination-container button {
-    flex-shrink: 0 !important;
   }
 
   /* Table wrapper for horizontal scroll */
