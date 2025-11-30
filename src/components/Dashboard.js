@@ -61,12 +61,34 @@ const Dashboard = () => {
     const dateDay = date.getDate();
     
     return jadwal.filter(event => {
-      const eventDate = new Date(event.tanggal);
-      const eventYear = eventDate.getFullYear();
-      const eventMonth = eventDate.getMonth();
-      const eventDay = eventDate.getDate();
+      if (!event.tanggal) return false;
       
-      return eventYear === dateYear && eventMonth === dateMonth && eventDay === dateDay;
+      const eventStartDate = new Date(event.tanggal);
+      const eventStartYear = eventStartDate.getFullYear();
+      const eventStartMonth = eventStartDate.getMonth();
+      const eventStartDay = eventStartDate.getDate();
+      
+      // Check if date matches start date
+      if (eventStartYear === dateYear && eventStartMonth === dateMonth && eventStartDay === dateDay) {
+        return true;
+      }
+      
+      // Check if event has an end date and if current date is within the range
+      if (event.tanggalSelesai) {
+        const eventEndDate = new Date(event.tanggalSelesai);
+        const eventEndYear = eventEndDate.getFullYear();
+        const eventEndMonth = eventEndDate.getMonth();
+        const eventEndDay = eventEndDate.getDate();
+        
+        const currentDate = new Date(dateYear, dateMonth, dateDay);
+        const startDate = new Date(eventStartYear, eventStartMonth, eventStartDay);
+        const endDate = new Date(eventEndYear, eventEndMonth, eventEndDay);
+        
+        // Check if current date is between start and end date (inclusive)
+        return currentDate >= startDate && currentDate <= endDate;
+      }
+      
+      return false;
     });
   };
 
