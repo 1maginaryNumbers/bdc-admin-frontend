@@ -616,7 +616,18 @@ const JadwalManagement = () => {
                 <th>
                   <input
                     type="checkbox"
-                    checked={selectedItems.length === jadwal.length && jadwal.length > 0}
+                    checked={(() => {
+                      const filteredJadwal = jadwal.filter(item => {
+                        if (!item.tanggal) return false;
+                        const eventDate = new Date(item.tanggal);
+                        const eventYear = eventDate.getFullYear();
+                        const eventMonth = eventDate.getMonth();
+                        const currentYear = currentDate.getFullYear();
+                        const currentMonth = currentDate.getMonth();
+                        return eventYear === currentYear && eventMonth === currentMonth;
+                      });
+                      return selectedItems.length === filteredJadwal.length && filteredJadwal.length > 0;
+                    })()}
                     onChange={handleSelectAll}
                   />
                 </th>
@@ -629,7 +640,19 @@ const JadwalManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {jadwal.map((item) => (
+              {(() => {
+                // Filter events to only show those starting in the current month
+                const filteredJadwal = jadwal.filter(item => {
+                  if (!item.tanggal) return false;
+                  const eventDate = new Date(item.tanggal);
+                  const eventYear = eventDate.getFullYear();
+                  const eventMonth = eventDate.getMonth();
+                  const currentYear = currentDate.getFullYear();
+                  const currentMonth = currentDate.getMonth();
+                  return eventYear === currentYear && eventMonth === currentMonth;
+                });
+                
+                return filteredJadwal.map((item) => (
                 <tr key={item._id}>
                   <td>
                     <input
@@ -682,7 +705,8 @@ const JadwalManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ));
+              })()}
             </tbody>
           </table>
         </div>
