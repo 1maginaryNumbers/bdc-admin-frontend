@@ -24,7 +24,9 @@ import {
   FiHeart,
   FiMail,
   FiPackage,
-  FiHelpCircle
+  FiHelpCircle,
+  FiArrowUp,
+  FiArrowDown
 } from 'react-icons/fi';
 
 const Sidebar = () => {
@@ -32,6 +34,7 @@ const Sidebar = () => {
   const { logout } = useAuth();
   const { triggerRefresh } = useRefresh();
   const [isOpen, setIsOpen] = useState(false);
+  const [sortAZ, setSortAZ] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,27 +59,44 @@ const Sidebar = () => {
     triggerRefresh();
   };
 
-  const menuItems = [
-    { path: '/', label: 'Dashboard', icon: FiHome, color: '#3498db' },
-    { path: '/umat', label: 'Umat', icon: FiUsers, color: '#9b59b6' },
-    { path: '/kegiatan', label: 'Kegiatan', icon: FiActivity, color: '#e67e22' },
-    { path: '/jadwal', label: 'Calendar', icon: FiCalendar, color: '#e74c3c' },
-    { path: '/pengumuman', label: 'Pengumuman', icon: FiBell, color: '#f39c12' },
-    { path: '/broadcast-email', label: 'Broadcast Email', icon: FiMail, color: '#009688' },
-    { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c' },
-    { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085' },
-    { path: '/sumbangan', label: 'Donasi', icon: FiHeart, color: '#e91e63' },
-    { path: '/paket-sumbangan', label: 'Paket Sumbangan', icon: FiPackage, color: '#c2185b' },
-    { path: '/saran', label: 'Kritik & Saran', icon: FiMessageSquare, color: '#00bcd4' },
-    { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag, color: '#ff9800' },
-    { path: '/struktur', label: 'Struktur Organisasi', icon: FiLayers, color: '#673ab7' },
-    { path: '/info-umum', label: 'Info Umum', icon: FiInfo, color: '#2196f3' },
-    { path: '/absensi', label: 'Absensi', icon: FiCheckSquare, color: '#4caf50' },
-    { path: '/scan', label: 'Scan QR', icon: FiCamera, color: '#795548' },
-    { path: '/activitylog', label: 'Activity Log', icon: FiActivity, color: '#607d8b' },
-    { path: '/admin', label: 'Admin', icon: FiSettings, color: '#9e9e9e' },
-    { path: '/faq', label: 'FAQ', icon: FiHelpCircle, color: '#17a2b8' }
+  const allMenuItems = [
+    { path: '/', label: 'Dashboard', icon: FiHome, color: '#3498db', order: 0 },
+    { path: '/umat', label: 'Umat', icon: FiUsers, color: '#9b59b6', order: 1 },
+    { path: '/broadcast-email', label: 'Broadcast Email', icon: FiMail, color: '#009688', order: 2 },
+    { path: '/kegiatan', label: 'Kegiatan', icon: FiActivity, color: '#e67e22', order: 3 },
+    { path: '/jadwal', label: 'Calendar', icon: FiCalendar, color: '#e74c3c', order: 4 },
+    { path: '/pendaftaran', label: 'Pendaftaran', icon: FiClipboard, color: '#16a085', order: 5 },
+    { path: '/absensi', label: 'Absensi', icon: FiCheckSquare, color: '#4caf50', order: 6 },
+    { path: '/scan', label: 'Scan QR', icon: FiCamera, color: '#795548', order: 7 },
+    { path: '/pengumuman', label: 'Pengumuman', icon: FiBell, color: '#f39c12', order: 8 },
+    { path: '/sumbangan', label: 'Donasi', icon: FiHeart, color: '#e91e63', order: 9 },
+    { path: '/paket-sumbangan', label: 'Paket Sumbangan', icon: FiPackage, color: '#c2185b', order: 10 },
+    { path: '/merchandise', label: 'Merchandise', icon: FiShoppingBag, color: '#ff9800', order: 11 },
+    { path: '/galeri', label: 'Galeri', icon: FiImage, color: '#1abc9c', order: 12 },
+    { path: '/info-umum', label: 'Info Umum', icon: FiInfo, color: '#2196f3', order: 13 },
+    { path: '/faq', label: 'FAQ', icon: FiHelpCircle, color: '#17a2b8', order: 14 },
+    { path: '/saran', label: 'Kritik & Saran', icon: FiMessageSquare, color: '#00bcd4', order: 15 },
+    { path: '/struktur', label: 'Struktur Organisasi', icon: FiLayers, color: '#673ab7', order: 16 },
+    { path: '/activitylog', label: 'Activity Log', icon: FiActivity, color: '#607d8b', order: 17 },
+    { path: '/admin', label: 'Admin', icon: FiSettings, color: '#9e9e9e', order: 18 }
   ];
+
+  const getMenuItems = () => {
+    const dashboard = allMenuItems.find(item => item.path === '/');
+    const otherItems = allMenuItems.filter(item => item.path !== '/');
+    
+    let sortedItems = [...otherItems];
+    
+    if (sortAZ) {
+      sortedItems.sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }));
+    } else {
+      sortedItems.sort((a, b) => a.order - b.order);
+    }
+    
+    return dashboard ? [dashboard, ...sortedItems] : sortedItems;
+  };
+
+  const menuItems = getMenuItems();
 
   const isMobile = window.innerWidth <= 768;
 
@@ -142,7 +162,39 @@ const Sidebar = () => {
         borderBottom: '1px solid #34495e',
         flexShrink: 0
       }}>
-        <h2 style={{ fontSize: '18px', fontWeight: '600' }}>BDC Admin</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px' }}>BDC Admin</h2>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          padding: '8px 12px',
+          backgroundColor: sortAZ ? 'rgba(52, 152, 219, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          transition: 'background-color 0.2s',
+          border: sortAZ ? '1px solid rgba(52, 152, 219, 0.3)' : '1px solid transparent'
+        }}
+        onClick={() => setSortAZ(!sortAZ)}
+        onMouseEnter={(e) => {
+          if (!sortAZ) {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!sortAZ) {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          }
+        }}
+        title={sortAZ ? 'Click to sort by custom order' : 'Click to sort A-Z'}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {sortAZ ? <FiArrowDown style={{ fontSize: '14px' }} /> : <FiArrowUp style={{ fontSize: '14px' }} />}
+            <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+              {sortAZ ? 'A-Z' : 'Custom'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div style={{
