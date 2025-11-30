@@ -149,7 +149,7 @@ const MerchandiseManagement = () => {
       status: merchandise.status
     });
     setSelectedFile(null);
-    setPreviewUrl(merchandise.gambar ? `https://finalbackend-ochre.vercel.app${merchandise.gambar}` : '');
+    setPreviewUrl(merchandise.gambar ? (merchandise.gambar.startsWith('data:') ? merchandise.gambar : `https://finalbackend-ochre.vercel.app${merchandise.gambar}`) : '');
     setShowModal(true);
   };
 
@@ -282,7 +282,7 @@ const MerchandiseManagement = () => {
                   <td>
                     {item.gambar ? (
                       <img 
-                        src={`https://finalbackend-ochre.vercel.app${item.gambar}`} 
+                        src={item.gambar.startsWith('data:') ? item.gambar : `https://finalbackend-ochre.vercel.app${item.gambar}`}
                         alt={item.nama}
                         style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
                         onError={(e) => {
