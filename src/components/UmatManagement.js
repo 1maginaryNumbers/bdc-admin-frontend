@@ -166,7 +166,7 @@ const UmatManagement = () => {
       setCurrentPage(1);
       fetchUmat();
     } catch (error) {
-      toast.error('Failed to save umat');
+      toast.error('Email already registered');
     }
   };
 
