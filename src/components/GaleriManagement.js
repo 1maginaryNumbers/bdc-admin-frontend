@@ -35,6 +35,7 @@ const GaleriManagement = () => {
     hasNextPage: false,
     hasPrevPage: false
   });
+  const [selectedKategori, setSelectedKategori] = useState('all');
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -71,8 +72,11 @@ const GaleriManagement = () => {
   const fetchGaleri = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`https://finalbackend-ochre.vercel.app/api/galeri?page=${currentPage}&limit=20`);
-      // Handle both old format (array) and new format (object with images property)
+      let url = `https://finalbackend-ochre.vercel.app/api/galeri?page=${currentPage}&limit=20`;
+      if (selectedKategori && selectedKategori !== 'all') {
+        url += `&kategori=${encodeURIComponent(selectedKategori)}`;
+      }
+      const response = await axios.get(url);
       const data = response.data;
       if (Array.isArray(data)) {
         setGaleri(data);
@@ -119,7 +123,7 @@ const GaleriManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage]);
+  }, [currentPage, selectedKategori]);
 
   const fetchKategoris = useCallback(async () => {
     try {
@@ -356,6 +360,11 @@ const GaleriManagement = () => {
     setCurrentPage(page);
   };
 
+  const handleKategoriFilterChange = (e) => {
+    setSelectedKategori(e.target.value);
+    setCurrentPage(1);
+  };
+
   const renderPagination = () => {
     if (pagination.totalPages <= 1) return null;
 
@@ -457,6 +466,50 @@ const GaleriManagement = () => {
               <FiPlus /> Add Image
             </button>
           </div>
+        </div>
+
+        <div style={{ 
+          marginBottom: '20px', 
+          display: 'flex', 
+          gap: '10px', 
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <label style={{ 
+            fontWeight: '500', 
+            marginRight: '8px',
+            minWidth: '80px'
+          }}>
+            Filter by Category:
+          </label>
+          <select
+            value={selectedKategori}
+            onChange={handleKategoriFilterChange}
+            className="form-control"
+            style={{ 
+              maxWidth: '250px',
+              minWidth: '150px'
+            }}
+          >
+            <option value="all">All Categories</option>
+            {kategoris.map((kat) => (
+              <option key={kat._id} value={kat.nama}>
+                {kat.nama}
+              </option>
+            ))}
+          </select>
+          {selectedKategori !== 'all' && (
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                setSelectedKategori('all');
+                setCurrentPage(1);
+              }}
+              style={{ marginLeft: '8px' }}
+            >
+              Clear Filter
+            </button>
+          )}
         </div>
         {isMobile && (
           <div style={{ 
